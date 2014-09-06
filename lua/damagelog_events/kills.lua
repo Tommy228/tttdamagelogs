@@ -13,7 +13,7 @@ event.Type = "KILL"
 function event:DoPlayerDeath(ply, attacker, dmginfo)
 	if IsValid(attacker) and attacker:IsPlayer() and attacker != ply and not (attacker.IsGhost and attacker:IsGhost()) then
 		local scene = false
-		if dmginfo:IsDamageType(DMG_BULLET) then
+		if true then
 			Damagelog.SceneID = Damagelog.SceneID + 1
 			scene = Damagelog.SceneID
 		end
