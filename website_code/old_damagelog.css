@@ -1,0 +1,167 @@
+/* Default design by Mohamed RACHID */
+html {
+	overflow: hidden; /* for IE */
+}
+body, th, td {
+	font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+	font-size: 11pt;
+}
+.year_number {
+	font-weight: bold;
+}
+.month_number {
+	font-weight: bold;
+}
+.day_number {
+	font-weight: bold;
+}
+.map_loaded_number {
+	font-weight: bold;
+}
+div.selection {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 32%;
+	height: 99%;
+	overflow: auto;
+	z-index: 3;
+	padding-top: 0.5%;
+	padding-bottom: 0%;
+	padding-left: 0.5%;
+	padding-right: 0.5%;
+}
+div.main_page {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	width: 65%;
+	height: 98%;
+	overflow: auto;
+	z-index: 2;
+	background-color: #EAEAEA;
+	padding-top: 1.0%;
+	padding-bottom: 1.0%;
+	padding-left: 1.0%;
+	padding-right: 1.0%;
+}
+div.damagelog_info {
+	position: relative;
+	width: 100%;
+	max-height: 25%;
+	overflow: auto;
+	z-index: 0;
+	margin-bottom: 1em;
+}
+a.info_profile_link:link {
+	text-decoration: none;
+}
+a.info_profile_link:visited {
+	text-decoration: none;
+}
+a.info_profile_link:hover {
+	text-decoration: underline;
+}
+a.info_profile_link:active {
+	text-decoration: underline;
+}
+div.damagelog_data {
+	position: relative;
+	width: 100%;
+	overflow: visible;
+	z-index: 1;
+	margin-bottom: 1em;
+}
+.roll_catogory {
+	cursor: pointer;
+	background-color: #71B8FB;
+	font-weight: bold;
+	color: #F5F7FA;
+	padding-left: 0.25em;
+	padding-right: 0.25em;
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+}
+.rolled_catogory {
+	cursor: pointer;
+	background-color: #71B8FB;
+	font-weight: bold;
+	color: #D5E6FD;
+	padding-left: 0.25em;
+	padding-right: 0.25em;
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+}
+table.damagelog_info_content {
+	border: 1px solid #525252;
+	border-collapse: separate;
+	border-spacing: 0px;
+	margin-top: 1em;
+}
+th.damagelog_info_content {
+	background-color: #DDDDDD;
+	color: #515151;
+	padding: 2px;
+	border-top-width: 0px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-bottom-color: #525252;
+	border-left-color: #525252;
+	border-right-color: #525252;
+	border-top-style: none;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-right-style: solid;
+}
+tr.damagelog_info_content:nth-child(even) {
+	background-color: #F9F9F9;
+}
+tr.damagelog_info_content:nth-child(odd) {
+	background-color: #FEFEFE;
+}
+tr.damagelog_info_content:hover {
+	background-color: #D2DAFC;
+}
+td.damagelog_info_content {
+	padding: 2px;
+}
+table.damagelog_data_content {
+	border: 1px solid #525252;
+	border-collapse: separate;
+	border-spacing: 0px;
+}
+th.damagelog_data_content {
+	background-color: #DDDDDD;
+	color: #515151;
+	padding: 2px;
+	border-top-width: 0px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-bottom-color: #525252;
+	border-left-color: #525252;
+	border-right-color: #525252;
+	border-top-style: none;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-right-style: solid;
+}
+tr.damagelog_data_content:nth-child(even) {
+	background-color: #FAFAFA;
+}
+tr.damagelog_data_content:nth-child(odd) {
+	background-color: #FFFFFF;
+}
+tr.damagelog_data_content:hover {
+	background-color: #D1D9FB;
+}
+td.damagelog_data_content {
+	padding: 2px;
+}
+table.damagelog_data_header {}
+th.damagelog_data_header {}
+td.damagelog_data_header {}
+a.year_open_close, a.month_open_close, a.day_open_close, a.map_loaded_open_close {
+	text-decoration: none;
+}
