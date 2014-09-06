@@ -220,4 +220,6 @@ hook.Add("PlayerDeath", "Damagelog_PlayerDeathLastLogs", function(ply)
 	end
 end)
 	
-Damagelog.database:connect()
+if Damagelog.Use_MySQL then
+	Damagelog.database:connect()
+end
