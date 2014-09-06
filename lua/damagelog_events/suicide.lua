@@ -1,3 +1,5 @@
+
+
 if SERVER then
 	Damagelog:EventHook("DoPlayerDeath")
 else
@@ -10,23 +12,26 @@ local event = {}
 event.Type = "KILL"
 
 function event:DoPlayerDeath(ply, attacker, dmginfo)
-	if not (ply.IsGhost and ply:IsGhost()) and ((IsValid(attacker) and (attacker:IsPlayer() and attacker == ply) or not attacker:IsPlayer()) or not IsValid(attacker)) then
+	if (IsValid(attacker) and attacker:IsPlayer() and attacker == ply and not ply:IsGhost()) or not IsValid(attacker) or not attacker:IsPlayer() then
+		Damagelog.SceneID = Damagelog.SceneID + 1
+		local scene = Damagelog.SceneID
 		local tbl = { 
 			[1] = ply:Nick(), 
 			[2] = ply:GetRole(), 
-			[3] = ply:SteamID()
+			[3] = ply:SteamID(),
+			[4] = scene
 		} 
-		self.CallEvent(tbl)
-		if Damagelog.RDM_Manager_Enabled then
-			net.Start("DL_Ded")
-			net.WriteUInt(0,1)
-			net.Send(ply)
-			ply.rdmInfo = {
-				time = Damagelog.Time,
-				round = Damagelog.CurrentRound,
-			}
-			ply.rdmSend = true
+		if scene then
+			timer.Simple(0.6, function()
+				Damagelog.Death_Scenes[scene] = table.Copy(Damagelog.Records)
+			end)
 		end
+		self.CallEvent(tbl)
+		ply.rdmInfo = {
+			time = Damagelog.Time,
+			round = Damagelog.CurrentRound,
+		}
+		ply.rdmSend = true
 	end
 end
 
@@ -35,7 +40,7 @@ function event:ToString(v)
 end
 
 function event:IsAllowed(tbl)
-	local pfilter = Damagelog.filter_settings["Filter by player"]
+	local pfilter = Damagelog.filter_settings["Filtrer by player"]
 	if pfilter then
 		if tbl[3] != pfilter then
 			return false
@@ -53,6 +58,7 @@ end
 function event:RightClick(line, tbl, text)
 	line:ShowTooLong(true)
 	line:ShowCopy(true, { tbl[1], tbl[3] })
+	line:ShowDeathScene(tbl[1], tbl[1], tbl[4])
 end
 
 Damagelog:AddEvent(event)
