@@ -40,7 +40,7 @@ function Damagelog:SaveWeaponTable(callback)
 		for k,v in pairs(Damagelog.weapon_table) do
 			sql.Query("INSERT INTO damagelog_weapons(`class`, `name`) VALUES("..sql.SQLStr(k)..","..sql.SQLStr(v)..");")
 		end
-		callback()
+		if callback then callback() end
 	end
 end
 
