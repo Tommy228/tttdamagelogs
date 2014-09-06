@@ -35,7 +35,7 @@ Damagelog.RDM_Manager_Command = "!report"
 	Setting it to false will make the logs use SQLite (garrysmod/sv.db)
 ]]--
 
-Damagelog.Use_MySQL = true
+Damagelog.Use_MySQL = false
 
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 
