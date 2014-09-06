@@ -2,7 +2,7 @@
 Damagelog.MySQL_Informations = {
 	ip = "127.0.0.1",
 	username = "root",
-	password = "LfXpJq4TzHaRctAV",
-	database = "test",
+	password = "",
+	database = "",
 	port = 3306
 }
