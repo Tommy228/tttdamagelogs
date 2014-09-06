@@ -1,7 +1,7 @@
 
 Damagelog = Damagelog or {}
 
-Damagelog.VERSION = "1.0.0"
+Damagelog.VERSION = "1.1.0"
 
 if not file.IsDir("damagelog", "DATA") then
 	file.CreateDir("damagelog")
