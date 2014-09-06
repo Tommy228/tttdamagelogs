@@ -28,7 +28,7 @@ function Damagelog:About()
 with RDM in a timely fashion. When a report is filed, each party involved will be able to write 
 what happened and the victim will have access to the portion of the damage logs involving their 
 death. The accused will not be able to write their side of the story until they die, or the round 
-ends. Admins will be able to veiw the report, along with any pertinent logs. As an admin, you can 
+ends. The victim can view the accused's message and decide to forgive him or not. Admins will be able to veiw the report, along with any pertinent logs. As an admin, you can 
 then take action against the participants. It is recommended that you discuss how the manager 
 will work with your admins carefully, so that it isn't abused, or used incorrectly.]])
 	rdm_manager:SetTextColor(Color(0,0,0))
