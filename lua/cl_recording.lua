@@ -79,7 +79,7 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 	end
 end)
 
-hook.Add("HUDDrawTargetID", "Scene_Record", function()
+hook.Add("HUDPaint", "Scene_Record", function()
 
 	if current_scene then
 		surface.SetFont("TabLarge")
