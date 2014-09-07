@@ -12,7 +12,7 @@ local event = {}
 event.Type = "KILL"
 
 function event:DoPlayerDeath(ply, attacker, dmginfo)
-	if (IsValid(attacker) and attacker:IsPlayer() and attacker == ply and not ply:IsGhost()) or not IsValid(attacker) or not attacker:IsPlayer() then
+	if (IsValid(attacker) and attacker:IsPlayer() and attacker == ply and not (ply.IsGhost and ply:IsGhost())) or not IsValid(attacker) or not attacker:IsPlayer() then
 		Damagelog.SceneID = Damagelog.SceneID + 1
 		local scene = Damagelog.SceneID
 		local tbl = { 
