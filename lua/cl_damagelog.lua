@@ -26,6 +26,10 @@ http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version
 		version = Damagelog.Base64Decode(version)
 		local cur_version = string.Explode(".", Damagelog.VERSION)
 		local tbl = string.Explode(".", version)
+		for i=1,3 do
+			tbl[i] = tonumber(tbl[i])
+			cur_version[i] = tonumber(cur_version[i])
+		end
 		if tbl[1] > cur_version[1] then
 			outdated = true
 		elseif tbl[1] == cur_version[1] and tbl[2] > cur_version[2] then
