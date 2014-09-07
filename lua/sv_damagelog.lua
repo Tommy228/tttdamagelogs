@@ -24,7 +24,6 @@ include("sh_sync_entity.lua")
 include("sh_privileges.lua")
 include("sh_events.lua")
 include("not_my_code/orderedPairs.lua")
-include("not_my_code/von.lua")
 include("sv_damageinfos.lua") 
 include("sh_weapontable.lua")
 include("sv_weapontable.lua")
@@ -147,6 +146,7 @@ function Damagelog:SendDamagelog(ply, round)
 			query:start()
 		elseif not self.Use_MySQL then
 			local query = sql.QueryValue("SELECT damagelog FROM damagelog_oldlogs WHERE date = "..self.last_round_map)
+			if not query then return end
 			local decoded = util.JSONToTable(query)
 			if not decoded then
 				decoded = { roles = {}, DamageTable = {"empty"} }
