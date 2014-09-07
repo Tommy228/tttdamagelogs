@@ -35,7 +35,7 @@ function Damagelog:SaveWeaponTable(callback)
 			NextQuery()	
 		end
 		truncate:start()
-	else
+	elseif not Damagelog.Use_MySQL then
 		sql.Query("DELETE FROM damagelog_weapons;")
 		for k,v in pairs(Damagelog.weapon_table) do
 			sql.Query("INSERT INTO damagelog_weapons(`class`, `name`) VALUES("..sql.SQLStr(k)..","..sql.SQLStr(v)..");")
