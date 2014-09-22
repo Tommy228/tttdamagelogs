@@ -141,11 +141,6 @@ net.Receive("RDMApologise", function()
 	message:AppendText(plymessage)
 	message.Done = false
 	message.Paint = function(self, w, h)
-		if not self.Done then
-			self.m_FontName = "RDMResponse"
-			self:SetFontInternal(self.m_FontName)
-			self.Done = true
-		end
 		surface.SetDrawColor(color_white)
 		surface.DrawRect(0,0,w,h)
 	end

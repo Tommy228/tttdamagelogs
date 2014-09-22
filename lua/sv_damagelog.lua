@@ -206,7 +206,7 @@ net.Receive("DL_AskDamagelog", function(_, ply)
 end)
 
 hook.Add("PlayerDeath", "Damagelog_PlayerDeathLastLogs", function(ply)
-	if GetRoundState() == ROUND_ACTIVE then
+	if GetRoundState() == ROUND_ACTIVE and Damagelog.Time then
 		local found_dmg = {}
 		for k,v in ipairs(Damagelog.DamageTable) do
 			if type(v) == "table" and v.time >= Damagelog.Time - 10 and v.time <= Damagelog.Time then

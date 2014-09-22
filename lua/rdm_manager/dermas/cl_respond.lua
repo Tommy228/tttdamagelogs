@@ -110,6 +110,7 @@ function PANEL:Rebuild()
 				infoTyps:SetText("Your response has been submitted!");
 				infoTyps:SetInfoColor("orange");
 
+				print(#Damagelog.rdmReporter.respond, #Damagelog.rdmReporter.respondPrev)
 				if #Damagelog.rdmReporter.respond == 0 and #Damagelog.rdmReporter.respondPrev == 0 then
 					self:Close(); self:Remove();
 					Damagelog.notify:AddMessage("Your response has been submitted!", "icon16/information.png");

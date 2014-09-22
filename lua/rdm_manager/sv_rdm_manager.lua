@@ -164,7 +164,7 @@ function Damagelog.rdmReporter:CanReport(ply)
 			if (ply.rdmRoundPlay) then
 				return true;
 			else
-				return false, "You can't report if you didn't take part in the round!";
+				return false, "You need to play before reporting!";
 			end;
 		else
 			return false, "You can't report when you are alive!";
