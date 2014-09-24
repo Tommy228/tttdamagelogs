@@ -79,14 +79,14 @@ function Damagelog:IsTeamkill(role1, role2)
 end
 
 local function includeEventFile(f)
-	f = "damagelog_events/"..f
+	f = "damagelogs/damagelog_events/"..f
 	if SERVER then
 		AddCSLuaFile(f)
 	end
 	include(f)
 end
 
-for k,v in pairs(file.Find("damagelog_events/*.lua", "LUA")) do
+for k,v in pairs(file.Find("damagelogs/damagelog_events/*.lua", "LUA")) do
 	if not table.HasValue(Damagelog.IncludedEvents, v) then
 		Damagelog.CurrentFile = v
 		includeEventFile(v)

@@ -1,7 +1,7 @@
 
 Damagelog = Damagelog or {}
 
-Damagelog.VERSION = "1.1.3"
+Damagelog.VERSION = "1.1.4"
 
 if not file.IsDir("damagelog", "DATA") then
 	file.CreateDir("damagelog")
@@ -17,7 +17,7 @@ end
 
 if SERVER then
 	AddCSLuaFile()
-	include("sv_damagelog.lua")
+	include("damagelogs/sv_damagelog.lua")
 else
-	include("cl_damagelog.lua")
+	include("damagelogs/cl_damagelog.lua")
 end
