@@ -145,7 +145,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 		local ent = self.RoleNicks and self.RoleNicks[panel.Nick]
 		if GetRoundState() == ROUND_ACTIVE and sync_ent:GetPlayedRounds() == panel.Round then
 			if IsValid(ent) then
-				panel:SetColumnText(3, ent:Alive() and "Yes" or "No")
+				panel:SetColumnText(3, ent:Alive() and not (ent.IsGhost and ent:IsGhost()) and "Yes" or "No")
 			else
 				panel:SetColumnText(3, "<Disconnected>")
 			end
