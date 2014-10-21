@@ -151,8 +151,10 @@ hook.Add("Think", "Think_Record", function()
 		else
 			for k,v in pairs(models) do
 				if not scene[k] then
-					v:Remove()
-					models[k] = nil
+					if IsValid(v) then
+						v:Remove()
+					end
+					models[k] = nil -- remove from table if valid or not
 				end
 			end
 			for k,v in pairs(scene) do
