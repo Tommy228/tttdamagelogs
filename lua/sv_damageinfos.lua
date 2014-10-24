@@ -5,16 +5,15 @@ util.AddNetworkString("DL_AskShootLogs")
 util.AddNetworkString("DL_SendShootLogs")
 
 function Damagelog:shootCallback(weapon)
-	local owner = weapon.Owner
+	local owner = ((weapon.Owner and IsPlayer(weapon.Owner)) or (weapon:GetOwner() and IsPlayer(weapon:GetOwner())) or weapon.Entity)
+	local nick = (IsValid(owner) and owner:Nick() or "NoOwner")
+	local class = (IsValid(weapon) and weapon:GetClass() or "NoClass")
+	local info = {nick, class}
 	if GetRoundState() == ROUND_ACTIVE then
-		if self.ShootTables[self.CurrentRound][self.Time] then
-			local info = { owner:Nick(), weapon:GetClass() }
-			table.insert(self.ShootTables[self.CurrentRound][self.Time], info)			
-		else
+		if !self.ShootTables[self.CurrentRound][self.Time] then
 			self.ShootTables[self.CurrentRound][self.Time] =  {}
-			local info = { owner:Nick(), weapon:GetClass() }
-			table.insert(self.ShootTables[self.CurrentRound][self.Time], info)
 		end
+		table.insert(self.ShootTables[self.CurrentRound][self.Time], info)
 		local length = #Damagelog.Records
 		if length > 0 and Damagelog.Records[length][owner:Nick()] then
 			local sound = weapon.Primary and weapon.Primary.Sound
