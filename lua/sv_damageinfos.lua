@@ -5,7 +5,8 @@ util.AddNetworkString("DL_AskShootLogs")
 util.AddNetworkString("DL_SendShootLogs")
 
 function Damagelog:shootCallback(weapon)
-	local owner = ((weapon.Owner and IsPlayer(weapon.Owner)) or (weapon:GetOwner() and IsPlayer(weapon:GetOwner())) or weapon.Entity)
+	local owner = (IsPlayer(weapon.Owner) and weapon.Owner or nil) or (IsPlayer(weapon:GetOwner()) and weapon:GetOwner() or nil) or (IsValid(weapon) and weapon or nil)
+	if owner == nil then MsgN("No weapon or owner!") return end
 	local nick = (IsValid(owner) and owner:Nick() or "NoOwner")
 	local class = (IsValid(weapon) and weapon:GetClass() or "NoClass")
 	local info = {nick, class}
@@ -15,13 +16,23 @@ function Damagelog:shootCallback(weapon)
 		end
 		table.insert(self.ShootTables[self.CurrentRound][self.Time], info)
 		local length = #Damagelog.Records
-		if length > 0 and Damagelog.Records[length][owner:Nick()] then
+		if length > 0 and Damagelog.Records[length][nick] then
 			local sound = weapon.Primary and weapon.Primary.Sound
 			if sound then
-				Damagelog.Records[length][owner:Nick()].shot = sound
+				Damagelog.Records[length][nick].shot = sound
 			end
-			local trace = util.TraceLine(util.GetPlayerTrace(owner))
-			Damagelog.Records[length][owner:Nick()].trace = { trace.StartPos, trace.HitPos }
+			local td
+			if owner==weapon then 
+				td = {
+					start = owner:GetPos(),
+					entpos = owner:GetPos() + owner:GetAngles():Forward() * 10000,
+					filter = {owner},
+				}
+			else
+				td = util.GetPlayerTrace(owner)
+			end
+			local trace = util.TraceLine(td)
+			Damagelog.Records[length][nick].trace = { trace.StartPos, trace.HitPos }
 		end
 	end
 end
@@ -46,7 +57,7 @@ function Damagelog:DamagelogInfos()
 		end
 	end
 end
-	
+
 hook.Add("Initialize", "Initialize_DamagelogInfos", function()	
 	Damagelog:DamagelogInfos()
 end)
