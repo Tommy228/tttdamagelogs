@@ -34,16 +34,11 @@ function event:ToString(v)
 end
 
 function event:IsAllowed(tbl)
-	local pfilter = Damagelog.filter_settings["Filter by player"]
-	if pfilter then
-		if not tbl[4] == pfilter then
-			return false
-		end
-	end
-	local dfilter = Damagelog.filter_settings["Show grenade throws"]
-	if not dfilter then return false end
-	return true
-	
+	return Damagelog.filter_settings["Show grenade throws"]	
+end
+
+function event:Highlight(line, tbl, text)
+	return table.HasValue(Damagelog.Highlighted, tbl[1])
 end
 
 function event:GetColor(tbl)

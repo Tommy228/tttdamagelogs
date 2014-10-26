@@ -1,10 +1,63 @@
-local function AAText(text, font, x, y, color, align)
-    draw.SimpleText(text, font, x+1, y+1, Color(0,0,0,math.min(color.a,120)), align)
-    draw.SimpleText(text, font, x+2, y+2, Color(0,0,0,math.min(color.a,50)), align)
-    draw.SimpleText(text, font, x, y, color, align)
+
+surface.CreateFont("DL_Highligh", {
+	font = "Verdana",
+	size = 13
+})
+
+local PANEL = {}
+
+function PANEL:SetPlayer(nick)
+	self.Text = nick
+	surface.SetFont("DL_Highligh")
+	local xtext, ytext = surface.GetTextSize(self.Text)
+	self:SetSize(xtext+25, ytext+4)
+	self.Close = vgui.Create("TipsButton", self)
+	self.Close.Colors = {
+		default = COLOR_LGRAY,
+		hover = Color(0, 100, 200),
+		press = COLOR_BLUE
+	}
+	self.Close:SetPos(xtext + 10, 2)
+	self.Close:SetSize(13, 13)
+	self.Close:SetText("")
+	self.Close.PaintOver = function(self, w, h)
+		surface.SetFont("DermaDefault")
+		local x,y = surface.GetTextSize("X")
+		surface.SetTextPos(w/2 - x/2 + 1, h/2 - y/2)
+		surface.DrawText("X")
+	end
+	self.Close.DoClick = function()
+		for k,v in pairs(Damagelog.Highlighted) do
+			if v == self.Text then
+				table.remove(Damagelog.Highlighted, k)
+				Damagelog.PlayerSelect:UpdatePlayers()
+				break
+			end
+		end
+	end
+	self.SizeX = xtext + 25
 end
 
+function PANEL:Paint(w,h)
+	if not self.Text then return end
+	surface.SetDrawColor(Color(242, 242, 242))
+	surface.DrawRect(0, 0, w, h)
+	surface.SetDrawColor(Color(0, 50, 200))
+	surface.DrawLine(0, 0, w-1, 0)
+	surface.DrawLine(w-1, 0, w-1, h-1)
+	surface.DrawLine(w-1, h-1, 0, h-1)
+	surface.DrawLine(0, h-1, 0, 0)
+	surface.SetFont("DL_Highligh")
+	surface.SetTextColor(color_black)
+	surface.SetTextPos(3, 1)
+	surface.DrawText(self.Text)
+end
+
+derma.DefineControl("DL_FiltersPlayer", "", PANEL, "DPanel")
+
 local cur_selected
+
+Damagelog.Highlighted = Damagelog.Highlighted or {}
 
 function Damagelog:DrawDamageTab(x, y)
 
@@ -22,7 +75,7 @@ function Damagelog:DrawDamageTab(x, y)
 	self.DamageTab = vgui.Create("DListLayout")
 	
 	self.Panel = self.DamageTab:Add("DPanel")
-	self.Panel:SetSize(x-40, 240)
+	self.Panel:SetSize(x-40, 195)
 	self.PanelOptions = vgui.Create("DPanelList", self.Panel)
 	self.PanelOptions:SetSpacing(7)
 	self.PanelOptions:StretchToParent(12, 5, 0, 0)
@@ -31,7 +84,13 @@ function Damagelog:DrawDamageTab(x, y)
 		
 	self.RF = vgui.Create("DForm", self.PanelOptions)
 	self.RF:SetName("Round selection/filters")
-	self.Round = vgui.Create("DComboBox")
+	self.RoundPanel = vgui.Create("DPanel")
+	self.RoundPanel:SetHeight(90)
+	self.RoundPanel.Paint = function() end
+	
+	self.Round = vgui.Create("DComboBox", self.RoundPanel)
+	self.Round:SetSize(500, 22)
+	self.Round:SetPos(0, 0)
 	local old_click = self.Round.DoClick
 	self.Round.DoClick = function(panel)
 		local sync_ent = self:GetSyncEnt()
@@ -39,144 +98,97 @@ function Damagelog:DrawDamageTab(x, y)
 			return old_click(panel)
 		end
 	end
-	self.RF:AddItem(self.Round)
-	self.Filters = vgui.Create("DListView")
-	self.RF:AddItem(self.Filters)
-	self.Filters:SetHeight(105)
-	self.Filters:AddColumn("Filter")
-	self.Filters:AddColumn("Current settings")
 	
-	local last_selection
-	local function updateFilters(refresh)
-		self.Filters:Clear()
-		for k,v in pairs(self.filters) do
-			local setting = self.filter_settings[k]
-			if setting != nil then
-				local str, color = self:SettingToStr(v, setting)
-				local line = self.Filters:AddLine(k, str)
-				if color then
-					line.PaintOver = function(panel)
-						if not panel:IsLineSelected() then
-							panel.Columns[2]:SetTextColor(color)
-						else
-							panel.Columns[2]:SetTextColor(Color(255, 255, 255))
-						end
-					end
-				end
-				line.OnRightClick = function()
-					last_selection = k
-					local menu = DermaMenu()
-					if v == DAMAGELOG_FILTER_BOOL then
-						menu:AddOption(setting and "disable" or "enable", function()
-							self.filter_settings[k] = not self.filter_settings[k]
-							self:SaveFilters()
-							updateFilters(true)
-						end)
-					elseif v == DAMAGELOG_FILTER_PLAYER then
-						menu:AddOption("Select a player", function()
-							self.DamageTab:SetDisabled(true)
-							local selection = vgui.Create("DFrame")
-							selection:SetTitle("Select player")
-							selection:SetSize(270, 400)
-							selection:SetDraggable(false)
-							selection:Center()
-							selection:MakePopup()
-							selection.Think = function(panel)
-								panel:MoveToFront()
-							end
-							hook.Add("Think", "Damagelog_SelectionThink", function()
-								if not IsValid(selection) then
-									self.DamageTab:SetDisabled(false)
-									hook.Remove("Think", "Damagelog_SelectionThink")
-								end
-							end)
-							local button = vgui.Create("DButton", selection)
-							button:SetText("Filter selected player")
-							button:SetSize(255, 25)
-							button:SetPos(0, 28)
-							button:CenterHorizontal()
-							local plist = vgui.Create("DPanelList", selection)
-							plist:SetPos(0, 60)
-							plist:SetSize(255, 340)
-							plist:CenterHorizontal()
-							plist:EnableVerticalScrollbar(true)
-							local cur_selected
-							plist.AddPlayer = function(pnl, pl)  
-								local pl = pl
-								if not IsValid(pl) then return end
-								if not IsValid(pnl) then return end
-								local ply = vgui.Create("DPanel")
-								ply:SetSize(0, 30) 
-								local alpha = 140
-								local col = { r = 40, g = 40, b = 40 }
-								local col_selected = { r = 204, g = 204, b = 51 }
-								ply.pl = pl
-								local function checkValidity()
-									if not IsValid(pl) then
-										ply:Remove()
-										pnl:Clear(false)
-										return false
-									end	
-									return true
-								end
-								ply.Think = function(self)
-									checkValidity()
-								end
-								ply.Paint = function(self, w, h)
-									if not checkValidity() then return end
-									if cur_selected != ply then
-										draw.RoundedBox(0, 0, 0, w, h, Color(13, 14, 15, alpha))
-										draw.RoundedBox(0, 1, 1, w - 2, h - 2, Color(col.r + 40, col.g + 40, col.b + 40, alpha))
-										draw.RoundedBox(0, 2, 2, w - 4, h - 4, Color(col.r, col.g, col.b, alpha))
-									else
-										draw.RoundedBox(0, 0, 0, w, h, Color(13, 14, 15, alpha))
-										draw.RoundedBox(0, 1, 1, w - 2, h - 2, Color(col_selected.r + 40, col_selected.g + 40, col_selected.b + 40, alpha))
-										draw.RoundedBox(0, 2, 2, w - 4, h - 4, Color(col_selected.r, col_selected.g, col_selected.b, alpha))
-									end			    
-									AAText(pl:Nick(), "GModNotify", 40, 7, Color(255, 255, 255, 255), TEXT_ALIGN_LEFT)
-								end
-								ply.OnMousePressed = function(pnl, mc)
-									if mc == MOUSE_LEFT and cur_selected != ply then
-										cur_selected = ply  
-									end
-								end
-								local ava = vgui.Create("AvatarImage", ply)
-								ava:SetSize(24, 24)
-								ava:SetPlayer(pl, 32)
-								ava:SetPos(4, 4)
-								pnl:AddItem(ply) 
-							end
-							for k,v in pairs(player.GetAll()) do
-								plist:AddPlayer(v)
-							end
-							button.DoClick = function()
-								if IsValid(cur_selected) and IsValid(cur_selected.pl) then
-									self.filter_settings[k] = cur_selected.pl:SteamID()
-									selection:Remove()
-									updateFilters(true)
-								end
-							end
-						end)
-						menu:AddOption("Clear", function()
-							self.filter_settings[k] = false
-							updateFilters(true)
-						end)
-					end
-					menu:Open()
-				end
-				if k == last_selection then
-					line:SetSelected(true)
-				end
-			end
+	self.Filters = vgui.Create("DButton", self.RoundPanel)
+	self.Filters:SetText("Edit filters")
+	self.Filters:SetPos(505, 0)
+	self.Filters:SetSize(85, 22)
+	self.Filters.DoClick = function(self)
+		local filters = DermaMenu()
+		for k,v in pairs(Damagelog.filters) do
+			local value = Damagelog.filter_settings[k]
+			local option = filters:AddOption(k, function()
+				Damagelog.filter_settings[k] = not Damagelog.filter_settings[k]
+				Damagelog:SaveFilters()
+				askLogs()
+			end)
+			option:SetIcon(value and "icon16/accept.png" or "icon16/delete.png")
 		end
-		if refresh then
-			askLogs()
+		filters:Open()
+	end
+	
+	self.PlayerSelect = vgui.Create("DPanel", self.RoundPanel)
+	self.PlayerSelect:SetPos(0, 30)
+	self.PlayerSelect:SetSize(590 ,60)
+	self.PlayerSelect.Panels = {}
+	self.PlayerSelect.UpdatePlayers = function(self)
+		for k,v in pairs(self.Panels) do
+			v:Remove()
+		end
+		table.Empty(self.Panels)
+		if #Damagelog.Highlighted > 0 then
+			Damagelog.PS_Label:SetText(Damagelog.PS_Label.Text)
+			surface.SetFont("DL_Highligh")
+			local x = surface.GetTextSize(Damagelog.PS_Label.Text)
+			x = x + 10
+			for k,v in ipairs(Damagelog.Highlighted) do
+				local ply = vgui.Create("DL_FiltersPlayer", self)
+				table.insert(self.Panels, ply)
+				ply:SetPlayer(v)
+				ply:SetPos(x, 8)
+				x = x + ply.SizeX + 5
+			end
+		else
+			Damagelog.PS_Label:SetText(Damagelog.PS_Label.Text.." none")
 		end
 	end
-	updateFilters(false)
+	
+	self.PS_Label = vgui.Create("DLabel", self.PlayerSelect)
+	self.PS_Label.Text = "Currently highlighted players :"
+	self.PS_Label:SetFont("DL_Highligh")
+	self.PS_Label:SetTextColor(color_black)
+	self.PS_Label:SetText(self.PS_Label.Text.." none")
+	self.PS_Label:SetPos(5, 10)
+	self.PS_Label:SizeToContents()
+	
+	self.PlayersCombo = vgui.Create("DComboBox", self.PlayerSelect)
+	self.PlayersCombo:SetPos(5, 30)
+	self.PlayersCombo:SetSize(490, 20)
+	self.PlayersCombo:AddChoice("No players.", NULL)
+	self.PlayersCombo.Update = function(self)
+		self:Clear()
+		for k,v in pairs(self.Players) do
+			self:AddChoice(k)
+		end
+		if table.Count(self.Players) > 0 then
+			self:ChooseOptionID(1)
+		end
+	end
+	self.PlayersCombo.FirstSelect = true
+	self.PlayersCombo.OnSelect = function(self, index, value, data)
+		self.CurrentlySelected = value
+	end
+	self.PlayersCombo:ChooseOptionID(1)
+	
+	self.Highlight = vgui.Create("DButton", self.PlayerSelect)
+	self.Highlight:SetPos(500, 30)
+	self.Highlight:SetSize(80, 20)
+	self.Highlight:SetText("Highlight")
+	self.Highlight.DoClick = function(self)
+		local selected = Damagelog.PlayersCombo.CurrentlySelected
+		if table.HasValue(Damagelog.Highlighted, selected) then return end
+		if #Damagelog.Highlighted >= 3 then
+			Derma_Message("You can't highligh more than 3 players at once!", "Error", "OK")
+		else
+			table.insert(Damagelog.Highlighted, selected)
+			Damagelog.PlayerSelect:UpdatePlayers()
+		end
+	end
+	
+	self.RF:AddItem(self.RoundPanel)
 	
 	self.PanelOptions:AddItem(self.RF)
-	self.RF:SetHeight(350)
+	self.RF:SetHeight(150)
 	self.RF:SetExpanded(true)
 			
 	table.insert(forms, self.RF)
@@ -184,7 +196,7 @@ function Damagelog:DrawDamageTab(x, y)
 	self.DamageInfoBox = vgui.Create("DForm", self.PanelOptions)
 	self.DamageInfoBox:SetName("Damage information")
 	self.DamageInfo = vgui.Create("DListView")
-	self.DamageInfo:SetHeight(130)
+	self.DamageInfo:SetHeight(90)
 	self.DamageInfo:AddColumn("Damage information").DoClick = function() end
 	self.DamageInfoBox:AddItem(self.DamageInfo)
 	self.PanelOptions:AddItem(self.DamageInfoBox)
@@ -199,7 +211,7 @@ function Damagelog:DrawDamageTab(x, y)
 	self.Roles:AddColumn("Player")
 	self.Roles:AddColumn("Role")
 	self.Roles:AddColumn("Alive?")
-	self.Roles:SetHeight(130)
+	self.Roles:SetHeight(90)
 	self.RoleInfos:AddItem(self.Roles)	
 	self.PanelOptions:AddItem(self.RoleInfos)
 	self.RoleInfos:SetHeight(350)
@@ -224,7 +236,7 @@ function Damagelog:DrawDamageTab(x, y)
 	end
 			
 	self.Damagelog = self.DamageTab:Add("DListView")
-	self.Damagelog:SetHeight(370)
+	self.Damagelog:SetHeight(415)
 	self.Damagelog:AddColumn("Time"):SetFixedWidth(40)
 	self.Damagelog:AddColumn("Type"):SetFixedWidth(40)
 	self.Damagelog.EventColumn = self.Damagelog:AddColumn("Event")
@@ -283,9 +295,13 @@ function Damagelog:DrawDamageTab(x, y)
 			end
 		end
 		if PlayedRounds <= 10 then
-			self.Round:ChooseOptionID(PlayedRounds)
+			if LastMapExists then
+				self.Round:ChooseOptionID(PlayedRounds + 1)
+			else
+				self.Round:ChooseOptionID(PlayedRounds)
+			end
 		else
-			self.Round:ChooseOptionID(11)
+			self.Round:ChooseOptionID(LastMapExists and 12 or 11)
 		end
 		self.SelectedRound = PlayedRounds
 		askLogs()
@@ -333,6 +349,12 @@ net.Receive("DL_SendRoles", function()
 	Damagelog.RoleNicks = {}
 	for k,v in pairs(player.GetAll()) do
 		Damagelog.RoleNicks[v:Nick()] = v
+	end
+	Damagelog.Highlighted = {}
+	Damagelog.PlayerSelect:UpdatePlayers()
+	if IsValid(Damagelog.Menu) then
+		Damagelog.PlayersCombo.Players = tbl
+		Damagelog.PlayersCombo:Update()
 	end
 	Damagelog:ReceiveRoles(tbl)
 	Damagelog.RoleEnts = {}

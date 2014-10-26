@@ -64,17 +64,14 @@ function event:ToString(v)
 end
 
 function event:IsAllowed(tbl)
+	return Damagelog.filter_settings["Show kills"]	
+end
 
-	local pfilter = Damagelog.filter_settings["Filter by player"]
-	if pfilter then
-		if not (tbl[6] == pfilter or tbl[7] == pfilter) then
-			return false
-		end
+function event:Highlight(line, tbl, text)
+	if table.HasValue(Damagelog.Highlighted, tbl[1]) or table.HasValue(Damagelog.Highlighted, tbl[3]) then
+		return true
 	end
-	local dfilter = Damagelog.filter_settings["Show kills"]
-	if not dfilter then return false end
-	return true
-	
+	return false
 end
 
 function event:GetColor(tbl)

@@ -40,15 +40,11 @@ function event:ToString(v)
 end
 
 function event:IsAllowed(tbl)
-	local pfilter = Damagelog.filter_settings["Filtrer by player"]
-	if pfilter then
-		if tbl[3] != pfilter then
-			return false
-		end
-	end
-	local dfilter = Damagelog.filter_settings["Show suicides"]
-	if not dfilter then return false end
-	return true
+	return Damagelog.filter_settings["Show suicides"]
+end
+
+function event:Highlight(line, tbl, text)
+	return table.HasValue(Damagelog.Highlighted, tbl[1])
 end
 
 function event:GetColor(tbl)

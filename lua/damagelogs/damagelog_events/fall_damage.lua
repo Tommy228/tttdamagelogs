@@ -63,19 +63,11 @@ function event:ToString(tbl)
 end
 
 function event:IsAllowed(tbl)
+	return Damagelog.filter_settings["Show fall damage"]
+end
 
-	local pfilter = Damagelog.filter_settings["Filter by player"]
-	if pfilter then 
-		if not tbl[5] and tbl[4] != pfilter then
-			return false
-		elseif tbl[5] and not (tbl[4] == pfilter or tbl[7] == pfilter) then
-			return false
-		end
-	end
-	local dfilter = Damagelog.filter_settings["Show fall damage"]
-	if not dfilter then return false end
-	return true
-	
+function event:Highlight(line, tbl, text)
+	return table.HasValue(Damagelog.Highlighted, tbl[1])
 end
 
 function event:GetColor(tbl)
