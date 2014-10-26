@@ -97,7 +97,7 @@ function Damagelog:AddLogsLine(listview, tbl, nofilters, old)
 			item:SetTooltip("The victim may have shot first (see the damage informations section for more info!)")
 		end
 	end
-	function item:PaintOver()
+	function item:PaintOver(w,h)
 		for k,v in pairs(item.Columns) do
 			v:SetTextColor(infos:GetColor(tbl.infos))
 		end
