@@ -244,22 +244,24 @@ net.Receive("RDMRespond", function(len, ply)
 			end
 		end
 		
-		local found = false
-		if not previous then
-			for k,v in pairs(player.GetAll()) do
-				if v:SteamID() == Damagelog.rdmReporter.stored[respond.report].plySteam then
-					found = v
-					break
+		if respond then
+			local found = false
+			if not previous then
+				for k,v in pairs(player.GetAll()) do
+					if v:SteamID() == Damagelog.rdmReporter.stored[respond.report].plySteam then
+						found = v
+						break
+					end
 				end
 			end
+			if found then
+				net.Start("RDMApologise")
+				net.WriteEntity(ply)
+				net.WriteString(message)
+				net.Send(found)
+			end
 		end
-		if found then
-			net.Start("RDMApologise")
-			net.WriteEntity(ply)
-			net.WriteString(message)
-			net.Send(found)
-		end
-	end;
+	end
 	
 end);
 

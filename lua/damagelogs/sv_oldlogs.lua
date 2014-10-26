@@ -3,28 +3,12 @@ util.AddNetworkString("DL_AskLogsList")
 util.AddNetworkString("DL_AskOldLog")
 util.AddNetworkString("DL_SendOldLog")
 util.AddNetworkString("DL_SendLogsList")
+util.AddNetworkString("DL_AskOldLogRounds")
+util.AddNetworkString("DL_SendOldLogRounds")
 
-Damagelog.available_logs = {}
 Damagelog.previous_reports = {}
 
 local limit = os.time() - Damagelog.LogDays*24*60*60
-
-local function HandleLogsRow(data)
-	local d = string.Explode(" ", os.date("%Y %m %d", data.date))
-	local year = tonumber(d[1])
-	if not Damagelog.available_logs[year] then
-		Damagelog.available_logs[year] = {}
-	end
-	local month = tonumber(d[2])
-	if not Damagelog.available_logs[year][month] then
-		Damagelog.available_logs[year][month] = {}
-	end		
-	local day = tonumber(d[3])
-	if not Damagelog.available_logs[year][month][day] then
-		Damagelog.available_logs[year][month][day] = {}
-	end	
-	Damagelog.available_logs[year][month][day][data.date] = data.map	
-end
 
 local function HandlePreviousReports(data)
 	data.id = tonumber(data.id)
@@ -85,14 +69,15 @@ if Damagelog.Use_MySQL then
 			PRIMARY KEY (id));
 		]])
 		create_table3:start()
-		local list = self:query("SELECT date, map, round FROM damagelog_oldlogs;")
-		list.onData = function(query, data)
-			HandleLogsRow(data)
+		local list = self:query("SELECT MIN(date), MAX(date) FROM damagelog_oldlogs;")
+		list.onSuccess = function(query)
+			local data = query:getData()
+			if not data[1] then return end
+			Damagelog.OlderDate = data[1]["MIN(date)"]
+			Damagelog.LatestDate = data[1]["MAX(date)"]
 		end
 		list:start()
 		local previous_reports = self:query("SELECT * FROM damagelog_previousreports ORDER BY id;")
-		previous_reports.onData = function(query, data)
-		end
 		previous_reports.onSuccess = function()
 			Damagelog:TruncateReports()
 		end
@@ -129,15 +114,8 @@ else
 			report TEXT NOT NULL);
 		]])
 	end
-	local old_logs_count = GetLogsCount_SQLite() 
-	if tonumber(old_logs_count) then
-		for i=1, old_logs_count do
-			local row = sql.QueryRow("SELECT date, map, round FROM damagelog_oldlogs WHERE id = "..tostring(i).." AND damagelog IS NOT NULL;")
-			if row then
-				HandleLogsRow(row)
-			end
-		end
-	end
+	Damagelog.OlderDate = sql.QueryValue("SELECT MIN(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;")
+	Damagelog.LatestDate = sql.QueryValue("SELECT MAX(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;")
 	local previous_reports_count = sql.QueryValue("SELECT COUNT(id) FROM damagelog_previousreports;")
 	if tonumber(previous_reports_count) then
 		for i=1, previous_reports_count do
@@ -181,7 +159,13 @@ end)
 
 net.Receive("DL_AskLogsList", function(_,ply)
 	net.Start("DL_SendLogsList")
-	net.WriteTable(Damagelog.available_logs or {})
+	if Damagelog.OlderDate and Damagelog.LatestDate then
+		net.WriteUInt(1, 1)
+		net.WriteUInt(Damagelog.OlderDate, 32)
+		net.WriteUInt(Damagelog.LatestDate, 32)
+	else
+		net.WriteUInt(0, 1)
+	end
 	net.Send(ply)
 end)
 
@@ -196,6 +180,35 @@ local function SendLogs(ply, compressed, cancel)
 	end
 	net.Send(ply)
 end
+
+net.Receive("DL_AskOldLogRounds", function(_, ply)
+	local id = net.ReadUInt(32)
+	local year = net.ReadUInt(32)
+	local month = net.ReadUInt(32)
+	local day = net.ReadUInt(32)
+	local _date = "20"..year.."-"..month.."-"..day
+	if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
+		local query_str = "SELECT date,map FROM damagelog_oldlogs WHERE date BETWEEN UNIX_TIMESTAMP(\"".._date.." 00:00:00\") AND UNIX_TIMESTAMP(\"".._date.." 23:59:59\") ORDER BY date ASC;"
+		local query = Damagelog.database:query(query_str)
+		query.onSuccess = function(self)
+			if not IsValid(ply) then return end
+			local data = self:getData()
+			net.Start("DL_SendOldLogRounds")
+			net.WriteUInt(id, 32)
+			net.WriteTable(data)
+			net.Send(ply)
+		end
+		query:start()
+	else
+		local query_str = "SELECT date,map FROM damagelog_oldlogs WHERE date BETWEEN strftime(\"%s\", \"".._date.." 00:00:00\") AND strftime(\"%s\", \"".._date.." 23:59:59\") ORDER BY date ASC;"
+		local result = sql.Query(query_str)
+		if not result then result = {} end
+		net.Start("DL_SendOldLogRounds")
+		net.WriteUInt(id, 32)
+		net.WriteTable(result)
+		net.Send(ply)		
+	end
+end)
 
 net.Receive("DL_AskOldLog", function(_,ply)
 	local _time = net.ReadUInt(32)

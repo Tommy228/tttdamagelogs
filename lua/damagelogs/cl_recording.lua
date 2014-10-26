@@ -157,7 +157,9 @@ hook.Add("Think", "Think_Record", function()
 			end
 			for k,v in pairs(scene) do
 				if models[k] and v.corpse and not models[k].corpse then
-					models[k]:Remove()
+					if IsValid(models[k]) then
+						models[k]:Remove()
+					end
 					models[k] = nil
 				end
 				if not models[k] then

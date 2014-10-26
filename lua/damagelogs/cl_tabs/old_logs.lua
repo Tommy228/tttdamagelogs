@@ -18,43 +18,110 @@ surface.CreateFont("DL_OldLogsFont", {
 	size = 20
 })
 
+local loading = {}
+local function LoadLogs(node)
+	if node.received or node.receiving then return end
+	node.receiving = true
+	local id = table.insert(loading, node)
+	net.Start("DL_AskOldLogRounds")
+	net.WriteUInt(id, 32)
+	net.WriteUInt(node.year, 32)
+	net.WriteUInt(node.month, 32)
+	net.WriteUInt(node.day, 32)
+	net.SendToServer()
+end
+
+net.Receive("DL_SendOldLogRounds", function()
+	local id = net.ReadUInt(32)
+	local list = net.ReadTable()
+	local node = loading[id]
+	if not node then return end
+	if #list <= 0 then
+		node:AddNode("Nothing found")
+	else
+		local dates = {}
+		for k,v in pairs(list) do
+			local _time = string.Explode(",", os.date("%H,%M", v.date))
+			local hour = _time[1]
+			hour = tonumber(hour)
+			v.min = tonumber(_time[2])
+			if not dates[hour] then
+				dates[hour] = { v }
+			end
+			table.insert(dates[hour], v)
+		end
+		for i=0, 24 do
+			local hour = dates[i]
+			if not hour then continue end
+			local node = node:AddNode(i.."h")
+			table.SortByMember(hour, "date")
+			node.rounds = hour
+			node.hour = i
+			node.min = hour.min
+		end
+	end
+end)
+
 function Damagelog:DrawOldLogs()
 
 	self.CurSelectedRound = nil
 
 	self.OldLogs = vgui.Create("DPanel")
 	self.OldLogs.UpdateDates = function()
-		for year,months in pairs(self.CurLogsTable) do
-			local year_node = self.DateChoice:AddNode(year)
-			year_node.year = tonumber(year)
-			for month,days in pairs(months) do				
-				if not monthnames[tonumber(month)] then continue end
-				local month_node = year_node:AddNode(monthnames[tonumber(month)])
-				month_node.year = year_node.year
-				month_node.month = tonumber(month)
-				for day,maps in pairs(days) do
-					local day_node = month_node:AddNode(day)
-					day_node.year = month_node.year
-					day_node.month = month_node.month
-					day_node.day = tonumber(day)
-					local times = {}
-					for _time, map in pairs(maps) do
-						table.insert(times, _time)
+		local older = string.Explode(",", os.date("%y,%m,%d,%H,%M", self.OlderDate))
+		local latest = string.Explode(",", os.date("%y,%m,%d,%H,%M", self.LatestDate))
+		for k,v in pairs({older, latest}) do
+			for _,data in pairs(v) do
+				v[_] = tonumber(data)
+			end
+		end
+		local years = latest[1] - older[1]
+		for i=0, years do
+			local year = latest[1] - i
+			local node_year = self.DateChoice:AddNode("20"..tostring(year))
+			node_year.year = year
+			local start_range
+			local end_range
+			if years == 0 then
+				start_range = older[2]
+				end_range = latest[2]
+			elseif year == latest[1] then
+				start_range = 1
+				end_range = latest[2]
+			elseif year == older[1] then
+				start_range = older[2]
+				end_range = 12
+			else
+				start_range = 1
+				end_range = 12
+			end
+			for i=start_range, end_range do
+				local month = monthnames[i]
+				local node_month = node_year:AddNode(month)
+				node_month.year = year
+				node_month.month = i
+				node_month.received = false
+				local number_of_days
+				if i == 2 then
+					local real_year = 2000 + year
+					if (real_year) % 4 == 0 and not (real_year % 100 == 0 and real_year % 400 != 0) then
+						number_of_days = 29
+					else
+						number_of_days = 28
 					end
-					table.sort(times)
-					local created_nodes = {}
-					for k,v in ipairs(times) do
-						local hour = os.date("%H", v)
-						if not created_nodes[hour] then
-							created_nodes[hour] = day_node:AddNode(hour.."h")
-							created_nodes[hour].hour = hour
-							created_nodes[hour].dates = { {v,maps[v]} }
-							created_nodes[hour].year = day_node.year
-							created_nodes[hour].month = day_node.month
-							created_nodes[hour].day = day_node.day
-						else
-							table.insert(created_nodes[hour].dates, {v,maps[v]})
-						end
+				else
+					number_of_days =  (i % 2 == 0) and 31 or 30
+				end
+				for d=1, number_of_days do
+					local day = node_month:AddNode(tostring(d))
+					day.year = node_month.year
+					day.month = node_month.month
+					day.day = d
+					day:SetForceShowExpander(true)
+					day.old_SetExpanded = day.SetExpanded
+					day.SetExpanded = function(pnl, expand, animation)
+						if expand then LoadLogs(day) end
+						return pnl.old_SetExpanded(pnl, expand, animation)
 					end
 				end
 			end
@@ -138,12 +205,12 @@ function Damagelog:DrawOldLogs()
 	local round_column = self.RoundChoice:AddColumn("")
 	
 	self.DateChoice.OnNodeSelected = function(panel, selected)
-		if selected.hour then
+		if selected.rounds then
 			self.RoundChoice:Clear()
 			round_column:SetName("Rounds of "..selected.hour.."h")
-			for k,v in ipairs(selected.dates) do
-				local line = self.RoundChoice:AddLine("min"..os.date("%M", v[1]).." : "..v[2])
-				line.time = v[1]
+			for k,v in ipairs(selected.rounds) do
+				local line = self.RoundChoice:AddLine("min"..v.min.." : "..v.map)
+				line.time = v.date
 			end
 		end
 	end	
@@ -226,7 +293,10 @@ function Damagelog:DrawOldLogs()
 end
 
 net.Receive("DL_SendLogsList", function()
-	Damagelog.CurLogsTable = net.ReadTable()
+	local received = net.ReadUInt(1) == 1
+	if not received then return end
+	Damagelog.OlderDate = net.ReadUInt(32)
+	Damagelog.LatestDate = net.ReadUInt(32)
 	if ValidPanel(Damagelog.OldLogs) then
 		Damagelog.OldLogs:UpdateDates()
 	end
