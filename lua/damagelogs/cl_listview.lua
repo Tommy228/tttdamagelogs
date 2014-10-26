@@ -77,13 +77,6 @@ function Damagelog:SetLineMenu(item, infos, tbl, text, old_logs)
 		menu:Open()
 	end
 	infos:RightClick(item, tbl.infos, text)
-	item.PaintOver = function(self, w, h)
-		if self:IsSelected() then return end
-		if infos:Highlight(item, tbl.infos, text) then
-			surface.SetDrawColor(Color(255, 0, 0, 100))
-			surface.DrawRect(0, 0, w, h)
-		end
-	end
 end
 
 function Damagelog:AddLogsLine(listview, tbl, nofilters, old)
@@ -107,6 +100,11 @@ function Damagelog:AddLogsLine(listview, tbl, nofilters, old)
 	function item:PaintOver()
 		for k,v in pairs(item.Columns) do
 			v:SetTextColor(infos:GetColor(tbl.infos))
+		end
+		if self:IsSelected() then return end
+		if infos:Highlight(item, tbl.infos, text) then
+			surface.SetDrawColor(Color(255, 0, 0, 100))
+			surface.DrawRect(0, 0, w, h)
 		end
 	end
 	self:SetLineMenu(item, infos, tbl, text, old)
