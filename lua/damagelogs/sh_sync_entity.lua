@@ -28,7 +28,7 @@ function Damagelog:GetSyncEnt()
 end
 
 -- TTT cleans up all entities
--- fuck him
+-- fuck it
 local CleanUpMap = game.CleanUpMap
 function game.CleanUpMap(send_to_clients, filters)
 	filters = filters or {}
