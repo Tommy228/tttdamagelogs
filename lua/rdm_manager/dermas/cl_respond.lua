@@ -2,7 +2,7 @@ local PANEL = {};
 
 function PANEL:Init()
 	self:SetDeleteOnClose(true);
-	self:SetTitle("You have been reported! Please answer to all your reports.");
+	self:SetTitle("You have been reported! Please answer all your reports.");
 	self:ShowCloseButton(false)
 	self:SetSize(610,350);
 			
