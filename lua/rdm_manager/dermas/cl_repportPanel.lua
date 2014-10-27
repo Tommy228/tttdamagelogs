@@ -201,7 +201,7 @@ function PANEL:Update()
 	self.prevReportList:Clear()
 
 	local report, hist = Damagelog.rdmReporter:GetSelectedReport();
-	---print(report, hist)
+	print(report, hist)
 	local reports = Damagelog.rdmReporter:GetAll();
 	
 	local previous_reports = Damagelog.previous_reports

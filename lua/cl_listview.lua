@@ -210,7 +210,7 @@ function Damagelog:SetDamageInfosLV(listview, att, victim, beg, t, result)
 		local nums = {}
 		local used_nicks = {}
 		for k,v in pairs(result) do
-			--print(k,v)
+			print(k,v)
 			table.insert(nums, k)
 		end
 		table.sort(nums)
