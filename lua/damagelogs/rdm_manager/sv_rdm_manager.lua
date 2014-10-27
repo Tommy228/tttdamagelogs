@@ -256,7 +256,8 @@ net.Receive("RDMRespond", function(len, ply)
 			end
 			if found then
 				net.Start("RDMApologise")
-				net.WriteEntity(ply)
+				net.WriteString(ply:Nick())
+				net.WriteString(ply:SteamID())
 				net.WriteString(message)
 				net.Send(found)
 			end

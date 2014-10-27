@@ -99,10 +99,12 @@ function PANEL:Rebuild()
 					net.WriteUInt(v.index, 8);
 				net.SendToServer();
 
-				if _ == "previous" then
-					table.remove(Damagelog.rdmReporter.respondPrev, k);
-				else
-					table.remove(Damagelog.rdmReporter.respond, k);
+				local tbl = _ == "previous" and Damagelog.rdmReporter.respondPrev or Damagelog.rdmReporter.respond
+				for _,_report in pairs(tbl) do
+					if v == _report then
+						table.remove(tbl, _)
+						break
+					end
 				end
 
 				buton:SetDisabled(true);
@@ -110,7 +112,6 @@ function PANEL:Rebuild()
 				infoTyps:SetText("Your response has been submitted!");
 				infoTyps:SetInfoColor("orange");
 
-				print(#Damagelog.rdmReporter.respond, #Damagelog.rdmReporter.respondPrev)
 				if #Damagelog.rdmReporter.respond == 0 and #Damagelog.rdmReporter.respondPrev == 0 then
 					self:Close(); self:Remove();
 					Damagelog.notify:AddMessage("Your response has been submitted!", "icon16/information.png");
