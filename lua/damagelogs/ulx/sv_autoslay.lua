@@ -180,34 +180,36 @@ function Damagelog:SetSlays(admin, steamid, slays, reason)
 end
 
 hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
-	for k,v in pairs(player.GetAll()) do
-	    local query = Damagelog.database:query("SELECT * FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."'")
-		query.onSuccess = function(q)
-		    if q:getData() and q:getData()[1] then
-				v:Kill()
-				local data = q:getData()[1]
-				local admins = util.JSONToTable(data.admins) or {}
-				local slays = data.slays
-				local reason = data.reason
-				local _time = data.time
-				slays = slays - 1
-				if slays <= 0 then
-					local query2 = Damagelog.database:query("DELETE FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."'")
-					query2:start()
-				else
-					local query2 = Damagelog.database:query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."'")
-					query2:start()
+	if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
+		for k,v in pairs(player.GetAll()) do
+			local query = Damagelog.database:query("SELECT * FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."'")
+			query.onSuccess = function(q)
+				if q:getData() and q:getData()[1] then
+					v:Kill()
+					local data = q:getData()[1]
+					local admins = util.JSONToTable(data.admins) or {}
+					local slays = data.slays
+					local reason = data.reason
+					local _time = data.time
+					slays = slays - 1
+					if slays <= 0 then
+						local query2 = Damagelog.database:query("DELETE FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."'")
+						query2:start()
+					else
+						local query2 = Damagelog.database:query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."'")
+						query2:start()
+					end
+					Damagelog:CreateSlayList(admins, function(list)
+						net.Start("DL_AutoSlay")
+						net.WriteEntity(v)
+						net.WriteString(list)
+						net.WriteString(reason)
+						net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
+						net.Broadcast()
+					end)
 				end
-				Damagelog:CreateSlayList(admins, function(list)
-					net.Start("DL_AutoSlay")
-					net.WriteEntity(v)
-					net.WriteString(list)
-					net.WriteString(reason)
-					net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
-					net.Broadcast()
-				end)
 			end
+			query:start()
 		end
-		query:start()
 	end	
 end)
