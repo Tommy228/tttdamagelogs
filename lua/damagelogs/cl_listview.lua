@@ -98,13 +98,13 @@ function Damagelog:AddLogsLine(listview, tbl, nofilters, old)
 		end
 	end
 	function item:PaintOver(w,h)
-		for k,v in pairs(item.Columns) do
-			v:SetTextColor(infos:GetColor(tbl.infos))
-		end
-		if self:IsSelected() then return end
-		if infos:Highlight(item, tbl.infos, text) then
+		if infos:Highlight(item, tbl.infos, text) and not self:IsSelected() then
 			surface.SetDrawColor(Color(255, 0, 0, 100))
 			surface.DrawRect(0, 0, w, h)
+		else
+			for k,v in pairs(item.Columns) do
+				v:SetTextColor(infos:GetColor(tbl.infos))
+			end
 		end
 	end
 	self:SetLineMenu(item, infos, tbl, text, old)

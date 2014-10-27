@@ -17,6 +17,7 @@ include("damagelogs/not_my_code/base64decode.lua")
 include("damagelogs/rdm_manager/cl_rdm_manager.lua")
 include("damagelogs/cl_ttt_settings.lua")
 include("damagelogs/cl_recording.lua")
+include("damagelogs/ulx/sh_autoslay.lua")
 
 local outdated = false
 http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version.md?ref=master", function(body)

@@ -204,7 +204,9 @@ hook.Add("Think", "Think_Record", function()
 						end
 						local index = table.insert(models[k].traces, v.trace)
 						timer.Simple(0.2, function()
-							models[k].traces[index] = false
+							if models[k].traces then
+								models[k].traces[index] = false
+							end
 						end)
 					end
 				end

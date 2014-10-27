@@ -350,9 +350,11 @@ net.Receive("DL_SendRoles", function()
 	for k,v in pairs(player.GetAll()) do
 		Damagelog.RoleNicks[v:Nick()] = v
 	end
-	Damagelog.Highlighted = {}
-	Damagelog.PlayerSelect:UpdatePlayers()
 	if IsValid(Damagelog.Menu) then
+		Damagelog.Highlighted = {}
+		if Damagelog.PlayerSelect and Damagelog.PlayerSelect.UpdatePlayers then
+			Damagelog.PlayerSelect:UpdatePlayers()
+		end
 		Damagelog.PlayersCombo.Players = tbl
 		Damagelog.PlayersCombo:Update()
 	end

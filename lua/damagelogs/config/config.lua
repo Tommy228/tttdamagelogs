@@ -37,6 +37,10 @@ Damagelog.RDM_Manager_Command = "!report"
 
 Damagelog.Use_MySQL = false
 
+-- Enable advanced autoslay (WIP)
+
+Damagelog.Enable_Autoslay = false
+
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 
 Damagelog.LogDays = 31

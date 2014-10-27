@@ -85,6 +85,7 @@ if Damagelog.Use_MySQL then
 		local delete_old = self:query("DELETE FROM damagelog_oldlogs WHERE date <= "..limit..";")
 		delete_old:start()
 		Damagelog:GetWepTable()
+		Damagelog:AutoSlaySQL()
 	end
 	Damagelog.database.onConnectionFailed = function(self, err)
 		file.Write("damagelog/mysql_error.txt", err)
@@ -127,6 +128,7 @@ else
 	end
 	sql.Query("UPDATE damagelog_oldlogs SET damagelog = NULL WHERE date <= "..limit..";")
 	Damagelog:GetWepTable()
+	Damagelog:AutoSlaySQL()
 end
 
 if file.Exists("damagelog/damagelog_lastroundmap.txt", "DATA") then
