@@ -109,8 +109,9 @@ end)
 
 local orderedPairs = Damagelog.orderedPairs
 net.Receive("DL_AskShootLogs", function(_, ply)
-	if not ply:CanUseDamagelog() then return end
-	local data = Damagelog.ShootTables[net.ReadUInt(8)]
+	local round = net.ReadUInt(8)
+	if not ply:CanUseDamagelog() and round == Damagelog:GetSyncEnt():GetPlayedRounds() then return end
+	local data = Damagelog.ShootTables[round]
 	if not data then return end
 	data = table.Copy(data)
 	local count = table.Count(data)

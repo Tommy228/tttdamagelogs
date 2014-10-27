@@ -126,6 +126,7 @@ end
 function Damagelog:SetRolesListView(listview, tbl)
 	listview:Clear()
 	for k,v in pairs(tbl) do
+		if not GetConVar("ttt_dmglogs_showinnocents"):GetBool() and v == ROLE_INNOCENT then continue end
 		self:AddRoleLine(listview, k, v)
 	end
 end
@@ -150,7 +151,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 		local ent = self.RoleNicks and self.RoleNicks[panel.Nick]
 		if GetRoundState() == ROUND_ACTIVE and sync_ent:GetPlayedRounds() == panel.Round then
 			if IsValid(ent) then
-				panel:SetColumnText(3, ent:Alive() and not (ent.IsGhost and ent:IsGhost()) and "Yes" or "No")
+				panel:SetColumnText(3, ent:Alive() and not (ent.IsGhost and ent:IsGhost()) and not ent:IsSpec() and "Yes" or "No")
 			else
 				panel:SetColumnText(3, "<Disconnected>")
 			end

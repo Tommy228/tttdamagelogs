@@ -1,19 +1,27 @@
 
 
---[[ User rights. The default level is 2 if your rank isn't here
-	1 : Can't open the menu
-	2 : Can only use the damagelog when the round isn't active
-	3 : Can use the damagelog when spectating and when the round isn't active
-	4 : Can always use the damagelog
+--[[ User rights. 
+
+	NOTE : After the 2.0 update, everyone can open the logs to view the logs of the previous rounds.
+
+	The default level is 1 if your rank isn't here.
+	
+	1 and 2 : Can't view logs of the active rounds
+	3 : Can view the logs of the active rounds as a spectator
+	4 : Can always view the logs of the active ranks
 	
 	The third argument is the RDM Manager access. Set it to true or false.
 ]]--
 
 Damagelog:AddUser("superadmin", 4, true)
 Damagelog:AddUser("admin", 4, true)
-Damagelog:AddUser("operator", 2, false)
-Damagelog:AddUser("user", 2, false)
-Damagelog:AddUser("guest", 2, false)
+Damagelog:AddUser("operator", 1, false)
+Damagelog:AddUser("user", 1, false)
+Damagelog:AddUser("guest", 1, false)
+
+-- The F-key
+
+Damagelog.Key = KEY_F8
 
 --[[ A message is shown when an alive player opens the menu
 	1 : if you want to only show it to superadmins

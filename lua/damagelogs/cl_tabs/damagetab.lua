@@ -1,4 +1,12 @@
 
+CreateClientConVar("ttt_dmglogs_showinnocents", "0", true, true)
+
+cvars.AddChangeCallback("ttt_dmglogs_showinnocents", function(name, old, new)
+	if IsValid(Damagelog.Menu) then
+		Damagelog:SetRolesListView(Damagelog.Roles, Damagelog.CurrentRoles)
+	end
+end)
+
 surface.CreateFont("DL_Highligh", {
 	font = "Verdana",
 	size = 13
@@ -217,6 +225,13 @@ function Damagelog:DrawDamageTab(x, y)
 	self.RoleInfos:SetHeight(350)
 	self.RoleInfos:SetExpanded(false)
 
+	local show_innocents = vgui.Create("DCheckBoxLabel", self.RoleInfos)
+	show_innocents:SetPos(465, 3)
+	show_innocents:SetText("Show innocent players")
+	show_innocents:SetTextColor(color_white)
+	show_innocents:SetConVar("ttt_dmglogs_showinnocents")
+	show_innocents:SizeToContents()
+	
 	table.insert(forms, self.RoleInfos)
 			
 	for k,v in pairs(forms) do
@@ -282,13 +297,16 @@ function Damagelog:DrawDamageTab(x, y)
 			self.Round:ChooseOptionID(1)
 		end
 	end
-	if PlayedRounds > 0 then
+	if PlayedRounds > 1 or (LocalPlayer():CanUseDamagelog() and PlayedRounds > 0) then
 		local i_count = 1
 		if PlayedRounds > 10 then
 			i_count = PlayedRounds - 10
 		end
+		if not LocalPlayer():CanUseDamagelog() then
+			PlayedRounds = PlayedRounds - 1
+		end
 		for i = i_count, PlayedRounds do
-			if i == PlayedRounds then
+			if i == PlayedRounds and LocalPlayer():CanUseDamagelog() then
 				self.Round:AddChoice("Current Round", i)
 			else
 				self.Round:AddChoice("Round "..tostring(i), i)
@@ -342,6 +360,7 @@ end
 
 function Damagelog:ReceiveRoles(tbl)
 	if not IsValid(self.Menu) then return end
+	self.CurrentRoles = tbl
 	self:SetRolesListView(self.Roles, tbl)
 end
 net.Receive("DL_SendRoles", function()

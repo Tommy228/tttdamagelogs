@@ -130,6 +130,7 @@ else
 	sql.Query("UPDATE damagelog_oldlogs SET damagelog = NULL WHERE date <= "..limit..";")
 	Damagelog:GetWepTable()
 	Damagelog:AutoSlaySQL()
+	Damagelog:StatisticsSQL()
 end
 
 if file.Exists("damagelog/damagelog_lastroundmap.txt", "DATA") then

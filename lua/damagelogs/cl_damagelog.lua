@@ -120,38 +120,25 @@ function Damagelog:OpenMenu()
 	end
 end
 
-function Damagelog:CheckPrivileges()
-	if not LocalPlayer():CanUseDamagelog() then
-		chat.AddText(Color(255, 62, 62, 255), "You are currently not allowed to open the Damagelog Menu.")
-		return false
-	end
-	return true
-end
-
 concommand.Add("damagelog", function()
-	local allowed = Damagelog:CheckPrivileges()
-	if allowed then
-		Damagelog:OpenMenu()
-	end
+	Damagelog:OpenMenu()
 end)
 
 Damagelog.pressed_key = false
 function Damagelog:Think()
-	if input.IsKeyDown(KEY_F8) and not self.pressed_key then
+	if input.IsKeyDown(self.Key) and not self.pressed_key then
 		self.pressed_key = true
-		if self:CheckPrivileges() then
-			if not ValidPanel(self.Menu) then
-				self:OpenMenu()
+		if not ValidPanel(self.Menu) then
+			self:OpenMenu()
+		else
+			if self:IsRecording() then
+				self:StopRecording()
+				self.Menu:SetVisible(true)
 			else
-				if self:IsRecording() then
-					self:StopRecording()
-					self.Menu:SetVisible(true)
-				else
-					self.Menu:Close()
-				end
+				self.Menu:Close()
 			end
 		end
-	elseif self.pressed_key and not input.IsKeyDown(KEY_F8) then
+	elseif self.pressed_key and not input.IsKeyDown(self.Key) then
 		self.pressed_key = false
 	end
 end
@@ -169,9 +156,8 @@ end
 
 net.Receive("DL_InformSuperAdmins", function()
 	local nick = net.ReadString()
-	local round = net.ReadUInt(8)
 	if nick and round then
-		chat.AddText(Color(255,62,62), nick, color_white, " is alive and viewing the logs of the round ", Color(98,176,255), tostring(round), color_white, ".")
+		chat.AddText(Color(255,62,62), nick, color_white, " is alive and has loaded the logs of the current round.")
 	end
 end)
 

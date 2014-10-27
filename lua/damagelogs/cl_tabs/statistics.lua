@@ -9,7 +9,6 @@ net.Receive("DL_SendStats", function()
 	local data = net.ReadData(length)
 	local decompressed = util.Decompress(data)
 	local tbl = util.JSONToTable(decompressed)
-	PrintTable(tbl)
 	local m1, m2
 	local jsons = {}
 	for k,v in pairs(tbl) do
