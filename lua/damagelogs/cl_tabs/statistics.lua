@@ -97,7 +97,7 @@ function Damagelog:Statistics(x,y)
 		
 	local html = vgui.Create("HTML")
 	html:SetPos(5, 5)
-	if #Damagelog.MonthCategories == 0 then
+	if not Damagelog.MonthCategories or #Damagelog.MonthCategories == 0 then
 		html:SetHTML([[
 			<body style="background-color:white">
 				<p> No statistics yet ! After playing long enough, this tab will show you a line-chart of your teamkills/team damages. </p>

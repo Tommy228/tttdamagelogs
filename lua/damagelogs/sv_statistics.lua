@@ -88,7 +88,6 @@ function Damagelog:StatisticsSQL()
 			]])
 		end
 		local exists = sql.Query("SELECT * FROM damagelog_statistics WHERE day = "..day.." AND month = "..month.." AND year = "..year.." LIMIT 1;")
-		PrintTable(exists)
 		if not exists then
 			local keys = {
 				"normal_damages",
