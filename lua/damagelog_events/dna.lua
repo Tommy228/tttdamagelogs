@@ -12,17 +12,17 @@ local event = {}
 event.Type = "DNA"
 
 function event:TTTFoundDNA(ply, dna_owner, ent)
-	local name = (IsValid(ent) and ent:GetClass() or "No Body") -- this should NEVER return "no body" but just in case
+	local name = ent:GetClass()
 	if name == "prop_ragdoll" then
 		name = CORPSE.GetPlayerNick(ent, "<Player disconnected>")
 	end
 	self.CallEvent({
-		[1] = (IsValid(ply) and ply:Nick() or "<Disconnected Retriever>"),
-		[2] = (IsValid(ply) and ply:GetRole() or "disconnected"),
-		[3] = (IsValid(ply) and ply:SteamID() or "<Disconnected Retriever>"),
-		[4] = (IsValid(dna_owner) and dna_owner:Nick() or "<Disconnected Victim>"),
-		[5] = (IsValid(dna_owner) and dna_owner:GetRole() or "disconnected"),
-		[6] = (IsValid(dna_owner) and dna_owner:SteamID() or "<Disconnected Victim>"),
+		[1] = ply:Nick(),
+		[2] = ply:GetRole(),
+		[3] = ply:SteamID(),
+		[4] = dna_owner:Nick(),
+		[5] = dna_owner:GetRole(),
+		[6] = dna_owner:SteamID(),
 		[7] = name
 	})
 end

@@ -113,7 +113,6 @@ end)
 function Damagelog:StrRole(role)
 	if role == ROLE_TRAITOR then return "traitor"
 	elseif role == ROLE_DETECTIVE then return "detective"
-	elseif role == "disconnected" then return "disconnected"
 	else return "innocent" end
 end
 
