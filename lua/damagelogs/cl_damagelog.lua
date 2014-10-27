@@ -4,7 +4,7 @@ include("damagelogs/cl_tabs/settings.lua")
 include("damagelogs/cl_tabs/shoots.lua")
 include("damagelogs/cl_tabs/old_logs.lua")
 include("damagelogs/cl_tabs/rdm_manager.lua")
-include("damagelogs/cl_tabs/about.lua")
+include("damagelogs/cl_tabs/statistics.lua")
 include("damagelogs/sh_privileges.lua")
 include("damagelogs/sh_sync_entity.lua")
 include("damagelogs/cl_filters.lua")
@@ -48,11 +48,52 @@ function Damagelog:OpenMenu()
 	end
 	self.Menu = vgui.Create("DFrame")
 	self.Menu:SetSize(x, y)
-	self.Menu:SetTitle("Tommy228's Damagelogs") 
+	self.Menu:SetTitle("TTT Damagelogs version "..self.VERSION) 
 	self.Menu:SetDraggable(false)
 	self.Menu:MakePopup()
 	self.Menu:SetKeyboardInputEnabled(false)
-	self.Menu:Center()	
+	self.Menu:Center()
+	self.Menu.AboutPos = 0
+	self.Menu.AboutPosMax = 80
+	self.Menu.AboutState = false
+	self.Menu.About = function(self)
+		self.AboutState = not self.AboutState
+	end
+	self.Menu.Think = function(self)
+		self.AboutMoving = true
+		if self.AboutState and self.AboutPos < self.AboutPosMax then
+			self.AboutPos = self.AboutPos + 15
+		elseif not self.AboutState and self.AboutPos > 0 then
+			self.AboutPos = self.AboutPos - 15
+		else
+			self.AboutMoving = false
+		end
+	end
+	local about_text = [[Created by Tommy228. Code contributors :
+	- Azarym
+	- Pandaman09
+	- Bytewave]]
+	self.Menu.PaintOver = function(self, w, h)
+		local _x,_y,_w,_h = x-200, outdated and 80 or 50, 195, self.AboutPos
+		surface.SetDrawColor(color_black)
+		surface.DrawRect(_x,_y,_w,_h)
+		surface.SetDrawColor(Color(255, 245, 148))
+		surface.DrawRect(_x+1, _y+1, _w-2, _h-2)
+		if self.AboutPos >= 50 then
+			surface.SetFont("DermaDefault")
+			surface.SetTextColor(color_black)
+			surface.SetTextPos(_x + 5, _y+5)
+			surface.DrawText("Created by Tommy228.")
+			surface.SetTextPos(_x + 5, _y  + 25)
+			surface.DrawText("Code contributors :")
+			surface.SetTextPos(_x + 5, _y  + 40)
+			surface.DrawText("- Azarym")
+			surface.SetTextPos(_x + 5, _y  + 55)
+			surface.DrawText("- Bytewave")
+			surface.SetTextPos(_x + 5, _y  + 70)
+			surface.DrawText("- Pandaman09")			
+		end
+	end
 	if outdated then
 		local info = vgui.Create("azInfoText", self.Menu);
 		info:SetText("Server owners : this version is outdated! You can get the latest one on http://github.com/Tommy228/TTTDamagelogs");
@@ -67,8 +108,16 @@ function Damagelog:OpenMenu()
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
 	self:DrawRDMManager(x, y)
+	self:Statistics(x,y)
 	self:DrawSettings(x, y)
-	self:About(x,y)
+	self.About = vgui.Create("DButton", self.Menu)
+	self.About:SetPos(x - 60, outdated and 57 or 27)
+	self.About:SetSize(55, 19)
+	self.About:SetText("▼ About")
+	self.About.DoClick = function()
+		self.Menu:About()
+		self.About:SetText(self.Menu.AboutState and "▲ About" or "▼ About")
+	end
 end
 
 function Damagelog:CheckPrivileges()

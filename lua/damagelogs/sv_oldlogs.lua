@@ -86,6 +86,7 @@ if Damagelog.Use_MySQL then
 		delete_old:start()
 		Damagelog:GetWepTable()
 		Damagelog:AutoSlaySQL()
+		Damagelog:StatisticsSQL()
 	end
 	Damagelog.database.onConnectionFailed = function(self, err)
 		file.Write("damagelog/mysql_error.txt", err)

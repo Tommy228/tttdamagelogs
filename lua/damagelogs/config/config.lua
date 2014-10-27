@@ -37,7 +37,7 @@ Damagelog.RDM_Manager_Command = "!report"
 
 Damagelog.Use_MySQL = false
 
--- Enable advanced autoslay (WIP)
+-- Enable advanced autoslay (WIP). MySQL and ULX users only! The command is !autoslay
 
 Damagelog.Enable_Autoslay = false
 
