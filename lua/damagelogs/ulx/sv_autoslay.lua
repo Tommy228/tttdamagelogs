@@ -174,9 +174,9 @@ function Damagelog:SetSlays(admin, steamid, slays, reason)
 				end
 				query:start()
 			end
-	    end
+		end
 		query_exists:start()
-    end
+	end
 end
 
 hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
@@ -185,7 +185,7 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 		query.onSuccess = function(q)
 		    if q:getData() and q:getData()[1] then
 				v:Kill()
-			    local data = q:getData()[1]
+				local data = q:getData()[1]
 				local admins = util.JSONToTable(data.admins) or {}
 				local slays = data.slays
 				local reason = data.reason
@@ -197,13 +197,6 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				else
 					local query2 = Damagelog.database:query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."'")
 					query2:start()
-				end
-				local function ShowNotify(str, singulier)
-				    if singulier then
-				        evolve:Notify(evolve.colors.blue, str, evolve.colors.white, " a jail ", evolve.colors.red, v:Nick(), evolve.colors.white, " par autojail. Raison : '"..raison.."'.")
-					else
-					    evolve:Notify(evolve.colors.blue, str, evolve.colors.white, " ont jail ", evolve.colors.red, v:Nick(), evolve.colors.white, " par autojail. Raison : '"..raison.."'.")
-					end
 				end
 				Damagelog:CreateSlayList(admins, function(list)
 					net.Start("DL_AutoSlay")
