@@ -4,6 +4,11 @@ util.AddNetworkString("DL_SendStats")
 local day = tonumber(os.date("%d"))
 local month = tonumber(os.date("%m"))
 local year = tonumber(os.date("%y"))
+	
+Damagelog.TeamDamages = 0
+Damagelog.NormalDamages = 0
+Damagelog.TeamKills = 0
+Damagelog.NormalKills = 0
 
 function Damagelog:StatisticsSQL()
 	if self.Use_MySQL and self.MySQL_Connected then
