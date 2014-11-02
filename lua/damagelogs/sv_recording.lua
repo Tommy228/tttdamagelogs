@@ -74,12 +74,13 @@ end)
 local Player = FindMetaTable("Player")
 
 function Player:CreateLogEnt()
-	local ent = ents.Create("prop_physics")
+	local ent = ents.Create("prop_dynamic")
 	ent:SetModel("models/error.mdl")
 	ent:Spawn()
 	ent:Activate()
 	ent:SetSolid(SOLID_NONE)
 	ent:SetMoveType(MOVETYPE_NONE)
+	ent:SetRenderMode(RENDERMODE_NONE)
 	ent:SetOwner(self)
 	self.LogEnt = ent
 end
