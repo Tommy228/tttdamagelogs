@@ -47,7 +47,7 @@ Damagelog.Use_MySQL = false
 
 -- Enable advanced autoslay (WIP). MySQL and ULX users only! The command is !autoslay
 
-Damagelog.Enable_Autoslay = false
+Damagelog.Enable_Autoslay = true
 
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 

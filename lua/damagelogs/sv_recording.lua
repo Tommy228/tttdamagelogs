@@ -1,13 +1,17 @@
 
 util.AddNetworkString("DL_AskDeathScene")
 util.AddNetworkString("DL_SendDeathScene")
+util.AddNetworkString("DL_UpdateLogEnt")
 
-Damagelog.Records = {}
-Damagelog.Death_Scenes = {}
-Damagelog.SceneID = 0
+Damagelog.Records = Damagelog.Records or {}
+Damagelog.Death_Scenes = Damagelog.Death_Scenes or {}
+Damagelog.SceneID = Damagelog.SceneID or 0
 
 hook.Add("TTTBeginRound", "TTTBeginRound_SpecDMRecord", function()
 	table.Empty(Damagelog.Records)
+	for k,ply in pairs(player.GetAll()) do
+		ply.SpectatingLog = false
+	end
 end)
 
 timer.Create("SpecDM_Recording", 0.2, 0, function()
@@ -64,5 +68,55 @@ net.Receive("DL_AskDeathScene", function(_, ply)
 		net.WriteUInt(#compressed, 32)
 		net.WriteData(compressed, #compressed)
 		net.Send(ply)
+	end
+end)
+
+local Player = FindMetaTable("Player")
+
+function Player:CreateLogEnt()
+	local ent = ents.Create("prop_physics")
+	ent:SetModel("models/error.mdl")
+	ent:Spawn()
+	ent:Activate()
+	ent:SetSolid(SOLID_NONE)
+	ent:SetMoveType(MOVETYPE_NONE)
+	ent:SetOwner(self)
+	self.LogEnt = ent
+end
+
+hook.Add("PlayerInitialSpawn","DamagelogRecording", function(ply)
+	ply:CreateLogEnt()
+end)
+
+net.Receive("DL_UpdateLogEnt", function(_len, ply)
+	local pos, first
+	local disable = net.ReadUInt(1) == 0
+	if not disable then
+		pos = net.ReadVector()
+		first = net.ReadUInt(1) == 1
+	end
+	if not ply:IsSpec() then return end
+	if not IsValid(ply.LogEnt) then return end
+	if disable then
+		ply:SpectateEntity(nil)
+		ply:Spectate(OBS_MODE_ROAMING)
+		ply.SpectatingLog = false
+	else
+		pos = pos + Vector(0, 0, 45)
+		ply.LogEnt:SetPos(pos)
+		ply.SpectatingLog = true
+		if first then
+			ply:SpectateEntity(ply.LogEnt)
+			ply:Spectate(OBS_MODE_CHASE)
+		end
+	end
+end)
+
+hook.Add("Initialize", "DamagelogRecording", function()
+	local old_think = GAMEMODE.KeyPress
+	function GAMEMODE:KeyPress(ply, key)
+		if not (ply.SpectatingLog and (key == IN_ATTACK or key == IN_ATTACK2)) then
+			return old_think(self, ply, key)
+		end
 	end
 end)

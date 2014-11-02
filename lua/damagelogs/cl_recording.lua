@@ -1,5 +1,7 @@
-
+ 
 local mdl = Model("models/player/arctic.mdl")
+
+CreateClientConVar("ttt_death_scene_slowmo", "0", FCVAR_ARCHIVE)
 
 local i = 1
 local current_scene
@@ -8,6 +10,10 @@ local last_curtime
 local victim
 local attacker
 local playedsounds = {}
+local ttt_specdm_hook
+local current_spec
+local previous_spec
+local paused
 
 local color_effect = {
 	["$pp_colour_addr"] = 0,
@@ -21,20 +27,152 @@ local color_effect = {
 	["$pp_colour_mulb" ] = 0
 }
 
+hook.Add("Initialize", "GetSpecDMHook", function()
+	local tbl = hook.GetTable().Think
+	if tbl then
+		ttt_specdm_hook = tbl.Think_Ghost
+	end
+end)
+
+function Damagelog:CreateDSPanel()
+
+	if IsValid(self.DSPanel) then self.DSPanel:Remove() end
+
+	local w,h = 500, 100
+
+	self.DSPanel = vgui.Create("DPanel")
+	self.DSPanel:SetSize(w, h)
+	self.DSPanel:SetPos(nil, ScrH() - (h+20))
+	self.DSPanel:CenterHorizontal()
+	
+	self.DSPanel.PaintOver = function(self, w, h)
+		surface.SetDrawColor(color_black)
+		surface.DrawLine(0,0,w-1,0)
+		surface.DrawLine(w-1,0,w-1,h-1)
+		surface.DrawLine(w-1,h-1,0,h-1)
+		surface.DrawLine(0,h-1,0,0)
+		surface.SetDrawColor(Color(150, 150, 150))
+		surface.DrawLine(120, 10, 120, h-10)
+	end
+	
+	local margin = 5
+	local w_button, h_button = 100, h/3 - (4*margin)/3
+	
+	local free, spectate_victim
+	
+	local spectate_attacker = vgui.Create("DButton", self.DSPanel)
+	spectate_attacker:SetPos(margin, margin)
+	spectate_attacker:SetSize(w_button, h_button)
+	spectate_attacker:SetText("Spectate attacker")
+	spectate_attacker:SetDisabled(true)
+	spectate_attacker.DoClick = function()
+		current_spec = attacker
+		spectate_victim:SetDisabled(false)
+		free:SetDisabled(false)
+		spectate_attacker:SetDisabled(true)
+	end
+	
+	spectate_victim = vgui.Create("DButton", self.DSPanel)
+	spectate_victim:SetPos(margin, h_button + margin*2)
+	spectate_victim:SetSize(w_button, h_button)
+	spectate_victim:SetText("Spectate victim")
+	spectate_victim.DoClick = function()
+		current_spec = victim
+		spectate_victim:SetDisabled(true)
+		free:SetDisabled(false)
+		spectate_attacker:SetDisabled(false)
+	end
+	
+	free = vgui.Create("DButton", self.DSPanel)
+	free:SetPos(margin, h_button*2 + margin*3)
+	free:SetSize(w_button, h_button)
+	free:SetText("Free mode")
+	free.DoClick = function()
+		current_spec = 0
+		spectate_victim:SetDisabled(false)
+		free:SetDisabled(true)
+		spectate_attacker:SetDisabled(false)
+	end
+	
+	
+	local note = vgui.Create("DLabel", self.DSPanel)
+	note:SetText("Note : Press C to enable the mouse.")
+	note:SetTextColor(color_black)
+	note:SetPos(140, 10)
+	note:SizeToContents()
+	
+	self.DS_Progress = vgui.Create("DSlider", self.DSPanel)
+	self.DS_Progress:SetPos(140, 38)
+	self.DS_Progress:SetSize(w - 160, 20)
+	Derma_Hook(self.DS_Progress, "Paint", "Paint", "NumSlider" )
+	
+	local play = vgui.Create("DButton", self.DSPanel)
+	play:SetPos(140, h-35)
+	play:SetSize(25, 25)
+	play:SetText("")
+	play.Icon = vgui.Create("DImage", play)
+	play.Icon:SetSize(16,16)
+	play.Icon:Center()
+	play.Icon:SetImage("icon16/control_pause_blue.png")
+	play.DoClick = function()
+		if paused then
+			play.Icon:SetImage("icon16/control_pause_blue.png")
+			paused = false
+		else
+			play.Icon:SetImage("icon16/control_play_blue.png")
+			paused = true
+		end
+	end
+	self.DS_Play = play
+	
+	local replay = vgui.Create("DButton", self.DSPanel)
+	replay:SetPos(170, h-35)
+	replay:SetSize(25, 25)
+	replay:SetText("")
+	replay.Icon = vgui.Create("DImage", replay)
+	replay.Icon:SetSize(16,16)
+	replay.Icon:Center()
+	replay.Icon:SetImage("icon16/control_repeat_blue.png")
+	self.DS_Replay = replay
+	
+	local slowmo = vgui.Create("DCheckBoxLabel", self.DSPanel)
+	slowmo:SetText("Enable slowmotion")
+	slowmo:SetConVar("ttt_death_scene_slowmo")
+	slowmo:SetPos(w - 125, h-30)
+	slowmo:SetTextColor(color_black)
+	slowmo:SizeToContents()
+	
+	local stop = vgui.Create("DButton", self.DSPanel)
+	stop:SetText("X")
+	stop:SetSize(20, 20)
+	stop:SetPos(w-25,5)
+	stop.DoClick = function()
+		self:StopRecording()
+	end
+
+end
+
 net.Receive("DL_SendDeathScene", function()
 	victim = net.ReadString()
 	attacker = net.ReadString()
 	local length = net.ReadUInt(32)
 	local compressed = net.ReadData(length)
+	Damagelog:CreateDSPanel()
 	local encoded = util.Decompress(compressed)
 	local data = util.JSONToTable(encoded)
 	i = 1
 	current_scene = data
 	models = {}
 	playedsounds = {}
+	current_spec = nil
+	previous_spec = nil
 	if IsValid(Damagelog.Menu) then
 		Damagelog.Menu:SetVisible(false)
 	end
+	if ttt_specdm_hook then
+		hook.Remove("Think", "Think_Ghost")
+	end
+	paused = false
 end)
 
 local attacker_mat = Material("cable/redlaser")
@@ -75,12 +213,10 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 			end
 			render.SuppressEngineLighting(false)
 		end
-		cam.End3D()
 	end
 end)
 
 hook.Add("HUDPaint", "Scene_Record", function()
-
 	if current_scene then
 		surface.SetFont("TabLarge")
 		for nick,model in pairs(models) do
@@ -137,83 +273,136 @@ hook.Add("Think", "Think_Record", function()
 		v:FrameAdvance(FrameTime())
 	end
 	if current_scene and (not last_curtime or (last_curtime and (CurTime() - last_curtime) >= 0.01)) then
-		i = i + 0.08
+		gui.EnableScreenClicker(input.IsKeyDown(KEY_C))
+		for k,v in pairs(player.GetAll()) do
+			v:SetNoDraw(true)
+		end
+		local slowmo = GetConVar("ttt_death_scene_slowmo"):GetBool()
+		if not paused and not Damagelog.DS_Progress:IsEditing() then
+			if slowmo then
+				i = i + 0.03
+			else
+				i = i + 0.08
+			end
+		end
+		Damagelog.DS_Progress.TranslateValues = function(self, x, y)
+			i = #current_scene * x
+			return x,y
+		end
+		Damagelog.DS_Replay.DoClick = function()
+			i = 1
+		end
+		if i < 1 then
+			i = 1
+		end
+		local progress = #current_scene - (#current_scene - i)
+		if progress > #current_scene then
+			progress = #current_scene
+		end
+		Damagelog.DS_Progress:SetSlideX(progress/#current_scene)
+		Damagelog.DS_Progress:SetSlideY(0.5)
 		last_curtime = CurTime()
 		local scene = current_scene[math.floor(i)]
 		local next_scene = current_scene[math.ceil(i)]
 		if not scene then
-			timer.Simple(5, function()
-				Damagelog:StopRecording()
-				if IsValid(Damagelog.Menu) then
-					Damagelog.Menu:SetVisible(true)
-				end
-			end)
-		else
+			paused = true
+			Damagelog.DS_Play:SetImage("icon16/control_play_blue.png")
+		end
+		if scene then
 			for k,v in pairs(models) do
 				if not scene[k] then
 					v:Remove()
 					models[k] = nil
 				end
 			end
-			for k,v in pairs(scene) do
-				if models[k] and v.corpse and not models[k].corpse then
-					if IsValid(models[k]) then
-						models[k]:Remove()
-					end
-					models[k] = nil
+		end
+		local changed = false
+		if not current_spec and not previous_spec then
+			current_spec = attacker
+			previous_spec = attacker
+			changed = true
+		end
+		if current_spec != previous_spec then
+			previous_spec = current_spec
+			changed = true
+		end
+		if changed and current_spec == 0 then
+			net.Start("DL_UpdateLogEnt")
+			net.WriteUInt(0,1)
+			net.SendToServer()
+		end
+		for k,v in pairs(scene or {}) do
+			if models[k] and v.corpse and not models[k].corpse then
+				if IsValid(models[k]) then
+					models[k]:Remove()
 				end
-				if not models[k] then
-					if not v.corpse then
-						models[k] = ClientsideModel(mdl, RENDERGROUP_TRANSLUCENT)
-						models[k]:AddEffects(EF_NODRAW)
-						models[k].role = v.role
-					else
-						models[k] = { corpse = true }
-					end
-				end
-				if v.corpse then
-					models[k].pos = v.pos
-					models[k].ang = v.ang
+				models[k] = nil
+			end
+			if not IsValid(models[k]) then
+				if not v.corpse then
+					models[k] = ClientsideModel(mdl, RENDERGROUP_TRANSLUCENT)
+					models[k]:AddEffects(EF_NODRAW)
+					models[k].role = v.role
 				else
-					local vector = v.pos
-					local angle = v.ang
-					if next_scene and next_scene[k] then
-						local percent = math.ceil(i) - i
-						vector = LerpVector(percent, next_scene[k].pos, v.pos)
-						angle = LerpAngle(percent, next_scene[k].ang, v.ang)
-					end
-					models[k].wep = v.wep
-					models[k].hp = v.hp
-					if models[k].SetSequence then
-						models[k]:SetSequence(v.sequence)
-					end
-					models[k].move_x = vector.x
-					models[k].move_y = vector.y
-					models[k].spin = angle.z
-					models[k].move_yaw = v.move_yaw
-					models[k]:SetPos(vector)
-					models[k]:SetAngles(angle)
+					models[k] = { corpse = true }
 				end
 			end
-			if not playedsounds[scene] then
-				for k,v in pairs(scene) do
-					if v.shot then
-						models[k]:EmitSound(v.shot, 100, 100)
+			if v.corpse then
+				models[k].pos = v.pos
+				models[k].ang = v.ang
+			else
+				local vector = v.pos
+				local angle = v.ang
+				if next_scene and next_scene[k] then
+					local percent = math.ceil(i) - i
+					vector = LerpVector(percent, next_scene[k].pos, v.pos)
+					angle = LerpAngle(percent, next_scene[k].ang, v.ang)
+				end
+				models[k].wep = v.wep
+				models[k].hp = v.hp
+				if models[k].SetSequence then
+					models[k]:SetSequence(v.sequence)
+				end
+				if paused then
+					models[k]:SetPlaybackRate(0)
+				elseif slowmo then
+					models[k]:SetPlaybackRate(0.4)
+				else
+					models[k]:SetPlaybackRate(1)
+				end
+				models[k].move_x = vector.x
+				models[k].move_y = vector.y
+				models[k].spin = angle.z
+				models[k].move_yaw = v.move_yaw
+				models[k]:SetPos(vector)
+				models[k]:SetAngles(angle)
+				if k == current_spec then
+					net.Start("DL_UpdateLogEnt")
+					net.WriteUInt(1, 1)
+					net.WriteVector(next_scene and next_scene[k].pos or vector)
+					net.WriteUInt(changed and 1 or 0, 1)
+					net.SendToServer()
+				end
+			end
+		end
+		if scene and not playedsounds[scene] then
+			for k,v in pairs(scene) do
+				if v.shot then
+					models[k]:EmitSound(v.shot, 100, 100)
+				end
+				if v.trace then
+					if not models[k].traces then
+						models[k].traces = {}
 					end
-					if v.trace then
-						if not models[k].traces then
-							models[k].traces = {}
+					local index = table.insert(models[k].traces, v.trace)
+					timer.Simple(0.2, function()
+						if models[k].traces then
+							models[k].traces[index] = false
 						end
-						local index = table.insert(models[k].traces, v.trace)
-						timer.Simple(0.2, function()
-							if models[k].traces then
-								models[k].traces[index] = false
-							end
-						end)
-					end
+					end)
 				end
-				playedsounds[scene] = true
 			end
+			playedsounds[scene] = true
 		end
 	end
 end)
@@ -223,6 +412,10 @@ function Damagelog:IsRecording()
 end
 
 function Damagelog:StopRecording()
+	self.DSPanel:Remove()
+	net.Start("DL_UpdateLogEnt")
+	net.WriteUInt(0, 1)
+	net.SendToServer()
 	for k,v in pairs(models) do
 		if IsValid(v) then
 			v:Remove()
@@ -232,4 +425,12 @@ function Damagelog:StopRecording()
 	current_scene = nil
 	i = 1
 	playedsounds = {}
+	if ttt_specdm_hook then
+		hook.Add("Think", "Think_Ghost", ttt_specdm_hook)
+	end
+	for k,v in pairs(player.GetAll()) do
+		v:SetNoDraw(false)
+	end
+	gui.EnableScreenClicker(false)
+	Damagelog.Menu:SetVisible(true)
 end
