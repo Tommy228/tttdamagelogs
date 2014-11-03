@@ -146,7 +146,7 @@ net.Receive("RDMApologise", function()
 		surface.DrawRect(0,0,w,h)
 	end
 	local pardonner = vgui.Create("DButton", answer)
-	pardonner:SetText("Cancel")
+	pardonner:SetText("Cancel the report")
 	pardonner:SetPos(3, 235)
 	pardonner:SetSize(195, 30)
 	pardonner.DoClick = function(self)
