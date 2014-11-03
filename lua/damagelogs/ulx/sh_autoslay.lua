@@ -22,7 +22,8 @@ local function CreateCommand()
 		type=ULib.cmds.StringArg, 
 		hint="slay reason", 
 		default = "No reason specified",
-		ULib.cmds.optional
+		ULib.cmds.optional,
+		ULib.cmds.takeRestOfLine
 	})
 	autoslay:defaultAccess(ULib.ACCESS_ADMIN)
 	autoslay:help("Slays the targets for a specified number of rounds. Set the rounds to 0 to cancel the slay.")
