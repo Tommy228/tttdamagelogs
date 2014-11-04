@@ -396,7 +396,7 @@ hook.Add("Think", "Think_Record", function()
 					end
 					local index = table.insert(models[k].traces, v.trace)
 					timer.Simple(0.2, function()
-						if models[k].traces then
+						if models[k] and models[k].traces then
 							models[k].traces[index] = false
 						end
 					end)
@@ -432,5 +432,7 @@ function Damagelog:StopRecording()
 		v:SetNoDraw(false)
 	end
 	gui.EnableScreenClicker(false)
-	Damagelog.Menu:SetVisible(true)
+	if IsValid(self.Menu) then
+		self.Menu:SetVisible(true)
+	end
 end

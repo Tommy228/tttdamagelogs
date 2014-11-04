@@ -25,11 +25,6 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 			[7] = attacker:SteamID(),
 			[8] = scene
 		}
-		if Damagelog:IsTeamkill(tbl[2], tbl[4]) then
-			Damagelog.TeamKills = Damagelog.TeamKills + 1
-		else
-			Damagelog.NormalKills = Damagelog.NormalKills + 1
-		end
 		self.CallEvent(tbl)
 		if scene then
 			timer.Simple(0.6, function()
