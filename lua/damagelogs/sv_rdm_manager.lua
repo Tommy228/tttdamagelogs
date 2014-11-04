@@ -12,6 +12,7 @@ util.AddNetworkString("DL_GetForgive")
 util.AddNetworkString("DL_Death")
 util.AddNetworkString("DL_Answering")
 util.AddNetworkString("DL_Answering_global")
+util.AddNetworkString("DL_ForceRespond")
 
 Damagelog.Reports = Damagelog.Reports or { Current = {} }
 
@@ -95,6 +96,17 @@ end)
 
 concommand.Add("rdm_manager_report", function(ply, cmd, args)
 	if not IsValid(ply) then return end
+	local found = false
+	for k,v in pairs(player.GetHumans()) do
+		if v:CanUseRDMManager() then
+			found = true
+			break
+		end
+	end
+	if not found then
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "No admins online !", 4, "buttons/weapon_cant_buy.wav")
+		return
+	end
 	if not ply.CanReport then
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "You need to play before being able to report!", 4, "buttons/weapon_cant_buy.wav")
 	else
@@ -147,6 +159,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	if not attacker:CanUseRDMManager() then
 		attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, ply:Nick().." has reported you!", 5, "ui/vote_failure.wav")
 	end
+	ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "You have reported "..attacker:Nick(), 5, "")
 	UpdatePreviousReports()
 end)
 
@@ -249,6 +262,19 @@ net.Receive("DL_GetForgive", function(_, ply)
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." did not forgive "..tbl.attacker_nick.." on the report #"..index.." !", 5, "ui/vote_yes.wav")
 			end
 			v:UpdateReport(previous, index)
+		end
+	end
+	if forgive then
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, "You decided to cancel the report.", 5, "ui/vote_yes.wav")
+	else
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, "You decided to keep the report.", 5, "ui/vote_yes.wav")
+	end
+	local attacker = GetBySteamID(tbl.attacker)
+	if IsValid(attacker) then
+		if forgive then
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." decided to cancel the report.", 5, "ui/vote_yes.wav")
+		else
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." does not want to forgive you.", 5, "ui/vote_yes.wav")
 		end
 	end
 	UpdatePreviousReports()

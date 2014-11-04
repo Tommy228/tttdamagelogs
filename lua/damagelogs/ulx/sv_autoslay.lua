@@ -46,7 +46,6 @@ function Damagelog.SlayMessage(ply, message)
 end
 
 function Damagelog:CreateSlayList(tbl)
-	PrintTable(tbl)
 	if #tbl == 1 then
 		return self:GetName(tbl[1])
 	else
@@ -112,14 +111,10 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			end
 			local old_slays = tonumber(data.slays)
 			local old_steamids = util.JSONToTable(data.admins) or {}
-			print("OLD!")
-			PrintTable(old_steamids)
 		    local new_steamids = table.Copy(old_steamids)
 	        if not table.HasValue(new_steamids, adminid) then
 			    table.insert(new_steamids, adminid)
 			end
-			print("NEW!")
-			PrintTable(new_steamids)
 		    if old_slays == slays then
 				sql.Query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
 				local list = self:CreateSlayList(new_steamids)
