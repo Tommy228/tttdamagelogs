@@ -417,8 +417,8 @@ function Damagelog:DrawRDMManager(x,y)
 				VictimMessage:SetText(selected.message)
 				KillerMessage:SetText(selected.response or "No response yet")
 			end
+			VictimLogs:Clear()
 			if selected.logs then
-				VictimLogs:Clear()
 				Damagelog:SetListViewTable(VictimLogs, selected.logs, false)
 			end
 		end
