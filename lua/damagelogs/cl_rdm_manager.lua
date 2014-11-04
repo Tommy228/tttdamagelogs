@@ -85,7 +85,7 @@ local function BuildReportFrame(report)
 			local Button = vgui.Create("DButton")
 			Button:SetText("Send")
 			Button.DoClick = function()
-				local text = TextEntry:GetValue()
+				local text = string.Trim(TextEntry:GetValue())
 				local size = #text
 				if size < 10 then
 					Info:SetText("A minimum of 10 characters are required!");
@@ -244,7 +244,7 @@ function Damagelog:ReportWindow(tbl)
 	Submit:SetPos(210, 195)
 	Submit:SetSize(370, 25)
 	Submit.Think = function(self)
-		local characters = string.len(Entry:GetText())
+		local characters = string.len(string.Trim(Entry:GetText()))
 		Submit:SetDisabled(characters < 10 or not cur_selected)
 	end
 	Submit.DoClick = function(self)

@@ -49,7 +49,6 @@ local function TakeAction()
 	local current = not report.previous
 	local attacker = GetBySteamID(report.attacker)
 	local victim = GetBySteamID(report.victim)
-	print(attacker, report.attacker)
 	local menuPanel = DermaMenu()
 	menuPanel:AddOption("Force the reported player to respond", function()
 		if IsValid(attacker) then
@@ -61,6 +60,28 @@ local function TakeAction()
 			Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 		end
 	end):SetImage("icon16/clock_red.png")
+	menuPanel:AddOption("View Death Scene", function()
+		local found = false
+		PrintTable(report.logs)
+		for k,v in pairs(report.logs or {}) do
+			print(v[6], report.victim, v[7], report.attacker)
+			if v.type == "KILL" then
+				local infos = v.infos
+				if infos[6] == report.victim and infos[7] == report.attacker then
+					net.Start("DL_AskDeathScene")
+					net.WriteUInt(infos[8], 32)
+					net.WriteString(report.victim)
+					net.WriteString(report.attacker)
+					net.SendToServer()
+					found = true
+					break
+				end
+			end
+		end
+		if not found then
+			Derma_Message("Could not find the Death Scene", "Error", "OK")
+		end
+	end):SetImage("icon16/television.png")
 	if ulx then
 		if Damagelog.Enable_Autoslay then
 			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
@@ -397,13 +418,12 @@ function Damagelog:DrawRDMManager(x,y)
 				KillerMessage:SetText(selected.response or "No response yet")
 			end
 			if selected.logs then
+				VictimLogs:Clear()
 				Damagelog:SetListViewTable(VictimLogs, selected.logs, false)
 			end
 		end
 		
 		VictimLogsForm:AddItem(VictimLogs)
-		
-		
 	
 		Manager:AddItem(VictimLogsForm)
 		

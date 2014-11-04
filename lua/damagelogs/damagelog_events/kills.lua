@@ -41,11 +41,6 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 			end
 			net.Send(ply)
 			ply:SetNWEntity("DL_Killer", attacker)
-			ply.rdmInfo = {
-				time = Damagelog.Time,
-				round = Damagelog.CurrentRound,
-			}
-			ply.rdmSend = true
 		end
 	end
 end

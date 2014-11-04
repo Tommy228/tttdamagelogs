@@ -46,6 +46,7 @@ function Damagelog.SlayMessage(ply, message)
 end
 
 function Damagelog:CreateSlayList(tbl)
+	PrintTable(tbl)
 	if #tbl == 1 then
 		return self:GetName(tbl[1])
 	else
@@ -91,14 +92,14 @@ local function NetworkSlays(steamid, number)
 	end
 end
 
-function Damagelog:SetSlays(admin, steamid, slays, reason)
+function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 	if reason == "" then
 		reason = "No reason specified"
 	end
 	if slays == 0 then
 	    sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."';")
 		local name = self:GetName(steamid)
-		Damagelog.SlayMessage(admin, name.." will not be slain.")
+		ulx.fancyLogAdmin(admin, "#A removed the autoslays of #T.", target)
 		NetworkSlays(steamid, 0)
 	else
 	    local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..steamid.."' LIMIT 1;")
@@ -111,21 +112,25 @@ function Damagelog:SetSlays(admin, steamid, slays, reason)
 			end
 			local old_slays = tonumber(data.slays)
 			local old_steamids = util.JSONToTable(data.admins) or {}
+			print("OLD!")
+			PrintTable(old_steamids)
 		    local new_steamids = table.Copy(old_steamids)
 	        if not table.HasValue(new_steamids, adminid) then
 			    table.insert(new_steamids, adminid)
 			end
+			print("NEW!")
+			PrintTable(new_steamids)
 		    if old_slays == slays then
 				sql.Query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
-				local list = self:CreateSlayList(old_steamids)
+				local list = self:CreateSlayList(new_steamids)
 				local nick = self:GetName(steamid)
-				self.SlayMessage(admin, nick.." was already autoslain "..tostring(slays).." time(s) by "..list..". The reason has been changed to '"..reason.."'.")
+				ulx.fancyLogAdmin(admin, "#A changed the reason of #T's autoslay to : '#s'. He was already autoslain "..slays.." time(s) by #s.", target, reason, list)
 			else
 				local difference = slays - old_slays
 				sql.Query(string.format("UPDATE damagelog_autoslay SET admins = %s, slays = %i, reason = %s, time = %s WHERE ply = '%s' LIMIT 1;", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
-				local list = self:CreateSlayList(old_steamids)
+				local list = self:CreateSlayList(new_steamids)
 				local nick = self:GetName(steamid)
-				self.SlayMessage(admin, "You have "..(difference > 0 and "added " or "removed ")..tostring(math.abs(difference)).." autoslays to "..nick..". He was previously autoslain "..old_slays.." time(s) by "..list..".")
+				ulx.fancyLogAdmin(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference).." slays to #T for the reason : '#s'. He was previously autoslain "..old_slays.." time(s) by #s.", target, reason, list)
 				NetworkSlays(steamid, slays)
 			end
 		else
@@ -136,7 +141,7 @@ function Damagelog:SetSlays(admin, steamid, slays, reason)
 			    admins = util.TableToJSON( { "Console" } )
 			end
 			sql.Query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
-			self.SlayMessage(admin, self:GetName(steamid).." will be slain "..slays.." times for '"..reason.."'.")
+			ulx.fancyLogAdmin(admin, "#A added "..slays.." autoslays to #T with the reason : '#s'", target, reason)
 			NetworkSlays(steamid, slays)
 		end
 	end

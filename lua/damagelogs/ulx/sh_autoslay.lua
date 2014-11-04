@@ -5,7 +5,7 @@ local function CreateCommand()
 	if not ulx then return end
 
 	function ulx.autoslay(calling_ply, target, rounds, reason)
-		Damagelog:SetSlays(calling_ply, target:SteamID(), rounds, reason)
+		Damagelog:SetSlays(calling_ply, target:SteamID(), rounds, reason, target)
 	end
 	
 	local autoslay = ulx.command("TTT", "ulx autoslay", ulx.autoslay, "!autoslay" )

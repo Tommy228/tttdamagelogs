@@ -37,10 +37,11 @@ include("damagelogs/sv_rdm_manager.lua")
 include("damagelogs/sv_stupidoverrides.lua")
 include("damagelogs/sv_recording.lua")
 include("damagelogs/sh_notify.lua")
-include("damagelogs/sh_rdm_manager.lua")
-
-resource.AddFile("sound/ui/vote_failure.wav")
-resource.AddFile("sound/ui/vote_yes.wav")
+if Damagelog.RDM_Manager_Enabled then
+	include("damagelogs/sh_rdm_manager.lua")
+	resource.AddFile("sound/ui/vote_failure.wav")
+	resource.AddFile("sound/ui/vote_yes.wav")
+end
 
 util.AddNetworkString("DL_AskDamagelog")
 util.AddNetworkString("DL_SendDamagelog")

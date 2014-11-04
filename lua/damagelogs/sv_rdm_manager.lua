@@ -80,6 +80,7 @@ end
 hook.Add("PlayerSay", "Damagelog_RDMManager", function(ply, text, teamOnly)
 	if Damagelog.RDM_Manager_Enabled and (string.Left(string.lower(text), #Damagelog.RDM_Manager_Command) == Damagelog.RDM_Manager_Command) then
 		ply:ConCommand("rdm_manager_report")
+		return ""
 	end
 end)
 
