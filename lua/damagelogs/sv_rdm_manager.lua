@@ -144,7 +144,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	end
 	attacker:SendReport(Damagelog.Reports.Current[index])
 	if not attacker:CanUseRDMManager() then
-		v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, ply:Nick().." has reported you!", 5, "ui/vote_failure.wav")
+		attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, ply:Nick().." has reported you!", 5, "ui/vote_failure.wav")
 	end
 	UpdatePreviousReports()
 end)
@@ -257,7 +257,6 @@ net.Receive("DL_Answering", function(_len, ply)
 	net.Start("DL_Answering_global")
 	net.WriteString(ply:Nick())
 	net.Broadcast()
-	chat.AddText(Color(255,62,62), nick, color_white, " is answering to his reports.")
 end)
 
 net.Receive("DL_ForceRespond", function(_len, ply)

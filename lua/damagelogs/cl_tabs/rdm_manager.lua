@@ -128,7 +128,6 @@ function PANEL:GetAttackerSlays(report)
 		local steamid = v:IsBot() and "BOT" or v:SteamID()
 		if steamid == report.attacker then
 			local slays = v:GetNWInt("Autoslays_left", 0)
-			print(slays)
 			if slays <= 0 then
 				return v:Nick().." not slain"
 			else
