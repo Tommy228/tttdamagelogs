@@ -33,7 +33,73 @@ local colors = {
 	[RDM_MANAGER_PROGRESS] = Color(0,0,190),
 	[RDM_MANAGER_FINISHED] = Color(0,190, 0),
 	[RDM_MANAGER_CANCELED] = Color(100, 100, 100)
-}	
+}
+
+local function GetBySteamID(steamid)
+	for k,v in pairs(player.GetAll()) do
+		if v:SteamID() == steamid then
+			return v
+		end
+	end
+end
+
+local function TakeAction()
+	local report = Damagelog.SelectedReport
+	if not report then return end
+	local current = not report.previous
+	local attacker = GetBySteamID(report.attacker)
+	local victim = GetBySteamID(report.victim)
+	print(attacker, report.attacker)
+	local menuPanel = DermaMenu()
+	menuPanel:AddOption("Force the reported player to respond", function()
+		if IsValid(attacker) then
+			net.Start("DL_ForceRespond")
+			net.WriteUInt(report.index, 4)
+			net.WriteUInt(current and 0 or 1, 1)
+			net.SendToServer()
+		else
+			Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
+		end
+	end):SetImage("icon16/clock_red.png")
+	if ulx then
+		if Damagelog.Enable_Autoslay then
+			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+			local slaynr = DermaMenu(menuPanel)
+			slaynr:SetVisible(false)
+			slaynr_pnl:SetSubMenu(slaynr)
+			slaynr_pnl:SetText("Autoslay")
+			slaynr_pnl:SetImage("icon16/lightning_go.png")
+			menuPanel:AddPanel(slaynr_pnl)
+			slaynr:AddOption("Victim", function()
+				if IsValid(victim) then
+					Derma_StringRequest("Reason", "Please type the reason as to why you want to slay "..victim:Nick(), "", function(txt)
+						RunConsoleCommand("ulx", "autoslay", victim:Nick(), "1", txt)
+					end)
+				else
+					Derma_Message("The victim isn't valid! (disconnected?)", "Error", "OK")
+				end
+			end):SetImage("icon16/user.png")
+			slaynr:AddOption("Reported player", function()
+				if IsValid(attacker) then
+					Derma_StringRequest("Reason", "Please type the reason as to why you want to slay "..attacker:Nick(), "", function(txt)
+						RunConsoleCommand("ulx", "autoslay", attacker:Nick(), "1", txt)
+					end)
+				else
+					Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
+				end
+			end):SetImage("icon16/user_delete.png")
+		end
+		menuPanel:AddOption("Slay the reported player", function()
+			if IsValid(attacker) then
+				RunConsoleCommand("ulx", "slay", attacker:Nick())
+			else
+				Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
+			end
+		end):SetImage("icon16/lightning.png")
+	end
+	menuPanel:Open()
+end
+
 
 local PANEL = {}
 
@@ -57,8 +123,20 @@ function PANEL:SetReportsTable(tbl)
 	self.ReportsTable = tbl
 end
 
-function PANEL:GetAttackerSlays()
-	return "Attacker not slain"
+function PANEL:GetAttackerSlays(report)
+	for k,v in pairs(player.GetAll()) do
+		local steamid = v:IsBot() and "BOT" or v:SteamID()
+		if steamid == report.attacker then
+			local slays = v:GetNWInt("Autoslays_left", 0)
+			print(slays)
+			if slays <= 0 then
+				return v:Nick().." not slain"
+			else
+				return v:Nick().." slain "..slays.." times"
+			end
+		end
+	end
+	return "Player not found"
 end
 
 function PANEL:GetStatus(report)
@@ -101,6 +179,12 @@ function PANEL:UpdateReport(index)
 					self.Columns[3]:SetTextColor(Color(190, 0, 0))
 					self.Columns[6]:SetTextColor(colors[self.status] or color_white)
 				end
+			end
+			self.Reports[index].OnRightClick = function(self)
+				TakeAction()
+			end
+			self.Reports[index].Think = function(pnl)
+				self.Reports[pnl.index]:SetValue(5, self:GetAttackerSlays(report))
 			end
 		else
 			self.Reports[index] = false
@@ -226,12 +310,15 @@ function Damagelog:DrawRDMManager(x,y)
 		ShowFinished:SizeToContents()
 		ShowFinished:SetPos(235, 7)
 	
-		local TakeAction = vgui.Create("DButton", Background)
-		TakeAction:SetText("Take Action")
-		TakeAction:SetPos(380, 4)
-		TakeAction:SetSize(125, 18)
-		TakeAction.Think = function(self)
+		local TakeActionB = vgui.Create("DButton", Background)
+		TakeActionB:SetText("Take Action")
+		TakeActionB:SetPos(380, 4)
+		TakeActionB:SetSize(125, 18)
+		TakeActionB.Think = function(self)
 			self:SetDisabled(not Damagelog.SelectedReport or Damagelog.SelectedReport.status == RDM_MANAGER_CANCELED)
+		end
+		TakeActionB.DoClick = function(self)
+			TakeAction()
 		end
 	
 		local SetState = vgui.Create("DButton", Background)
@@ -310,9 +397,14 @@ function Damagelog:DrawRDMManager(x,y)
 				VictimMessage:SetText(selected.message)
 				KillerMessage:SetText(selected.response or "No response yet")
 			end
+			if selected.logs then
+				Damagelog:SetListViewTable(VictimLogs, selected.logs, false)
+			end
 		end
 		
 		VictimLogsForm:AddItem(VictimLogs)
+		
+		
 	
 		Manager:AddItem(VictimLogsForm)
 		

@@ -42,6 +42,6 @@ if CLIENT then
 		local list = net.ReadString()
 		local reason = net.ReadString()
 		local _time = net.ReadString()
-		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, " has been autoslain by ",  Color(98, 176, 255), list.." ", color_white, _time.." ago for : '"..reason.."'.")
+		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, " has been autoslain by ",  Color(98, 176, 255), list.." ", color_white, _time.." ago with the reason : '"..reason.."'.")
 	end)
 end

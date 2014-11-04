@@ -24,6 +24,7 @@ include("damagelogs/cl_infolabel.lua")
 local outdated = false
 http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version.md?ref=master", function(body)
 	local content = util.JSONToTable(body)
+	if not content then return end
 	local version = content.content
 	if version then
 		version = Damagelog.Base64Decode(version)

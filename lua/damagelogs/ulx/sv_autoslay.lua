@@ -2,60 +2,41 @@
 util.AddNetworkString("DL_SlayMessage")
 util.AddNetworkString("DL_AutoSlay")
 
-function Damagelog:AutoSlaySQL()
-	if self.Use_MySQL and self.MySQL_Connected then
-		local query = self.database:query([[CREATE TABLE IF NOT EXISTS damagelog_autoslay (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			ply varchar(255) NOT NULL,
-			admins tinytext NOT NULL,
-			slays SMALLINT UNSIGNED NOT NULL,
-			reason tinytext NOT NULL,
-			time BIGINT UNSIGNED NOT NULL,
-			PRIMARY KEY(id))
-		]])
-		query:start()
-		local query_names = self.database:query([[CREATE TABLE IF NOT EXISTS damagelog_names (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			steamid varchar(255),
-			name varchar(255),
-			PRIMARY KEY(id))
-		]])
-		query_names:start()
-	end
+if not sql.TableExists("damagelog_autoslay") then
+	sql.Query([[CREATE TABLE damagelog_autoslay (
+		ply varchar(255) NOT NULL,
+		admins tinytext NOT NULL,
+		slays SMALLINT UNSIGNED NOT NULL,
+		reason tinytext NOT NULL,
+		time BIGINT UNSIGNED NOT NULL)
+	]])
+end
+if not sql.TableExists("damagelog_names") then
+	sql.Query([[CREATE TABLE damagelog_names (
+		steamid varchar(255),
+		name varchar(255))
+	]])
 end
 
 hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
 	local name = ply:Nick()
-	if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
-		local query = Damagelog.database:query("SELECT name FROM damagelog_names WHERE steamid = '"..steamid.."';")
-		query.onSuccess = function(self)
-			local data = self:getData()
-			if not data[1] then
-				local insert = Damagelog.database:query("INSERT INTO damagelog_names (`steamid`, `name`) VALUES('"..steamid.."', "..sql.SQLStr(name)..");")
-				insert:start()
-			elseif data[1].name != ply:Nick() then
-				local update = Damagelog.database:query("UPDATE damagelog_names SET name = "..sql.SQLStr(name).." WHERE steamid = '"..steamid.."';")
-				update:start()
-			end
-		end
-		query:start()
+	local query = sql.QueryValue("SELECT name FROM damagelog_names WHERE steamid = '"..steamid.."' LIMIT 1;")
+	if not query then
+		sql.Query("INSERT INTO damagelog_names (`steamid`, `name`) VALUES('"..steamid.."', "..sql.SQLStr(name)..");")
+	elseif query != name then
+		sql.Query("UPDATE damagelog_names SET name = "..sql.SQLStr(name).." WHERE steamid = '"..steamid.."' LIMIT 1;")
 	end
+	ply:SetNWInt("Autoslays_left", sql.Query("SELECT slays FROM damagelog_autoslay WHERE steamid = '"..steamid.."' LIMIT 1;") or 0)
 end)
 
-function Damagelog:GetName(steamid, callback)
+function Damagelog:GetName(steamid)
 	for k,v in pairs(player.GetAll()) do
 		if v:SteamID() == steamid then
-			callback(v:Nick())
-			return
+			return v:Nick()
 		end
 	end
-	local query = Damagelog.database:query("SELECT name FROM damagelog_names WHERE steamid = '"..steamid.."';")
-	query.onSuccess = function(self)
-		local data = self:getData()
-		self.callback(data[1] and data[1].name or "<Name not found>")
-	end
-	query.callback = callback
-	query:start()
+	local query = sql.QueryValue("SELECT name FROM damagelog_names WHERE steamid = '"..steamid.."' LIMIT 1;")
+	return query or "<Error>"
 end
 
 function Damagelog.SlayMessage(ply, message)
@@ -64,34 +45,25 @@ function Damagelog.SlayMessage(ply, message)
 	net.Send(ply)
 end
 
-function Damagelog:CreateSlayList(tbl, func)
-	local result = ""
-	if #tbl == 0 then
-		func("<Error>")
-	elseif #tbl == 1 then
-		self:GetName(tbl[1], func)
+function Damagelog:CreateSlayList(tbl)
+	if #tbl == 1 then
+		return self:GetName(tbl[1])
 	else
-		local k = 0
-		local function Next()
-			k = k + 1
-		    local v = tbl[k]
-			self:GetName(v, function(nick)
-				if k == #tbl then 
-			        result = result.." and "..nick
-					func(result)
-				elseif k == 1 then 
-			        result = name
-					Next()
-			    else 
-			        result = result..", "..nick
-					Next()
-			    end
-		    end)
-	    end
-		Next()
+		local result = ""
+		for i=1, #tbl do
+			if i == #tbl then 
+				result = result.." and "..self:GetName(tbl[i]) 
+			elseif i == 1 then 
+				result = self:GetName(tbl[i]) 
+			else 
+				result = result..", "..self:GetName(tbl[i])
+			end
+		end
+		return result
 	end
 end
 
+-- ty evolve
 function Damagelog:FormatTime(t)
 	if t < 0 then
 		return "Forever"
@@ -110,106 +82,99 @@ function Damagelog:FormatTime(t)
 	end
 end
 
+local function NetworkSlays(steamid, number)
+	for k,v in pairs(player.GetAll()) do
+		if v:SteamID() == steamid then
+			v:SetNWInt("Autoslays_left", number)
+			return
+		end
+	end
+end
 
 function Damagelog:SetSlays(admin, steamid, slays, reason)
+	if reason == "" then
+		reason = "No reason specified"
+	end
 	if slays == 0 then
-	    local query_remove = Damagelog.database:query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."'")
-		query_remove.onSuccess = function(query)
-			self:GetName(steamid, function(nick)
-				Damagelog.SlayMessage(admin, nick.." will not be slain.")
-            end)
-		end
-		query_remove:start()
+	    sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."';")
+		local name = self:GetName(steamid)
+		Damagelog.SlayMessage(admin, name.." will not be slain.")
+		NetworkSlays(steamid, 0)
 	else
-	    local query_exists = Damagelog.database:query("SELECT * FROM damagelog_autoslay WHERE ply = '"..steamid.."'")
-	    query_exists.onSuccess = function(q)
-		    local data = q:getData()[1]
-	        if data then
-			    local adminid
-				if IsValid(admin) and type(admin) == "Player" then
-				    adminid = admin:SteamID()
-				else
-				    adminid = "Console"
-				end
-		        local old_slays = tonumber(data.slays)
-			    local old_steamids = util.JSONToTable(data.admins) or {}
-			    local new_steamids = table.Copy(old_steamids)
-		        if not table.HasValue(new_steamids, adminid) then
-				    table.insert(new_steamids, adminid)
-			    end
-			    if old_slays == slays then
-				    local query = Damagelog.database:query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."'")
-				    query.onSuccess = function() 
-						self:CreateSlayList(old_steamids, function(list)
-							self:GetName(steamid, function(nick)
-								self.SlayMessage(admin, nick.." was already autoslain "..tostring(slays).." time(s) by "..list..". The reason has been changed to '"..reason.."'.")
-							end)
-						end)
-				    end
-				    query:start()
-			    else
-				    local difference = slays - old_slays
-					local query = Damagelog.database:query(string.format("UPDATE damagelog_autoslay SET admins = %s, slays = %i, reason = %s, time = %s WHERE ply = '%s'", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
-					query.onSuccess = function()
-						self:CreateSlayList(old_steamids, function(list)
-							self:GetName(steamid, function(nick)
-								self.SlayMessage(admin, "You have "..(difference > 0 and "added " or "removed ")..tostring(math.abs(difference)).." autoslays to "..nick..". He was previously autoslain "..old_slays.." time(s) by "..list..".")
-							end)
-						end)
-					end
-					query:start()
-				end
-		    else
-			    local admins
-			    if IsValid(admin) and type(admin) == "Player" then
-				    admins = util.TableToJSON( { admin:SteamID() } )
-				else
-				    admins = util.TableToJSON( { "Console" } )
-				end
-			    local query = Damagelog.database:query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
-				query.onSuccess = function(q)
-				    self:GetName(steamid, function(nick)
-					    self.SlayMessage(admin, nick.." will be slain "..slays.." times for '"..reason.."'.")
-					end)
-				end
-				query:start()
+	    local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..steamid.."' LIMIT 1;")
+		if data then
+			local adminid
+			if IsValid(admin) and type(admin) == "Player" then
+				adminid = admin:SteamID()
+			else
+				adminid = "Console"
 			end
+			local old_slays = tonumber(data.slays)
+			local old_steamids = util.JSONToTable(data.admins) or {}
+		    local new_steamids = table.Copy(old_steamids)
+	        if not table.HasValue(new_steamids, adminid) then
+			    table.insert(new_steamids, adminid)
+			end
+		    if old_slays == slays then
+				sql.Query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
+				local list = self:CreateSlayList(old_steamids)
+				local nick = self:GetName(steamid)
+				self.SlayMessage(admin, nick.." was already autoslain "..tostring(slays).." time(s) by "..list..". The reason has been changed to '"..reason.."'.")
+			else
+				local difference = slays - old_slays
+				sql.Query(string.format("UPDATE damagelog_autoslay SET admins = %s, slays = %i, reason = %s, time = %s WHERE ply = '%s' LIMIT 1;", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
+				local list = self:CreateSlayList(old_steamids)
+				local nick = self:GetName(steamid)
+				self.SlayMessage(admin, "You have "..(difference > 0 and "added " or "removed ")..tostring(math.abs(difference)).." autoslays to "..nick..". He was previously autoslain "..old_slays.." time(s) by "..list..".")
+				NetworkSlays(steamid, slays)
+			end
+		else
+			local admins
+			if IsValid(admin) and type(admin) == "Player" then
+			    admins = util.TableToJSON( { admin:SteamID() } )
+			else
+			    admins = util.TableToJSON( { "Console" } )
+			end
+			sql.Query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
+			self.SlayMessage(admin, self:GetName(steamid).." will be slain "..slays.." times for '"..reason.."'.")
+			NetworkSlays(steamid, slays)
 		end
-		query_exists:start()
 	end
 end
 
 hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
-	if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
-		for k,v in pairs(player.GetAll()) do
-			local query = Damagelog.database:query("SELECT * FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."'")
-			query.onSuccess = function(q)
-				if q:getData() and q:getData()[1] then
-					v:Kill()
-					local data = q:getData()[1]
-					local admins = util.JSONToTable(data.admins) or {}
-					local slays = data.slays
-					local reason = data.reason
-					local _time = data.time
-					slays = slays - 1
-					if slays <= 0 then
-						local query2 = Damagelog.database:query("DELETE FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."'")
-						query2:start()
-					else
-						local query2 = Damagelog.database:query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."'")
-						query2:start()
-					end
-					Damagelog:CreateSlayList(admins, function(list)
-						net.Start("DL_AutoSlay")
-						net.WriteEntity(v)
-						net.WriteString(list)
-						net.WriteString(reason)
-						net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
-						net.Broadcast()
-					end)
+	for k,v in pairs(player.GetAll()) do
+		if v:IsActive() then
+			timer.Simple(1, function()
+				v:SetNWBool("PlayedSRound", true)
+			end)
+			local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."' LIMIT 1;")
+			if data then
+				v:Kill()
+				local admins = util.JSONToTable(data.admins) or {}
+				local slays = data.slays
+				local reason = data.reason
+				local _time = data.time
+				slays = slays - 1
+				if slays <= 0 then
+					sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."';")
+					NetworkSlays(steamid, 0)
+				else
+					sql.Query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."';")
+					NetworkSlays(steamid, slays - 1)
+				end
+				local list = Damagelog:CreateSlayList(admins)
+				net.Start("DL_AutoSlay")
+				net.WriteEntity(v)
+				net.WriteString(list)
+				net.WriteString(reason)
+				net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
+				net.Broadcast()
+				if IsValid(v.server_ragdoll) then
+					v.server_ragdoll:Remove()
+					CORPSE.SetFound(v.server_ragdoll, true)
 				end
 			end
-			query:start()
 		end
 	end	
 end)

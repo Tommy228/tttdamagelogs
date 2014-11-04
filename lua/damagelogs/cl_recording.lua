@@ -436,3 +436,7 @@ function Damagelog:StopRecording()
 		self.Menu:SetVisible(true)
 	end
 end
+
+hook.Add("OnContextMenuOpen", "Recording", function()
+	if current_scene then return false end
+end)

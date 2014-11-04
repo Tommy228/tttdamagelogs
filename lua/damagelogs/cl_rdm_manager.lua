@@ -37,11 +37,14 @@ local function BuildReportFrame(report)
 			end
 		end
 		if not found then return end
+		
+		net.Start("DL_Answering")
+		net.SendToServer()
 	
 		ReportFrame = vgui.Create("DFrame")
 		ReportFrame:SetDeleteOnClose(true)
 		ReportFrame:SetTitle("You have been reported! Please answer all your reports.")
-		--ReportFrame:ShowCloseButton(false)
+		ReportFrame:ShowCloseButton(false)
 		ReportFrame:SetSize(610, 345)
 		ReportFrame:Center()
 	
@@ -333,4 +336,9 @@ net.Receive("DL_SendForgive", function()
 		net.SendToServer()
 		answer:Close()
 	end
+end)
+
+net.Receive("DL_Answering_global", function(_len, ply)
+	local nick = net.ReadString()
+	chat.AddText(Color(255,62,62), nick, color_white, " is answering to his reports.")
 end)

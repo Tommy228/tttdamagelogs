@@ -10,6 +10,8 @@ util.AddNetworkString("DL_SendAnswer")
 util.AddNetworkString("DL_SendForgive")
 util.AddNetworkString("DL_GetForgive")
 util.AddNetworkString("DL_Death")
+util.AddNetworkString("DL_Answering")
+util.AddNetworkString("DL_Answering_global")
 
 Damagelog.Reports = Damagelog.Reports or { Current = {} }
 
@@ -130,7 +132,8 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		response = false,
 		status = RDM_MANAGER_WAITING,
 		admin = false,
-		round = Damagelog.CurrentRound
+		round = Damagelog.CurrentRound,
+		logs = ply.DeathDmgLog and ply.DeathDmgLog[Damagelog.CurrentRound] or false
 	})
 	Damagelog.Reports.Current[index].index = index
 	for k,v in pairs(player.GetHumans()) do
@@ -140,6 +143,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		end
 	end
 	attacker:SendReport(Damagelog.Reports.Current[index])
+	if not attacker:CanUseRDMManager() then
+		v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, ply:Nick().." has reported you!", 5, "ui/vote_failure.wav")
+	end
 	UpdatePreviousReports()
 end)
 
@@ -147,6 +153,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 	local previous = net.ReadUInt(1) == 1
 	local index = net.ReadUInt(4)
 	local status = net.ReadUInt(4)
+	if not ply:CanUseRDMManager() then return end
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end
 	if tbl.status == status or tbl.status == RDM_MANAGER_CANCELED then return end
@@ -244,4 +251,26 @@ net.Receive("DL_GetForgive", function(_, ply)
 		end
 	end
 	UpdatePreviousReports()
+end)
+
+net.Receive("DL_Answering", function(_len, ply)
+	net.Start("DL_Answering_global")
+	net.WriteString(ply:Nick())
+	net.Broadcast()
+	chat.AddText(Color(255,62,62), nick, color_white, " is answering to his reports.")
+end)
+
+net.Receive("DL_ForceRespond", function(_len, ply)
+	local index = net.ReadUInt(4)
+	local previous = net.ReadUInt(1) == 1
+	if not ply:CanUseRDMManager() then return end
+	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
+	if not tbl then return end
+	if not tbl.response then
+		local attacker = GetBySteamID(tbl.attacker)
+		if IsValid(attacker) then
+			net.Start("DL_Death")
+			net.Send(attacker)
+		end
+	end
 end)
