@@ -189,7 +189,8 @@ net.Receive("DL_Ded", function()
 		report:SetSize(240, 25)
 		report:SetText("Open the report menu")
 		report.DoClick = function()
-			RunConsoleCommand("rdm_manager_report")
+			net.Start("DL_StartReport")
+			net.SendToServer()
 			frame:Close()
 		end
 	

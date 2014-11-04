@@ -13,6 +13,7 @@ util.AddNetworkString("DL_Death")
 util.AddNetworkString("DL_Answering")
 util.AddNetworkString("DL_Answering_global")
 util.AddNetworkString("DL_ForceRespond")
+util.AddNetworkString("DL_StartReport")
 
 Damagelog.Reports = Damagelog.Reports or { Current = {} }
 
@@ -80,7 +81,7 @@ end
 
 hook.Add("PlayerSay", "Damagelog_RDMManager", function(ply, text, teamOnly)
 	if Damagelog.RDM_Manager_Enabled and (string.Left(string.lower(text), #Damagelog.RDM_Manager_Command) == Damagelog.RDM_Manager_Command) then
-		ply:ConCommand("rdm_manager_report")
+		Damagelog:StartReport(ply)
 		return ""
 	end
 end)
@@ -94,7 +95,11 @@ hook.Add("TTTBeginRound", "Damagelog_RDMManger", function()
 	end
 end)
 
-concommand.Add("rdm_manager_report", function(ply, cmd, args)
+net.Receive("DL_StartReport", function(length, ply)
+	Damagelog:StartReport(ply)
+end)
+
+function Damagelog:StartReport(ply)
 	if not IsValid(ply) then return end
 	local found = false
 	for k,v in pairs(player.GetHumans()) do
@@ -124,7 +129,7 @@ concommand.Add("rdm_manager_report", function(ply, cmd, args)
 			net.Send(ply)
 		end
 	end
-end)
+end
 
 net.Receive("DL_ReportPlayer", function(_len, ply)
 	local attacker = net.ReadEntity()
