@@ -45,7 +45,11 @@ Damagelog.RDM_Manager_Command = "!report"
 
 Damagelog.Use_MySQL = false
 
--- Enable the !autoslay command for ULX, designed to work with the logs
+--[[ Enables the !autoslay command for ULX, designed to work with the logs.
+I recommend disabling the old slaynr script (if you are currently using it) and using this command instead.
+Works like that : !autoslay target number_of_slays reason
+Example : !autoslay tommy228 2 RDMing a traitor
+]]--
 
 Damagelog.Enable_Autoslay = true
 
