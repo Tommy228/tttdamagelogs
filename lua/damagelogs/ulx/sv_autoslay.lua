@@ -171,8 +171,10 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
 				net.Broadcast()
 				if IsValid(v.server_ragdoll) then
-					v.server_ragdoll:Remove()
+					local ply = player.GetByUniqueID(v.server_ragdoll.uqid)
+					ply:SetNWBool("body_found", true)
 					CORPSE.SetFound(v.server_ragdoll, true)
+					v.server_ragdoll:Remove()
 				end
 			end
 		end
