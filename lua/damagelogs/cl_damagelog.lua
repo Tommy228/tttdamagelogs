@@ -3,8 +3,8 @@ include("damagelogs/cl_tabs/damagetab.lua")
 include("damagelogs/cl_tabs/settings.lua")
 include("damagelogs/cl_tabs/shoots.lua")
 include("damagelogs/cl_tabs/old_logs.lua")
+include("damagelogs/sh_rdm_manager.lua")
 include("damagelogs/cl_tabs/rdm_manager.lua")
-include("damagelogs/cl_tabs/statistics.lua")
 include("damagelogs/sh_privileges.lua")
 include("damagelogs/sh_sync_entity.lua")
 include("damagelogs/cl_filters.lua")
@@ -14,14 +14,19 @@ include("damagelogs/cl_listview.lua")
 include("damagelogs/sh_weapontable.lua")
 include("damagelogs/not_my_code/orderedPairs.lua")
 include("damagelogs/not_my_code/base64decode.lua")
-include("damagelogs/rdm_manager/cl_rdm_manager.lua")
+if Damagelog.RDM_Manager_Enabled then
+	include("damagelogs/cl_rdm_manager.lua")
+end
 include("damagelogs/cl_ttt_settings.lua")
 include("damagelogs/cl_recording.lua")
 include("damagelogs/ulx/sh_autoslay.lua")
+include("damagelogs/sh_notify.lua")
+include("damagelogs/cl_infolabel.lua")
 
 local outdated = false
 http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version.md?ref=master", function(body)
 	local content = util.JSONToTable(body)
+	if not content then return end
 	local version = content.content
 	if version then
 		version = Damagelog.Base64Decode(version)
@@ -49,7 +54,7 @@ function Damagelog:OpenMenu()
 	self.Menu = vgui.Create("DFrame")
 	self.Menu:SetSize(x, y)
 	self.Menu:SetTitle("TTT Damagelogs version "..self.VERSION) 
-	self.Menu:SetDraggable(false)
+	self.Menu:SetDraggable(true)
 	self.Menu:MakePopup()
 	self.Menu:SetKeyboardInputEnabled(false)
 	self.Menu:Center()
@@ -59,6 +64,7 @@ function Damagelog:OpenMenu()
 	self.Menu.About = function(self)
 		self.AboutState = not self.AboutState
 	end
+	local old_think = self.Menu.Think
 	self.Menu.Think = function(self)
 		self.AboutMoving = true
 		if self.AboutState and self.AboutPos < self.AboutPosMax then
@@ -67,6 +73,9 @@ function Damagelog:OpenMenu()
 			self.AboutPos = self.AboutPos - 15
 		else
 			self.AboutMoving = false
+		end
+		if old_think then
+			old_think(self)
 		end
 	end
 	local about_text = [[Created by Tommy228. Code contributors :
@@ -108,7 +117,6 @@ function Damagelog:OpenMenu()
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
 	self:DrawRDMManager(x, y)
-	self:Statistics(x,y)
 	self:DrawSettings(x, y)
 	self.About = vgui.Create("DButton", self.Menu)
 	self.About:SetPos(x - 60, outdated and 57 or 27)
@@ -156,7 +164,7 @@ end
 
 net.Receive("DL_InformSuperAdmins", function()
 	local nick = net.ReadString()
-	if nick and round then
+	if nick then
 		chat.AddText(Color(255,62,62), nick, color_white, " is alive and has loaded the logs of the current round.")
 	end
 end)
@@ -185,7 +193,8 @@ net.Receive("DL_Ded", function()
 		report:SetSize(240, 25)
 		report:SetText("Open the report menu")
 		report.DoClick = function()
-			RunConsoleCommand("DLRDM_Repport")
+			net.Start("DL_StartReport")
+			net.SendToServer()
 			frame:Close()
 		end
 	

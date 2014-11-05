@@ -4,7 +4,6 @@ AddCSLuaFile("damagelogs/cl_tabs/settings.lua")
 AddCSLuaFile("damagelogs/cl_tabs/shoots.lua")
 AddCSLuaFile("damagelogs/cl_tabs/old_logs.lua")
 AddCSLuaFile("damagelogs/cl_tabs/rdm_manager.lua")
-AddCSLuaFile("damagelogs/cl_tabs/statistics.lua")
 AddCSLuaFile("damagelogs/sh_privileges.lua")
 AddCSLuaFile("damagelogs/sh_sync_entity.lua")
 AddCSLuaFile("damagelogs/sh_events.lua")
@@ -14,11 +13,14 @@ AddCSLuaFile("damagelogs/cl_colors.lua")
 AddCSLuaFile("damagelogs/cl_filters.lua")
 AddCSLuaFile("damagelogs/not_my_code/orderedPairs.lua")
 AddCSLuaFile("damagelogs/not_my_code/base64decode.lua")
-AddCSLuaFile("damagelogs/rdm_manager/cl_rdm_manager.lua")
+AddCSLuaFile("damagelogs/cl_rdm_manager.lua")
 AddCSLuaFile("damagelogs/config/config.lua")
 AddCSLuaFile("damagelogs/cl_ttt_settings.lua")
 AddCSLuaFile("damagelogs/cl_recording.lua")
 AddCSLuaFile("damagelogs/ulx/sh_autoslay.lua")
+AddCSLuaFile("damagelogs/sh_notify.lua")
+AddCSLuaFile("damagelogs/cl_infolabel.lua")
+AddCSLuaFile("damagelogs/sh_rdm_manager.lua")
 
 include("damagelogs/config/config.lua")
 include("damagelogs/sh_sync_entity.lua")
@@ -30,14 +32,16 @@ include("damagelogs/sh_weapontable.lua")
 include("damagelogs/sv_weapontable.lua")
 include("damagelogs/ulx/sh_autoslay.lua")
 include("damagelogs/ulx/sv_autoslay.lua")
-include("sv_statistics.lua")
 include("damagelogs/sv_oldlogs.lua")
-include("damagelogs/rdm_manager/sv_rdm_manager.lua")
+include("damagelogs/sv_rdm_manager.lua")
 include("damagelogs/sv_stupidoverrides.lua")
 include("damagelogs/sv_recording.lua")
-
-resource.AddFile("sound/ui/vote_failure.wav")
-resource.AddFile("sound/ui/vote_yes.wav")
+include("damagelogs/sh_notify.lua")
+if Damagelog.RDM_Manager_Enabled then
+	include("damagelogs/sh_rdm_manager.lua")
+	resource.AddFile("sound/ui/vote_failure.wav")
+	resource.AddFile("sound/ui/vote_yes.wav")
+end
 
 util.AddNetworkString("DL_AskDamagelog")
 util.AddNetworkString("DL_SendDamagelog")
@@ -229,5 +233,5 @@ if Damagelog.Use_MySQL then
 	Damagelog.database:connect()
 end
 
--- I just want to know how many servers are using this new version
-http.Post("http://lesterriblestesticules.fr/admin_tools/damagelogs.php", {ip = GetConVarString("hostip")} )
+--Fuck this
+--http.Post("http://lesterriblestesticules.fr/admin_tools/damagelogs.php", {ip = GetConVarString("hostip")} )

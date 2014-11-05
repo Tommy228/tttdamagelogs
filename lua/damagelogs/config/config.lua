@@ -45,9 +45,13 @@ Damagelog.RDM_Manager_Command = "!report"
 
 Damagelog.Use_MySQL = false
 
--- Enable advanced autoslay (WIP). MySQL and ULX users only! The command is !autoslay
+--[[ Enables the !autoslay command for ULX, designed to work with the logs.
+I recommend disabling the old slaynr script (if you are currently using it) and using this command instead.
+Works like that : !autoslay target number_of_slays reason
+Example : !autoslay tommy228 2 RDMing a traitor
+]]--
 
-Damagelog.Enable_Autoslay = false
+Damagelog.Enable_Autoslay = true
 
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 

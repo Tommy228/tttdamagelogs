@@ -30,9 +30,7 @@ function event:EntityTakeDamage(ent, dmginfo)
 			}
 			if Damagelog:IsTeamkill(tbl[2], tbl[4]) then
 				tbl.icon = { "icon16/exclamation.png" }
-				Damagelog.TeamDamages = Damagelog.TeamDamages + math.Round(damages)
 			else
-				Damagelog.NormalDamages = Damagelog.NormalDamages + math.Round(damages)
 				local found_dmg = false
 				for k,v in pairs(Damagelog.DamageTable) do
 					if type(v) == "table" and Damagelog.events[v.id] and Damagelog.events[v.id].IsDamage then

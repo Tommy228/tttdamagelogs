@@ -1,9 +1,7 @@
 -- edit the privileges on config/config.lua
 
 local function checkSettings(self, value)
-	if value == 1 then
-		return false
-	elseif value == 2 then
+	if value == 1 or value == 2 then
 		return GetRoundState() != ROUND_ACTIVE
 	elseif value == 3 then
 		return GetRoundState() != ROUND_ACTIVE or self:IsSpec()
@@ -12,7 +10,7 @@ local function checkSettings(self, value)
 	end
 	return false
 end
-	
+
 
 local meta = FindMetaTable("Player")
 

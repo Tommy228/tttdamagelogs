@@ -10,30 +10,6 @@ Damagelog.previous_reports = {}
 
 local limit = os.time() - Damagelog.LogDays*24*60*60
 
-local function HandlePreviousReports(data)
-	data.id = tonumber(data.id)
-	local report = data.report
-	local decoded = util.JSONToTable(data.report)
-	decoded.index = data.id
-	decoded.round = -1
-	table.insert(Damagelog.previous_reports, decoded)
-	local respond = {
-		message = decoded.message,
-		victim = decoded.plyName,
-		round = -1,
-		time = decoded.time,
-		report = data.id,
-		index = data.id
-	}
-	local steamID = decoded.attackerSteam
-	if not decoded.attackerMessage then
-		if not Damagelog.rdmReporter.prevRespond[steamID] then
-			Damagelog.rdmReporter.prevRespond[steamID] = {}
-		end
-		table.insert(Damagelog.rdmReporter.prevRespond[steamID], respond)
-	end
-end
-
 local function GetLogsCount_SQLite()
 	return sql.QueryValue("SELECT COUNT(id) FROM damagelog_oldlogs;")
 end
@@ -62,13 +38,6 @@ if Damagelog.Use_MySQL then
 			PRIMARY KEY (class));
 		]])
 		create_table2:start()
-		local create_table3 = self:query([[CREATE TABLE IF NOT EXISTS damagelog_previousreports (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			_index TINYINT UNSIGNED NOT NULL,
-			report TEXT NOT NULL,
-			PRIMARY KEY (id));
-		]])
-		create_table3:start()
 		local list = self:query("SELECT MIN(date), MAX(date) FROM damagelog_oldlogs;")
 		list.onSuccess = function(query)
 			local data = query:getData()
@@ -77,16 +46,9 @@ if Damagelog.Use_MySQL then
 			Damagelog.LatestDate = data[1]["MAX(date)"]
 		end
 		list:start()
-		local previous_reports = self:query("SELECT * FROM damagelog_previousreports ORDER BY id;")
-		previous_reports.onSuccess = function()
-			Damagelog:TruncateReports()
-		end
-		previous_reports:start()
 		local delete_old = self:query("DELETE FROM damagelog_oldlogs WHERE date <= "..limit..";")
 		delete_old:start()
 		Damagelog:GetWepTable()
-		Damagelog:AutoSlaySQL()
-		Damagelog:StatisticsSQL()
 	end
 	Damagelog.database.onConnectionFailed = function(self, err)
 		file.Write("damagelog/mysql_error.txt", err)
@@ -109,28 +71,10 @@ else
 			PRIMARY KEY (class));
 		]])
 	end
-	if not sql.TableExists("damagelog_previousreports") then
-		sql.Query([[CREATE TABLE IF NOT EXISTS damagelog_previousreports (
-			id INT UNSIGNED NOT NULL PRIMARY KEY,
-			_index TINYINT UNSIGNED NOT NULL,
-			report TEXT NOT NULL);
-		]])
-	end
 	Damagelog.OlderDate = sql.QueryValue("SELECT MIN(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;")
 	Damagelog.LatestDate = sql.QueryValue("SELECT MAX(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;")
-	local previous_reports_count = sql.QueryValue("SELECT COUNT(id) FROM damagelog_previousreports;")
-	if tonumber(previous_reports_count) then
-		for i=1, previous_reports_count do
-			local row = sql.QueryRow("SELECT * FROM damagelog_previousreports WHERE id = "..tostring(i).." ORDER BY id;")
-			if row then
-				HandlePreviousReports(row)
-			end
-		end
-	end
 	sql.Query("UPDATE damagelog_oldlogs SET damagelog = NULL WHERE date <= "..limit..";")
 	Damagelog:GetWepTable()
-	Damagelog:AutoSlaySQL()
-	Damagelog:StatisticsSQL()
 end
 
 if file.Exists("damagelog/damagelog_lastroundmap.txt", "DATA") then
