@@ -64,6 +64,7 @@ function Damagelog:OpenMenu()
 	self.Menu.About = function(self)
 		self.AboutState = not self.AboutState
 	end
+	local old_think = self.Menu.Think
 	self.Menu.Think = function(self)
 		self.AboutMoving = true
 		if self.AboutState and self.AboutPos < self.AboutPosMax then
@@ -72,6 +73,9 @@ function Damagelog:OpenMenu()
 			self.AboutPos = self.AboutPos - 15
 		else
 			self.AboutMoving = false
+		end
+		if old_think then
+			old_think(self)
 		end
 	end
 	local about_text = [[Created by Tommy228. Code contributors :
@@ -160,7 +164,7 @@ end
 
 net.Receive("DL_InformSuperAdmins", function()
 	local nick = net.ReadString()
-	if nick and round then
+	if nick then
 		chat.AddText(Color(255,62,62), nick, color_white, " is alive and has loaded the logs of the current round.")
 	end
 end)

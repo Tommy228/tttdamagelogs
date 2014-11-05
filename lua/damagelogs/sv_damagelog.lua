@@ -233,5 +233,5 @@ if Damagelog.Use_MySQL then
 	Damagelog.database:connect()
 end
 
--- I just want to know how many servers are using this new version
-http.Post("http://lesterriblestesticules.fr/admin_tools/damagelogs.php", {ip = GetConVarString("hostip")} )
+--Fuck this
+--http.Post("http://lesterriblestesticules.fr/admin_tools/damagelogs.php", {ip = GetConVarString("hostip")} )
