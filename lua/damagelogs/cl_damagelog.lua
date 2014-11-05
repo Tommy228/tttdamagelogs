@@ -104,7 +104,7 @@ function Damagelog:OpenMenu()
 		end
 	end
 	if outdated then
-		local info = vgui.Create("azInfoText", self.Menu);
+		local info = vgui.Create("Damagelog_InfoLabel", self.Menu);
 		info:SetText("Server owners : this version is outdated! You can get the latest one on http://github.com/Tommy228/TTTDamagelogs");
 		info:SetInfoColor("blue");
 		info:SetPos(5,30);
