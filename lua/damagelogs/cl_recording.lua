@@ -6,6 +6,7 @@ CreateClientConVar("ttt_death_scene_slowmo", "0", FCVAR_ARCHIVE)
 local i = 1
 local current_scene
 local models = {}
+local props = {}
 local last_curtime
 local victim
 local attacker
@@ -115,6 +116,7 @@ function Damagelog:CreateDSPanel()
 	play.Icon:Center()
 	play.Icon:SetImage("icon16/control_pause_blue.png")
 	play.DoClick = function()
+		print(paused)
 		if paused then
 			play.Icon:SetImage("icon16/control_pause_blue.png")
 			paused = false
@@ -163,6 +165,7 @@ net.Receive("DL_SendDeathScene", function()
 	i = 1
 	current_scene = data
 	models = {}
+	props = {}
 	playedsounds = {}
 	current_spec = nil
 	previous_spec = nil
@@ -213,6 +216,17 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 			end
 			render.SuppressEngineLighting(false)
 		end
+		for k,v in pairs(props) do
+			if not IsValid(v) then continue end
+			render.SuppressEngineLighting(true)
+			render.SetColorModulation(0.6, 0.4, 0)
+			cam.IgnoreZ(true)
+			v:DrawModel()
+			render.SetColorModulation(1, 1, 1)
+			cam.IgnoreZ(false)
+			render.SuppressEngineLighting(false)
+		end
+		cam.End3D()
 	end
 end)
 
@@ -304,16 +318,22 @@ hook.Add("Think", "Think_Record", function()
 		last_curtime = CurTime()
 		local scene = current_scene[math.floor(i)]
 		local next_scene = current_scene[math.ceil(i)]
-		if not scene then
-			paused = true
-			Damagelog.DS_Play:SetImage("icon16/control_play_blue.png")
-		end
 		if scene then
 			for k,v in pairs(models) do
 				if not scene[k] then
 					v:Remove()
 					models[k] = nil
 				end
+			end
+			for k,v in pairs(props) do
+				if not scene[k] then
+					v:Remove()
+					props[k] = nil
+				end
+			end	
+		else
+			if not paused and Damagelog.DS_Play.Icon:GetImage() == "icon16/control_pause_blue.png" then
+				Damagelog.DS_Play:DoClick()
 			end
 		end
 		local changed = false
@@ -330,8 +350,24 @@ hook.Add("Think", "Think_Record", function()
 			net.Start("DL_UpdateLogEnt")
 			net.WriteUInt(0,1)
 			net.SendToServer()
-		end
+		end	
+		
 		for k,v in pairs(scene or {}) do
+			if tonumber(k) then 
+				if not props[k] then
+					props[k] = ClientsideModel(v.model, RENDERGROUP_TRANSLUCENT)
+				end
+				local vector = v.pos
+				local angle = v.ang
+				if next_scene and next_scene[k] then
+					local percent = math.ceil(i) - i
+					vector = LerpVector(percent, next_scene[k].pos, v.pos)
+					angle = LerpAngle(percent, next_scene[k].ang, v.ang)
+				end
+				props[k]:SetPos(vector)
+				props[k]:SetAngles(angle)
+				continue 
+			end
 			if models[k] and v.corpse and not models[k].corpse then
 				if IsValid(models[k]) then
 					models[k]:Remove()
@@ -379,7 +415,7 @@ hook.Add("Think", "Think_Record", function()
 				if k == current_spec then
 					net.Start("DL_UpdateLogEnt")
 					net.WriteUInt(1, 1)
-					net.WriteVector(next_scene and next_scene[k].pos or vector)
+					net.WriteVector(vector)
 					net.WriteUInt(changed and 1 or 0, 1)
 					net.SendToServer()
 				end
@@ -421,7 +457,13 @@ function Damagelog:StopRecording()
 			v:Remove()
 		end
 	end
+	for k,v in pairs(props) do
+		if IsValid(v) then
+			v:Remove()
+		end
+	end
 	table.Empty(models)
+	table.Empty(props)
 	current_scene = nil
 	i = 1
 	playedsounds = {}

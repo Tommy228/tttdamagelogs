@@ -7,7 +7,10 @@ Damagelog.Records = Damagelog.Records or {}
 Damagelog.Death_Scenes = Damagelog.Death_Scenes or {}
 Damagelog.SceneID = Damagelog.SceneID or 0
 
+local magneto_ents = {}
+
 hook.Add("TTTBeginRound", "TTTBeginRound_SpecDMRecord", function()
+	table.Empty(magneto_ents)
 	table.Empty(Damagelog.Records)
 	for k,ply in pairs(player.GetAll()) do
 		ply.SpectatingLog = false
@@ -23,6 +26,12 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 	end
 	
 	local tbl = {}
+	
+	for k,v in pairs(magneto_ents) do
+		if CurTime() - v.last_saw > 15 then
+			v.record = false
+		end
+	end
 
 	for k,v in pairs(player.GetAll()) do
 		if not v:IsActive() then 
@@ -38,15 +47,43 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 			end
 		else
 			local wep = v:GetActiveWeapon()
-			wep = IsValid(wep) and wep:GetClass()
 			tbl[v:Nick()] = {
 				pos = v:GetPos(),
 				ang = v:GetAngles(),
 				sequence = v:GetSequence(),
 				hp = v:Health(),
-				wep = wep,
+				wep = IsValid(wep) and wep:GetClass() or "<no wep>",
 				role = v:GetRole()
 			}
+			if IsValid(wep) and wep:GetClass() == "weapon_zm_carry" and IsValid(wep.EntHolding) then
+				local found = false
+				for k,v in pairs(magneto_ents) do
+					if v.ent == wep.EntHolding then
+						found = k
+						break
+					end
+				end
+				if found then
+					magneto_ents[found].last_saw = CurTime()
+					magneto_ents[found].record = true
+				else
+					table.insert(magneto_ents, {
+						ent = wep.EntHolding,
+						record = true,
+						last_saw = CurTime()
+					})
+				end
+			end
+		end
+	end
+	
+	for k,v in pairs(magneto_ents) do
+		if v.record and IsValid(v.ent) then
+			table.insert(tbl, v.ent:EntIndex(), {
+				model = v.ent:GetModel(),
+				pos = v.ent:GetPos(),
+				ang = v.ent:GetAngles()
+			})
 		end
 	end
 
@@ -87,6 +124,12 @@ end
 
 hook.Add("PlayerInitialSpawn","DamagelogRecording", function(ply)
 	ply:CreateLogEnt()
+end)
+
+hook.Add("Think", "UpdateLogEntPos", function()
+	for k,v in pairs(player.GetHumans()) do
+		
+	end
 end)
 
 net.Receive("DL_UpdateLogEnt", function(_len, ply)
