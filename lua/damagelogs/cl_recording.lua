@@ -213,7 +213,6 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 			end
 			render.SuppressEngineLighting(false)
 		end
-		cam.End3D()
 	end
 end)
 
