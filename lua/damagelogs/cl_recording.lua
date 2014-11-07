@@ -412,13 +412,6 @@ hook.Add("Think", "Think_Record", function()
 				models[k].move_yaw = v.move_yaw
 				models[k]:SetPos(vector)
 				models[k]:SetAngles(angle)
-				if k == current_spec then
-					net.Start("DL_UpdateLogEnt")
-					net.WriteUInt(1, 1)
-					net.WriteVector(vector)
-					net.WriteUInt(changed and 1 or 0, 1)
-					net.SendToServer()
-				end
 			end
 		end
 		if scene and not playedsounds[scene] then
@@ -482,3 +475,25 @@ end
 hook.Add("OnContextMenuOpen", "Recording", function()
 	if current_scene then return false end
 end)
+
+local ViewHullMins = Vector(-8, -8, -8)
+local ViewHullMaxs = Vector(8, 8, 8)
+
+local function GetThirdPersonCameraPos(origin, angles)
+	origin = origin + Vector(0,0,50)
+	local allplayers = player.GetAll()
+	local tr = util.TraceHull({start = origin, endpos = origin + angles:Forward() * -92, mask = MASK_SHOT, filter = allplayers, mins = ViewHullMins, maxs = ViewHullMaxs})
+	return tr.HitPos + tr.HitNormal * 3, angles
+end
+ 
+hook.Add( "CalcView", "Death_Scene", function(pl, origin, angles, fov, znear, zfar)
+    if current_scene then
+		for k,v in pairs(models) do
+			if not IsValid(v) or current_spec != k then continue end
+			local targetroll = 0
+			local targetfov = fov
+			origin = GetThirdPersonCameraPos(v:GetPos(), angles)
+			return GAMEMODE.BaseClass.CalcView(GAMEMODE, pl, origin, angles, fov, znear, zfar)
+		end
+	end
+end )

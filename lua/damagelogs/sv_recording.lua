@@ -108,54 +108,6 @@ net.Receive("DL_AskDeathScene", function(_, ply)
 	end
 end)
 
-local Player = FindMetaTable("Player")
-
-function Player:CreateLogEnt()
-	local ent = ents.Create("prop_dynamic")
-	ent:SetModel("models/error.mdl")
-	ent:Spawn()
-	ent:Activate()
-	ent:SetSolid(SOLID_NONE)
-	ent:SetMoveType(MOVETYPE_NONE)
-	ent:SetRenderMode(RENDERMODE_NONE)
-	ent:SetOwner(self)
-	self.LogEnt = ent
-end
-
-hook.Add("PlayerInitialSpawn","DamagelogRecording", function(ply)
-	ply:CreateLogEnt()
-end)
-
-hook.Add("Think", "UpdateLogEntPos", function()
-	for k,v in pairs(player.GetHumans()) do
-		
-	end
-end)
-
-net.Receive("DL_UpdateLogEnt", function(_len, ply)
-	local pos, first
-	local disable = net.ReadUInt(1) == 0
-	if not disable then
-		pos = net.ReadVector()
-		first = net.ReadUInt(1) == 1
-	end
-	if not ply:IsSpec() then return end
-	if not IsValid(ply.LogEnt) then return end
-	if disable then
-		ply:SpectateEntity(nil)
-		ply:Spectate(OBS_MODE_ROAMING)
-		ply.SpectatingLog = false
-	else
-		pos = pos + Vector(0, 0, 45)
-		ply.LogEnt:SetPos(pos)
-		ply.SpectatingLog = true
-		if first then
-			ply:SpectateEntity(ply.LogEnt)
-			ply:Spectate(OBS_MODE_CHASE)
-		end
-	end
-end)
-
 hook.Add("Initialize", "DamagelogRecording", function()
 	local old_think = GAMEMODE.KeyPress
 	function GAMEMODE:KeyPress(ply, key)
