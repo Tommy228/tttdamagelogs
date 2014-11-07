@@ -338,7 +338,10 @@ net.Receive("DL_SendForgive", function()
 	end
 end)
 
-net.Receive("DL_Answering_global", function(_len, ply)
+net.Receive("DL_Answering_global", function(_len)
 	local nick = net.ReadString()
-	chat.AddText(Color(255,62,62), nick, color_white, " is answering to his reports.")
+	local ply = LocalPlayer()
+	if not ply:IsActive() or ply:CanUseRDMManager() then
+		chat.AddText(Color(255,62,62), nick, color_white, " is answering to his reports.")
+	end
 end)
