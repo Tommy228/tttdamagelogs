@@ -84,23 +84,7 @@ local function TakeAction()
 	end):SetImage("icon16/television.png")
 	if ulx then
 		if Damagelog.Enable_Autoslay then
-			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
-			local slaynr = DermaMenu(menuPanel)
-			slaynr:SetVisible(false)
-			slaynr_pnl:SetSubMenu(slaynr)
-			slaynr_pnl:SetText("Autoslay")
-			slaynr_pnl:SetImage("icon16/lightning_go.png")
-			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Victim", function()
-				if IsValid(victim) then
-					Derma_StringRequest("Reason", "Please type the reason as to why you want to slay "..victim:Nick(), "", function(txt)
-						RunConsoleCommand("ulx", "autoslay", victim:Nick(), "1", txt)
-					end)
-				else
-					Derma_Message("The victim isn't valid! (disconnected?)", "Error", "OK")
-				end
-			end):SetImage("icon16/user.png")
-			slaynr:AddOption("Reported player", function()
+			menuPanel:AddOption("Autoslay the reported player", function()
 				if IsValid(attacker) then
 					Derma_StringRequest("Reason", "Please type the reason as to why you want to slay "..attacker:Nick(), "", function(txt)
 						RunConsoleCommand("ulx", "autoslay", attacker:Nick(), "1", txt)
@@ -109,8 +93,15 @@ local function TakeAction()
 					Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 				end
 			end):SetImage("icon16/user_delete.png")
+			menuPanel:AddOption("Remove slays of the reported player", function()
+				if IsValid(attacker) then
+					RunConsoleCommand("ulx", "autoslay", attacker:Nick(), "0")
+				else
+					Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
+				end
+			end):SetImage("icon16/user_edit.png")
 		end
-		menuPanel:AddOption("Slay the reported player", function()
+		menuPanel:AddOption("Slay the reported player now", function()
 			if IsValid(attacker) then
 				RunConsoleCommand("ulx", "slay", attacker:Nick())
 			else
