@@ -1,4 +1,0 @@
-php_value display_errors stdout
-<Files "config.php">
-	Deny from all
-</Files>
