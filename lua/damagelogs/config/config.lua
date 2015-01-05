@@ -49,7 +49,7 @@ Damagelog.Use_MySQL = false
 I recommend disabling the old slaynr script (if you are currently using it) and using this command instead.
 Works like that : !aslay target number_of_slays reason
 Example : !aslay tommy228 2 RDMing a traitor
-Example : !aslay STEAM_0:0:1234567 2 RDMing a traitor
+Example : !aslayid STEAM_0:0:1234567 2 RDMing a traitor
 ]]--
 
 Damagelog.Enable_Autoslay = true
