@@ -98,7 +98,11 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 	if slays == 0 then
 	    sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."';")
 		local name = self:GetName(steamid)
-		ulx.fancyLogAdmin(admin, "#A removed the autoslays of #T.", target)
+		if target then
+			ulx.fancyLogAdminDamagelogs(admin, "#A removed the autoslays of #T.", target)
+		else
+			ulx.fancyLogAdminDamagelogs(admin, "#A removed the autoslays of #s.", steamid)
+		end
 		NetworkSlays(steamid, 0)
 	else
 	    local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..steamid.."' LIMIT 1;")
@@ -119,13 +123,21 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 				sql.Query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
 				local list = self:CreateSlayList(new_steamids)
 				local nick = self:GetName(steamid)
-				ulx.fancyLogAdmin(admin, "#A changed the reason of #T's autoslay to : '#s'. He was already autoslain "..slays.." time(s) by #s.", target, reason, list)
+				if target then
+					ulx.fancyLogAdminDamagelogs(admin, "#A changed the reason of #T's autoslay to : '#s'. He was already autoslain "..slays.." time(s) by #s.", target, reason, list)
+				else
+					ulx.fancyLogAdminDamagelogs(admin, "#A changed the reason of #s's autoslay to : '#s'. He was already autoslain "..slays.." time(s) by #s.", steamid, reason, list)
+				end
 			else
 				local difference = slays - old_slays
 				sql.Query(string.format("UPDATE damagelog_autoslay SET admins = %s, slays = %i, reason = %s, time = %s WHERE ply = '%s' LIMIT 1;", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
 				local list = self:CreateSlayList(new_steamids)
 				local nick = self:GetName(steamid)
-				ulx.fancyLogAdmin(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference).." slays to #T for the reason : '#s'. He was previously autoslain "..old_slays.." time(s) by #s.", target, reason, list)
+				if target then
+					ulx.fancyLogAdminDamagelogs(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference).." slays to #T for the reason : '#s'. He was previously autoslain "..old_slays.." time(s) by #s.", target, reason, list)
+				else
+					ulx.fancyLogAdminDamagelogs(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference).." slays to #s for the reason : '#s'. He was previously autoslain "..old_slays.." time(s) by #s.", steamid, reason, list)
+				end
 				NetworkSlays(steamid, slays)
 			end
 		else
@@ -136,7 +148,11 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			    admins = util.TableToJSON( { "Console" } )
 			end
 			sql.Query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
-			ulx.fancyLogAdmin(admin, "#A added "..slays.." autoslays to #T with the reason : '#s'", target, reason)
+			if target then
+				ulx.fancyLogAdminDamagelogs(admin, "#A added "..slays.." autoslays to #T with the reason : '#s'", target, reason)
+			else
+				ulx.fancyLogAdminDamagelogs(admin, "#A added "..slays.." autoslays to #s with the reason : '#s'", steamid, reason)
+			end
 			NetworkSlays(steamid, slays)
 		end
 	end
@@ -181,3 +197,108 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 		end
 	end	
 end)
+
+-- as much as I hate doind this
+function ulx.fancyLogAdminDamagelogs( calling_ply, format, ... )
+	local use_self_suffix = false
+	local hide_echo = false
+	local players = {}
+	if logEcho:GetInt() ~= 0 then
+		players = player.GetAll()
+	end
+	local arg_pos = 1
+	local args = { ... }
+	if type( format ) == "boolean" then
+		hide_echo = format
+		format = args[ 1 ]
+	 	arg_pos = arg_pos + 1
+	end
+
+	if type( format ) == "table" then
+		players = format
+		format = args[ 1 ]
+		arg_pos = arg_pos + 1
+	end
+
+	if hide_echo then
+		for i=#players, 1, -1 do
+			if not ULib.ucl.query( players[ i ], hiddenechoAccess ) and players[ i ] ~= calling_ply then
+				table.remove( players, i )
+			end
+		end
+	end
+	table.insert( players, "CONSOLE" ) -- Dummy player used for logging and printing to dedicated console window
+
+	local playerStrs = {}
+	for i=1, #players do
+		playerStrs[ i ] = {}
+	end
+
+	if hide_echo then
+		insertToAll( playerStrs, default_color )
+		insertToAll( playerStrs, "(SILENT) " )
+	end
+
+	local no_targets = false
+	format:gsub( "([^#]*)#([%.%d]*[%a])([^#]*)", function( prefix, tag, postfix )
+		if prefix and prefix ~= "" then
+			insertToAll( playerStrs, default_color )
+			insertToAll( playerStrs, prefix )
+		end
+
+		local specifier = tag:sub( -1, -1 )
+		local arg = args[ arg_pos ]
+		arg_pos = arg_pos + 1
+		local color, str
+		if specifier == "T" or specifier == "P" or (specifier == "A" and calling_ply) then
+			if specifier == "A" then
+				arg_pos = arg_pos - 1 -- This doesn't have an arg since it's at the start
+				arg = { calling_ply }
+			elseif type( arg ) ~= "table" then
+				arg = { arg }
+			end
+
+			if #arg == 0 then no_targets = true end -- NO PLAYERS, NO LOG!!
+
+			for i=1, #players do
+				table.Add( playerStrs[ i ], makePlayerList( calling_ply, arg, players[ i ], use_self_suffix, specifier == "A" ) )
+			end
+			use_self_suffix = true
+		else
+			insertToAll( playerStrs, misc_color )
+			insertToAll( playerStrs, string.format( "%" .. tag, arg ) )
+		end
+
+		if postfix and postfix ~= "" then
+			insertToAll( playerStrs, default_color )
+			insertToAll( playerStrs, postfix )
+		end
+	end )
+
+	if no_targets then -- We don't want to log if there's nothing being targetted
+		return
+	end
+
+	for i=1, #players do
+		if not logEchoColors:GetBool() or players[ i ] == "CONSOLE" then -- They don't want coloring :)
+			for j=#playerStrs[ i ], 1, -1 do
+				if type( playerStrs[ i ][ j ] ) == "table" then
+					table.remove( playerStrs[ i ], j )
+				end
+			end
+		end
+
+		if players[ i ] ~= "CONSOLE" and not players[i]:IsActive() then
+			ULib.tsayColor( players[ i ], true, unpack( playerStrs[ i ] ) )
+		else
+			local msg = table.concat( playerStrs[ i ] )
+			if game.IsDedicated() then
+				Msg( msg .. "\n" )
+			end
+
+			if logFile:GetBool() then
+				ulx.logString( msg, true )
+			end
+		end
+	end
+end

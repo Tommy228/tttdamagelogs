@@ -125,6 +125,7 @@ end
 
 function Damagelog:SetRolesListView(listview, tbl)
 	listview:Clear()
+	if not tbl then return end
 	for k,v in pairs(tbl) do
 		if not GetConVar("ttt_dmglogs_showinnocents"):GetBool() and v == ROLE_INNOCENT then continue end
 		self:AddRoleLine(listview, k, v)

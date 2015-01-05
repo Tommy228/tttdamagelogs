@@ -107,7 +107,7 @@ local function BuildReportFrame(report)
 					net.Start("DL_SendAnswer")
 					net.WriteUInt(current and 1 or 0, 1)
 					net.WriteString(text)
-					net.WriteUInt(report.index, 8)
+					net.WriteUInt(report.index, 16)
 					net.SendToServer()
 					for k,v in pairs(Damagelog.ReportsQueue) do
 						if not v.finished then return end
@@ -180,7 +180,6 @@ function Damagelog:ReportWindow(tbl)
 		local function checkValidity()
 			if not IsValid(pl) then
 				ply:Remove()
-				pnl:Clear(false)
 				return false
 			end	
 			return true
@@ -245,7 +244,9 @@ function Damagelog:ReportWindow(tbl)
 	Submit:SetSize(370, 25)
 	Submit.Think = function(self)
 		local characters = string.len(string.Trim(Entry:GetText()))
-		Submit:SetDisabled(characters < 10 or not cur_selected)
+		local disable = characters < 10 or not cur_selected
+		Submit:SetDisabled(disable)
+		Submit:SetText(disable and "No enough characters to submit" or "Submit")
 	end
 	Submit.DoClick = function(self)
 		local ply = cur_selected.pl
@@ -298,7 +299,7 @@ end)
 
 net.Receive("DL_SendForgive", function()
 	local previous = net.ReadUInt(1) == 1
-	local index = net.ReadUInt(8)
+	local index = net.ReadUInt(16)
 	local nick = net.ReadString()
 	local text = net.ReadString()
 	local answer = vgui.Create("DFrame")
@@ -320,7 +321,7 @@ net.Receive("DL_SendForgive", function()
 		net.Start("DL_GetForgive")
 		net.WriteUInt(1,1)
 		net.WriteUInt(previous and 1 or 0, 1)
-		net.WriteUInt(index, 8)
+		net.WriteUInt(index, 16)
 		net.SendToServer()
 		answer:Close()
 	end
@@ -332,7 +333,7 @@ net.Receive("DL_SendForgive", function()
 		net.Start("DL_GetForgive")
 		net.WriteUInt(0,1)
 		net.WriteUInt(previous and 1 or 0, 1)
-		net.WriteUInt(index, 8)
+		net.WriteUInt(index, 16)
 		net.SendToServer()
 		answer:Close()
 	end

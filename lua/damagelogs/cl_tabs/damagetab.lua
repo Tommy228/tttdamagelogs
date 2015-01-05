@@ -314,14 +314,26 @@ function Damagelog:DrawDamageTab(x, y)
 		end
 		if PlayedRounds <= 10 then
 			if LastMapExists then
-				self.Round:ChooseOptionID(PlayedRounds + 1)
+				if GetConVar("ttt_dmglogs_currentround"):GetBool() then
+					self.Round:ChooseOptionID(PlayedRounds + 1)
+				else
+					self.Round:ChooseOptionID(PlayedRounds)
+				end
 			else
-				self.Round:ChooseOptionID(PlayedRounds)
+				if GetConVar("ttt_dmglogs_currentround"):GetBool() then
+					self.Round:ChooseOptionID(PlayedRounds)
+				else
+					self.Round:ChooseOptionID(PlayedRounds-1)
+				end
 			end
 		else
 			self.Round:ChooseOptionID(LastMapExists and 12 or 11)
 		end
-		self.SelectedRound = PlayedRounds
+		if GetConVar("ttt_dmglogs_currentround"):GetBool() or PlayedRounds <= 1 then
+			self.SelectedRound = PlayedRounds
+		else
+			self.SelectedRound = PlayedRounds-1
+		end
 		askLogs()
 	elseif not LastMapExists then
 		self.Round:AddChoice("No available logs for the current map")
@@ -396,6 +408,8 @@ end)
 
 net.Receive("DL_RefreshDamagelog", function()
 	local tbl = net.ReadTable()
+	if not IsValid(LocalPlayer()) then return end -- sometimes happens while joining
+	if not LocalPlayer().CanUseDamagelog then return end
 	if not LocalPlayer():CanUseDamagelog() then return end
 	if ValidPanel(Damagelog.Damagelog) then
 		local lines = Damagelog.Damagelog:GetLines()
