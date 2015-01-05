@@ -53,7 +53,7 @@ local function TakeAction()
 	menuPanel:AddOption("Force the reported player to respond", function()
 		if IsValid(attacker) then
 			net.Start("DL_ForceRespond")
-			net.WriteUInt(report.index, 4)
+			net.WriteUInt(report.index, 8)
 			net.WriteUInt(current and 0 or 1, 1)
 			net.SendToServer()
 		else
@@ -264,7 +264,7 @@ end)
 
 net.Receive("DL_UpdateReport", function()
 	local previous = net.ReadUInt(1) == 1
-	local index = net.ReadUInt(4)
+	local index = net.ReadUInt(8)
 	local updated = net.ReadTable()
 	updated.index = index
 	if previous then
@@ -346,7 +346,7 @@ function Damagelog:DrawRDMManager(x,y)
 				menu:AddOption(v, function()
 					net.Start("DL_UpdateStatus")
 					net.WriteUInt(Damagelog.SelectedReport.previous and 1 or 0, 1)
-					net.WriteUInt(Damagelog.SelectedReport.index, 4)
+					net.WriteUInt(Damagelog.SelectedReport.index, 8)
 					net.WriteUInt(k, 4)
 					net.SendToServer()
 				end):SetImage(icons[k])
