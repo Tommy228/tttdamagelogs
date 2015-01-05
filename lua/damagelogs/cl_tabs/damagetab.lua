@@ -152,7 +152,7 @@ function Damagelog:DrawDamageTab(x, y)
 	end
 	
 	self.PS_Label = vgui.Create("DLabel", self.PlayerSelect)
-	self.PS_Label.Text = "Currently highlighted players :"
+	self.PS_Label.Text = "Currently highlighted players:"
 	self.PS_Label:SetFont("DL_Highligh")
 	self.PS_Label:SetTextColor(color_black)
 	self.PS_Label:SetText(self.PS_Label.Text.." none")
@@ -186,7 +186,7 @@ function Damagelog:DrawDamageTab(x, y)
 		local selected = Damagelog.PlayersCombo.CurrentlySelected
 		if table.HasValue(Damagelog.Highlighted, selected) then return end
 		if #Damagelog.Highlighted >= 3 then
-			Derma_Message("You can't highligh more than 3 players at once!", "Error", "OK")
+			Derma_Message("You can't highlight more than 3 players at once!", "Error", "OK")
 		else
 			table.insert(Damagelog.Highlighted, selected)
 			Damagelog.PlayerSelect:UpdatePlayers()
