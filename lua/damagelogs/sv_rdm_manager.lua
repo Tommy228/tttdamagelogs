@@ -68,7 +68,7 @@ function Player:UpdateReport(previous, index)
 	if not tbl then return end
 	net.Start("DL_UpdateReport")
 	net.WriteUInt(previous and 1 or 0, 1)
-	net.WriteUInt(index, 4)
+	net.WriteUInt(index, 8)
 	net.WriteTable(tbl)
 	net.Send(self)
 end
@@ -170,7 +170,7 @@ end)
 
 net.Receive("DL_UpdateStatus", function(_len, ply)
 	local previous = net.ReadUInt(1) == 1
-	local index = net.ReadUInt(4)
+	local index = net.ReadUInt(8)
 	local status = net.ReadUInt(4)
 	if not ply:CanUseRDMManager() then return end
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
@@ -226,7 +226,7 @@ local waiting_forgive = {}
 net.Receive("DL_SendAnswer", function(_, ply)
 	local previous = net.ReadUInt(1) != 1
 	local text = net.ReadString()
-	local index = net.ReadUInt(4)
+	local index = net.ReadUInt(8)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end
 	if ply:SteamID() != tbl.attacker then return end
@@ -241,7 +241,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	if IsValid(victim) then
 		net.Start("DL_SendForgive")
 		net.WriteUInt(previous and 1 or 0, 1)
-		net.WriteUInt(index, 4)
+		net.WriteUInt(index, 8)
 		net.WriteString(tbl.attacker_nick)
 		net.WriteString(text)
 		net.Send(victim)
@@ -252,7 +252,7 @@ end)
 net.Receive("DL_GetForgive", function(_, ply)
 	local forgive = net.ReadUInt(1) == 1
 	local previous = net.ReadUInt(1) == 1
-	local index = net.ReadUInt(4)
+	local index = net.ReadUInt(8)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end
 	if ply:SteamID() != tbl.victim then return end
@@ -292,7 +292,7 @@ net.Receive("DL_Answering", function(_len, ply)
 end)
 
 net.Receive("DL_ForceRespond", function(_len, ply)
-	local index = net.ReadUInt(4)
+	local index = net.ReadUInt(8)
 	local previous = net.ReadUInt(1) == 1
 	if not ply:CanUseRDMManager() then return end
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
