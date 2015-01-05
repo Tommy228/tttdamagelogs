@@ -317,13 +317,13 @@ function Damagelog:DrawDamageTab(x, y)
 				if GetConVar("ttt_dmglogs_currentround"):GetBool() then
 					self.Round:ChooseOptionID(PlayedRounds + 1)
 				else
-					self.Round:ChooseOptionID(PlayedRounds)
+					self.Round:ChooseOptionID(PlayedRounds > 0 and PlayedRounds or PlayedRounds+1)
 				end
 			else
 				if GetConVar("ttt_dmglogs_currentround"):GetBool() then
 					self.Round:ChooseOptionID(PlayedRounds)
 				else
-					self.Round:ChooseOptionID(PlayedRounds-1)
+					self.Round:ChooseOptionID(PlayedRounds-1 > 0 and PlayedRounds-1 or PlayedRounds)
 				end
 			end
 		else
