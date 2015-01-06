@@ -7,7 +7,7 @@ cvars.AddChangeCallback("ttt_dmglogs_showinnocents", function(name, old, new)
 	end
 end)
 
-surface.CreateFont("DL_Highligh", {
+surface.CreateFont("DL_Highlight", {
 	font = "Verdana",
 	size = 13
 })
@@ -16,7 +16,7 @@ local PANEL = {}
 
 function PANEL:SetPlayer(nick)
 	self.Text = nick
-	surface.SetFont("DL_Highligh")
+	surface.SetFont("DL_Highlight")
 	local xtext, ytext = surface.GetTextSize(self.Text)
 	self:SetSize(xtext+25, ytext+4)
 	self.Close = vgui.Create("TipsButton", self)
@@ -55,7 +55,7 @@ function PANEL:Paint(w,h)
 	surface.DrawLine(w-1, 0, w-1, h-1)
 	surface.DrawLine(w-1, h-1, 0, h-1)
 	surface.DrawLine(0, h-1, 0, 0)
-	surface.SetFont("DL_Highligh")
+	surface.SetFont("DL_Highlight")
 	surface.SetTextColor(color_black)
 	surface.SetTextPos(3, 1)
 	surface.DrawText(self.Text)
@@ -136,7 +136,7 @@ function Damagelog:DrawDamageTab(x, y)
 		table.Empty(self.Panels)
 		if #Damagelog.Highlighted > 0 then
 			Damagelog.PS_Label:SetText(Damagelog.PS_Label.Text)
-			surface.SetFont("DL_Highligh")
+			surface.SetFont("DL_Highlight")
 			local x = surface.GetTextSize(Damagelog.PS_Label.Text)
 			x = x + 10
 			for k,v in ipairs(Damagelog.Highlighted) do
@@ -152,8 +152,8 @@ function Damagelog:DrawDamageTab(x, y)
 	end
 	
 	self.PS_Label = vgui.Create("DLabel", self.PlayerSelect)
-	self.PS_Label.Text = "Currently highlighted players :"
-	self.PS_Label:SetFont("DL_Highligh")
+	self.PS_Label.Text = "Currently highlighted players:"
+	self.PS_Label:SetFont("DL_Highlight")
 	self.PS_Label:SetTextColor(color_black)
 	self.PS_Label:SetText(self.PS_Label.Text.." none")
 	self.PS_Label:SetPos(5, 10)
@@ -186,7 +186,7 @@ function Damagelog:DrawDamageTab(x, y)
 		local selected = Damagelog.PlayersCombo.CurrentlySelected
 		if table.HasValue(Damagelog.Highlighted, selected) then return end
 		if #Damagelog.Highlighted >= 3 then
-			Derma_Message("You can't highligh more than 3 players at once!", "Error", "OK")
+			Derma_Message("You can't highlight more than 3 players at once!", "Error", "OK")
 		else
 			table.insert(Damagelog.Highlighted, selected)
 			Damagelog.PlayerSelect:UpdatePlayers()

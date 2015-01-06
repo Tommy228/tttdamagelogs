@@ -84,7 +84,7 @@ local function TakeAction()
 	local victim = GetBySteamID(report.victim)
 	local menuPanel = DermaMenu()
 	menuPanel:AddOption("Set conclusion", function()
-		Derma_StringRequest("Conclusion", "Please write the conclusion of this report", "", function(txt)
+		Derma_StringRequest("Conclusion", "Please write the conclusion for this report", "", function(txt)
 			if #txt > 0 and #txt < 200 then
 				net.Start("DL_Conclusion")
 				net.WriteUInt(0,1)
@@ -135,7 +135,6 @@ local function TakeAction()
 			slaynr_pnl:SetImage("icon16/lightning_go.png")
 			menuPanel:AddPanel(slaynr_pnl)
 			local function SetConclusion(ply, num, reason)
-				print("testing")
 				net.Start("DL_Conclusion")
 				net.WriteUInt(1,1)
 				net.WriteUInt(report.previous and 1 or 0, 1)
@@ -170,7 +169,7 @@ local function TakeAction()
 						end
 					end):SetImage("icon16/mouse.png")
 					numbers:AddOption("Set reason...", function()
-						Derma_StringRequest("Reason", "Please type the reason as to why you want to slay "..attacker:Nick(), "", function(txt)
+						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..attacker:Nick(), "", function(txt)
 							local ply = reported and attacker or victim
 							if IsValid(ply) then
 								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
@@ -338,7 +337,7 @@ function PANEL:UpdateAllReports()
 			if conclusion then
 				self.Conclusion:SetText(conclusion)
 			else
-				self.Conclusion:SetText("No conclusion on the selected report.")
+				self.Conclusion:SetText("No conclusion for the selected report.")
 			end
 		end
 		Damagelog:UpdateReportTexts()
@@ -352,7 +351,7 @@ function PANEL:OnRowSelected(index, line)
 	if conclusion then
 		self.Conclusion:SetText(conclusion)
 	else
-		self.Conclusion:SetText("No conclusion on the selected report.")
+		self.Conclusion:SetText("No conclusion for the selected report.")
 	end
 	if Damagelog.SelectedReport.previous then
 		if Damagelog.CurrentReports:GetSelected()[1] then
@@ -583,7 +582,7 @@ function Damagelog:DrawRDMManager(x,y)
 		
 		VictimLogsForm = vgui.Create("DForm")
 		VictimLogsForm.SetExpanded = function() end
-		VictimLogsForm:SetName("Logs before the victim's death")
+		VictimLogsForm:SetName("Logs before victim's death")
 	
 		VictimLogs = vgui.Create("DListView")
 		VictimLogs:AddColumn("Time"):SetFixedWidth(40)

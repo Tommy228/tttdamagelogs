@@ -229,7 +229,7 @@ function Damagelog:DrawOldLogs()
 				return
 			end
 			if #self.RoundChoice:GetSelected() > 1 then
-				Derma_Message("Please only select one round!", "Error", "OK")
+				Derma_Message("Please select only one round!", "Error", "OK")
 				return
 			end
 			net.Start("DL_AskOldLog")

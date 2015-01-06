@@ -56,7 +56,7 @@ function event:EntityTakeDamage(ent, dmginfo)
 					if shoots[first] then
 						for k,v in pairs(shoots[first]) do
 							if v[1] == ent:Nick() then
-								tbl.icon = { "icon16/exclamation.png", "The victim may have shot first (see the damage information section for more info!)" }
+								tbl.icon = { "icon16/exclamation.png", "The victim may have shot first (see the damage information section for more info)!" }
 							end
 						end
 					end

@@ -246,7 +246,7 @@ function Damagelog:ReportWindow(tbl)
 		local characters = string.len(string.Trim(Entry:GetText()))
 		local disable = characters < 10 or not cur_selected
 		Submit:SetDisabled(disable)
-		Submit:SetText(disable and "No enough characters to submit" or "Submit")
+		Submit:SetText(disable and "Not enough characters to submit" or "Submit")
 	end
 	Submit.DoClick = function(self)
 		local ply = cur_selected.pl

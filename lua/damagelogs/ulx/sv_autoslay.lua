@@ -198,7 +198,7 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 	end	
 end)
 
--- as much as I hate doind this
+-- as much as I hate doing this
 function ulx.fancyLogAdminDamagelogs( calling_ply, format, ... )
 	local use_self_suffix = false
 	local hide_echo = false
@@ -275,7 +275,7 @@ function ulx.fancyLogAdminDamagelogs( calling_ply, format, ... )
 		end
 	end )
 
-	if no_targets then -- We don't want to log if there's nothing being targetted
+	if no_targets then -- We don't want to log if there's nothing being targeted
 		return
 	end
 

@@ -40,7 +40,7 @@ local function CreateCommand()
 		ULib.cmds.takeRestOfLine
 	})
 	autoslay:defaultAccess(ULib.ACCESS_ADMIN)
-	autoslay:help("Slays the targets for a specified number of rounds. Set the rounds to 0 to cancel the slay.")
+	autoslay:help("Slays the target for a specified number of rounds. Set the rounds to 0 to cancel the slay.")
 	
 	local autoslayid = ulx.command("TTT", "ulx aslayid", ulx.autoslayid, "!aslayid" )
 	autoslayid:addParam({ 
@@ -80,6 +80,6 @@ if CLIENT then
 		local reason = net.ReadString()
 		local _time = net.ReadString()
 		if not IsValid(ply) or not list or not reason or not _time then return end
-		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, " has been autoslain by ",  Color(98, 176, 255), list.." ", color_white, _time.." ago with the reason : '"..reason.."'.")
+		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, " has been autoslain by ",  Color(98, 176, 255), list.." ", color_white, _time.." ago with the reason: '"..reason.."'.")
 	end)
 end
