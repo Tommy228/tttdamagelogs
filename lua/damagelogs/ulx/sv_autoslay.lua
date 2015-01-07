@@ -198,6 +198,129 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 	end	
 end)
 
+hook.Add("Initialize", "Damagelogs_ULXEdit", function()
+
+local logEcho                   = ulx.convar( "logEcho", "2", "Echo mode 0-Off 1-Anonymous 2-Full", ULib.ACCESS_SUPERADMIN )
+local logEchoColors             = ulx.convar( "logEchoColors", "1", "Whether or not echoed commands in chat are colored", ULib.ACCESS_SUPERADMIN )
+local logEchoColorDefault       = ulx.convar( "logEchoColorDefault", "151 211 255", "The default text color (RGB)", ULib.ACCESS_SUPERADMIN )
+local logEchoColorConsole       = ulx.convar( "logEchoColorConsole", "0 0 0", "The color that Console gets when using actions", ULib.ACCESS_SUPERADMIN )
+local logEchoColorSelf          = ulx.convar( "logEchoColorSelf", "75 0 130", "The color for yourself in echoes", ULib.ACCESS_SUPERADMIN )
+local logEchoColorEveryone      = ulx.convar( "logEchoColorEveryone", "0 128 128", "The color to use when everyone is targeted in echoes", ULib.ACCESS_SUPERADMIN )
+local logEchoColorPlayerAsGroup = ulx.convar( "logEchoColorPlayerAsGroup", "1", "Whether or not to use group colors for players.", ULib.ACCESS_SUPERADMIN )
+local logEchoColorPlayer        = ulx.convar( "logEchoColorPlayer", "255 255 0", "The color to use for players when ulx logEchoColorPlayerAsGroup is set to 0.", ULib.ACCESS_SUPERADMIN )
+local logEchoColorMisc          = ulx.convar( "logEchoColorMisc", "0 255 0", "The color for anything else in echoes", ULib.ACCESS_SUPERADMIN )
+local logFile                   = ulx.convar( "logFile", "1", "Log to file (Can still echo if off). This is a global setting, nothing will be logged to file with this off.", ULib.ACCESS_SUPERADMIN )
+local logEvents                 = ulx.convar( "logEvents", "1", "Log events (player connect, disconnect, death)", ULib.ACCESS_SUPERADMIN )
+local logChat                   = ulx.convar( "logChat", "1", "Log player chat", ULib.ACCESS_SUPERADMIN )
+local logSpawns                 = ulx.convar( "logSpawns", "1", "Log when players spawn objects (props, effects, etc)", ULib.ACCESS_SUPERADMIN )
+local logSpawnsEcho             = ulx.convar( "logSpawnsEcho", "1", "Echo spawns to players in server. -1 = Off, 0 = Console only, 1 = Admins only, 2 = All players. (Echoes to console)", ULib.ACCESS_SUPERADMIN )
+local logJoinLeaveEcho          = ulx.convar( "logJoinLeaveEcho", "1", "Echo players leaves and joins to admins in the server (useful for banning minges)", ULib.ACCESS_SUPERADMIN )
+local logDir                    = ulx.convar( "logDir", "ulx_logs", "The log dir under garrysmod/data", ULib.ACCESS_SUPERADMIN )
+
+local default_color
+local console_color
+local self_color
+local misc_color
+local everyone_color
+local player_color
+
+local function updateColors()
+	local cvars = { logEchoColorDefault, logEchoColorConsole, logEchoColorSelf, logEchoColorEveryone, logEchoColorPlayer, logEchoColorMisc }
+	for i=1, #cvars do
+		local cvar = cvars[ i ]
+		local pieces = ULib.explode( "%s+", cvar:GetString() )
+		if not #pieces == 3 then Msg( "Warning: Tried to set ulx log color cvar with bad data\n" ) return end
+		local color = Color( tonumber( pieces[ 1 ] ), tonumber( pieces[ 2 ] ), tonumber( pieces[ 3 ] ) )
+
+		if cvar == logEchoColorDefault then default_color = color
+		elseif cvar == logEchoColorConsole then console_color = color
+		elseif cvar == logEchoColorSelf then self_color = color
+		elseif cvar == logEchoColorEveryone then everyone_color = color
+		elseif cvar == logEchoColorPlayer then player_color = color
+		elseif cvar == logEchoColorMisc then misc_color = color
+		end
+	end
+end
+hook.Add( ulx.HOOK_ULXDONELOADING, "UpdateEchoColors", updateColors )
+
+local function cvarChanged( sv_cvar, cl_cvar, ply, old_value, new_value )
+	sv_cvar = sv_cvar:lower()
+	if not sv_cvar:find( "^ulx_logechocolor" ) then return end
+	if sv_cvar ~= "ulx_logechocolorplayerasgroup" then timer.Simple( 0.1, updateColors ) end
+end
+hook.Add( ULib.HOOK_REPCVARCHANGED, "ULXCheckLogColorCvar", cvarChanged )
+
+local function plyColor( target_ply, showing_ply )
+	if not target_ply:IsValid() then
+		return console_color
+	elseif showing_ply == target_ply then
+		return self_color
+	elseif logEchoColorPlayerAsGroup:GetBool() then
+		return team.GetColor( target_ply:Team() )
+	else
+		return player_color
+	end
+end
+
+local function makePlayerList( calling_ply, target_list, showing_ply, use_self_suffix, is_admin_part )
+	local players = player.GetAll()
+	-- Is the calling player acting anonymously in the eyes of the player this is being showed to?
+	local anonymous = showing_ply ~= "CONSOLE" and not ULib.ucl.query( showing_ply, seeanonymousechoAccess ) and logEcho:GetInt() == 1
+
+	if #players > 1 and #target_list == #players then
+		return { everyone_color, "Everyone" }
+	elseif is_admin_part then
+		local target = target_list[ 1 ] -- Only one target here
+		if anonymous and target ~= showing_ply then
+			return { everyone_color, "(Someone)" }
+		elseif not target:IsValid() then
+			return { console_color, "(Console)" }
+		end
+	end
+
+	local strs = {}
+
+	-- Put self, then them to the front of the list.
+	table.sort( target_list, function( ply_a, ply_b )
+		if ply_a == showing_ply then return true end
+		if ply_b == showing_ply then return false end
+		if ply_a == calling_ply then return true end
+		if ply_b == calling_ply then return false end
+		return ply_a:Nick() < ply_b:Nick()
+	end )
+
+	for i=1, #target_list do
+		local target = target_list[ i ]
+		table.insert( strs, plyColor( target, showing_ply ) )
+		if target == showing_ply then
+			if not use_self_suffix or calling_ply ~= showing_ply then
+				table.insert( strs, "You" )
+			else
+				table.insert( strs, "Yourself" )
+			end
+		elseif not use_self_suffix or calling_ply ~= target_list[ i ] or anonymous then
+			table.insert( strs, target_list[ i ]:IsValid() and target_list[ i ]:Nick() or "(Console)" )
+		else
+			table.insert( strs, "Themself" )
+		end
+		table.insert( strs, default_color )
+		table.insert( strs, "," )
+	end
+
+	-- Remove last comma and coloring
+	table.remove( strs )
+	table.remove( strs )
+
+	return strs
+end
+
+local function insertToAll( t, data )
+	for i=1, #t do
+		table.insert( t[ i ], data )
+	end
+end
+
+
 -- as much as I hate doing this
 function ulx.fancyLogAdminDamagelogs( calling_ply, format, ... )
 	local use_self_suffix = false
@@ -302,3 +425,4 @@ function ulx.fancyLogAdminDamagelogs( calling_ply, format, ... )
 		end
 	end
 end
+end)
