@@ -71,8 +71,8 @@ else
 			PRIMARY KEY (class));
 		]])
 	end
-	Damagelog.OlderDate = sql.QueryValue("SELECT MIN(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;")
-	Damagelog.LatestDate = sql.QueryValue("SELECT MAX(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;")
+	Damagelog.OlderDate = tonumber(sql.QueryValue("SELECT MIN(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;"))
+	Damagelog.LatestDate = tonumber(sql.QueryValue("SELECT MAX(date) FROM damagelog_oldlogs WHERE damagelog IS NOT NULL;"))
 	sql.Query("UPDATE damagelog_oldlogs SET damagelog = NULL WHERE date <= "..limit..";")
 	Damagelog:GetWepTable()
 end

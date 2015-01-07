@@ -7,7 +7,7 @@ util.AddNetworkString("DL_SendShootLogs")
 function Damagelog:shootCallback(weapon)
 	local owner = (IsPlayer(weapon.Owner) and weapon.Owner or nil) or (IsPlayer(weapon:GetOwner()) and weapon:GetOwner() or nil) or (IsValid(weapon) and weapon or nil)
 	if owner == nil then MsgN("No weapon or owner!") return end
-	local nick = (IsValid(owner) and owner:Nick() or "NoOwner")
+	local nick = (IsValid(owner) and owner.Nick and owner:Nick() or "NoOwner")
 	local class = (IsValid(weapon) and weapon:GetClass() or "NoClass")
 	local info = {nick, class}
 	if GetRoundState() == ROUND_ACTIVE then

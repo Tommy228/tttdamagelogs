@@ -94,7 +94,7 @@ function Damagelog:AddLogsLine(listview, tbl, nofilters, old)
 			image:SetPos(6, 1)
 		end
 		if tbl.infos.icon[2] then
-			item:SetTooltip("The victim may have shot first (see the damage informations section for more info!)")
+			item:SetTooltip("The victim may have shot first (see the damage information section for more info!)")
 		end
 	end
 	function item:PaintOver(w,h)
@@ -125,6 +125,7 @@ end
 
 function Damagelog:SetRolesListView(listview, tbl)
 	listview:Clear()
+	if not tbl then return end
 	for k,v in pairs(tbl) do
 		if not GetConVar("ttt_dmglogs_showinnocents"):GetBool() and v == ROLE_INNOCENT then continue end
 		self:AddRoleLine(listview, k, v)
@@ -253,7 +254,7 @@ function Damagelog:SetDamageInfosLV(listview, att, victim, beg, t, result)
 				end
 				local item
 				if i[2] == "crowbartir" then
-					item = listview:AddLine(string.format("%s - %s has swung their crowber", string.FormattedTime(v, "%02i:%02i"), i[1]))
+					item = listview:AddLine(string.format("%s - %s has swung their crowbar", string.FormattedTime(v, "%02i:%02i"), i[1]))
 				elseif i[2] == "crowbarpouss" then
 					item = listview:AddLine(string.format("%s - %s has pushed %s with a crowbar", string.FormattedTime(v, "%02i:%02i"), i[1], i[3]))
 				else

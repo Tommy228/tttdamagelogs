@@ -25,6 +25,6 @@ Damagelog.weapon_table_default = {
 	weapon_zm_molotov = "an incendiary grenade",
 	weapon_ttt_smokegrenade = "a smoke grenade",
 	ttt_flame = "fire",
-	weapon_ttt_confgrenade = "a Discobombulator",
+	weapon_ttt_confgrenade = "a Discombobulator",
 	weapon_ttt_sipistol = "a silenced pistol"
 }

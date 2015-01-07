@@ -1,4 +1,5 @@
 CreateClientConVar("ttt_dmglogs_rdmpopups", "1", FCVAR_ARCHIVE)
+CreateClientConVar("ttt_dmglogs_currentround", "0", FCVAR_ARCHIVE)
 
 hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 
@@ -19,6 +20,8 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 		local cb = nil
 
 		dgui:CheckBox("Enable RDM Manager popups upon RDM", "ttt_dmglogs_rdmpopups")
+		
+		dgui:CheckBox("Open the current round by default if you're alive", "ttt_dmglogs_currentround")
 
 		dsettings:AddItem(dgui)
 

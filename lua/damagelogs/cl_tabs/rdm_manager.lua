@@ -4,6 +4,39 @@ surface.CreateFont("DL_RDM_Manager", {
 	size = 20
 })
 
+surface.CreateFont("DL_Conclusion", {
+	font = "DermaLarge",
+	size = 18,
+	weight = 600
+})
+
+surface.CreateFont("DL_ConclusionText", {
+	font = "DermaLarge",
+	size = 18
+})
+
+local function AdjustText(str, font, w)
+	surface.SetFont(font)
+	local size = surface.GetTextSize(str)
+	if size <= w then
+		return str
+	else
+		local last_space
+		local i = 0
+		for k,v in pairs(string.ToTable(str)) do
+			local _w,h = surface.GetTextSize(v)
+			i = i + _w
+			if i > w then
+				local sep = last_space or k
+				return string.Left(str, sep), string.Right(str, #str - sep)
+			end	
+			if v == " " then
+				last_space = k
+			end
+		end
+	end
+end
+
 local show_finished = CreateClientConVar("rdm_manager_show_finished", "1", FCVAR_ARCHIVE)
 
 cvars.AddChangeCallback("rdm_manager_show_finished", function(name, old, new)
@@ -50,10 +83,26 @@ local function TakeAction()
 	local attacker = GetBySteamID(report.attacker)
 	local victim = GetBySteamID(report.victim)
 	local menuPanel = DermaMenu()
+	menuPanel:AddOption("Set conclusion", function()
+		if report.status != RDM_MANAGER_FINISHED then
+			Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "This report is not finished!", 3, "buttons/weapon_cant_buy.wav")
+			return
+		end
+		Derma_StringRequest("Conclusion", "Please write the conclusion for this report", "", function(txt)
+			if #txt > 0 and #txt < 200 then
+				net.Start("DL_Conclusion")
+				net.WriteUInt(0,1)
+				net.WriteUInt(report.previous and 1 or 0, 1)
+				net.WriteUInt(report.index, 16)
+				net.WriteString(txt)
+				net.SendToServer()
+			end
+		end)
+	end):SetImage("icon16/comment.png")
 	menuPanel:AddOption("Force the reported player to respond", function()
 		if IsValid(attacker) then
 			net.Start("DL_ForceRespond")
-			net.WriteUInt(report.index, 8)
+			net.WriteUInt(report.index, 16)
 			net.WriteUInt(current and 0 or 1, 1)
 			net.SendToServer()
 		else
@@ -62,9 +111,7 @@ local function TakeAction()
 	end):SetImage("icon16/clock_red.png")
 	menuPanel:AddOption("View Death Scene", function()
 		local found = false
-		PrintTable(report.logs)
 		for k,v in pairs(report.logs or {}) do
-			print(v[6], report.victim, v[7], report.attacker)
 			if v.type == "KILL" then
 				local infos = v.infos
 				if infos[6] == report.victim and infos[7] == report.attacker then
@@ -84,22 +131,63 @@ local function TakeAction()
 	end):SetImage("icon16/television.png")
 	if ulx then
 		if Damagelog.Enable_Autoslay then
-			menuPanel:AddOption("Autoslay the reported player", function()
-				if IsValid(attacker) then
-					Derma_StringRequest("Reason", "Please type the reason as to why you want to slay "..attacker:Nick(), "", function(txt)
-						RunConsoleCommand("ulx", "autoslay", attacker:Nick(), "1", txt)
-					end)
-				else
-					Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
+			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+			local slaynr = DermaMenu(menuPanel)
+			slaynr:SetVisible(false)
+			slaynr_pnl:SetSubMenu(slaynr)
+			slaynr_pnl:SetText("Slay next round")
+			slaynr_pnl:SetImage("icon16/lightning_go.png")
+			menuPanel:AddPanel(slaynr_pnl)
+			local function SetConclusion(ply, num, reason)
+				net.Start("DL_Conclusion")
+				net.WriteUInt(1,1)
+				net.WriteUInt(report.previous and 1 or 0, 1)
+				net.WriteUInt(report.index, 16)
+				net.WriteString("(Auto) "..ply.." slain "..num.." times for "..reason..".")
+				net.SendToServer()
+			end
+			local function AddSlayPlayer(reported)
+				local ply_pnl = vgui.Create("DMenuOption", slaynr)
+				local ply = DermaMenu(ply_pnl)
+				ply:SetVisible(false)
+				ply_pnl:SetSubMenu(ply)
+				ply_pnl:SetText(reported and "Reported player" or "Victim")
+				ply_pnl:SetImage(reported and "icon16/user_delete.png" or "icon16/user.png")
+				slaynr:AddPanel(ply_pnl)
+				for k,v in ipairs( {"bullet_green.png", "bullet_yellow.png", "bullet_red.png"} )do
+					local numbers_pnl = vgui.Create("DMenuOption", ply)
+					local numbers = DermaMenu(numbers_pnl)
+					numbers:SetVisible(false)
+					numbers_pnl:SetSubMenu(numbers)
+					numbers_pnl:SetText(k.." times")
+					numbers_pnl:SetImage("icon16/"..v)
+					ply:AddPanel(numbers_pnl)
+					numbers:AddOption("Default reason", function()
+						local ply = reported and attacker or victim
+						if IsValid(ply) then
+							RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k))
+							SetConclusion(ply:Nick(), k, "the default reason")
+						else
+							RunConsoleCommand("ulx", "aslayid", reported and report.attacker or report.victim, tostring(k))
+							SetConclusion(reported and report.attacker_nick or report.victim_nick, k, "the default reason")
+						end
+					end):SetImage("icon16/mouse.png")
+					numbers:AddOption("Set reason...", function()
+						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..attacker:Nick(), "", function(txt)
+							local ply = reported and attacker or victim
+							if IsValid(ply) then
+								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
+								SetConclusion(ply:Nick(), k, "\""..txt.."\"")
+							else
+								RunConsoleCommand("ulx", "aslayid", reported and report.attacker or report.victim, tostring(k), txt)
+								SetConclusion(reported and report.attacker_nick or report.victim_nick, k, "\""..txt.."\"")
+							end
+						end)
+					end):SetImage("icon16/page_edit.png")
 				end
-			end):SetImage("icon16/user_delete.png")
-			menuPanel:AddOption("Remove slays of the reported player", function()
-				if IsValid(attacker) then
-					RunConsoleCommand("ulx", "autoslay", attacker:Nick(), "0")
-				else
-					Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
-				end
-			end):SetImage("icon16/user_edit.png")
+			end
+			AddSlayPlayer(true)
+			AddSlayPlayer(false)
 		end
 		menuPanel:AddOption("Slay the reported player now", function()
 			if IsValid(attacker) then
@@ -210,6 +298,12 @@ function PANEL:UpdateReport(index)
 				self.Reports[index]:SetValue(k, tbl[k])
 			end
 		end
+		if report.conclusion then
+			local selected = Damagelog.SelectedReport
+			if selected.index == report.index and selected.previous == report.previous then
+				self.Conclusion:SetText(report.conclusion)
+			end
+		end
 	end
 	return self.Reports[index]
 end
@@ -242,6 +336,14 @@ function PANEL:UpdateAllReports()
 				end
 			end
 		end
+		if Damagelog.SelectedReport then
+			local conclusion = Damagelog.SelectedReport.conclusion
+			if conclusion then
+				self.Conclusion:SetText(conclusion)
+			else
+				self.Conclusion:SetText("No conclusion for the selected report.")
+			end
+		end
 		Damagelog:UpdateReportTexts()
 	end
 end
@@ -249,6 +351,21 @@ end
 function PANEL:OnRowSelected(index, line)
 	Damagelog.SelectedReport = self.ReportsTable[line.index]
 	Damagelog:UpdateReportTexts()
+	local conclusion = Damagelog.SelectedReport.conclusion
+	if conclusion then
+		self.Conclusion:SetText(conclusion)
+	else
+		self.Conclusion:SetText("No conclusion for the selected report.")
+	end
+	if Damagelog.SelectedReport.previous then
+		if Damagelog.CurrentReports:GetSelected()[1] then
+			Damagelog.CurrentReports:GetSelected()[1]:SetSelected(false)
+		end
+	else
+		if Damagelog.PreviousReports:GetSelected()[1] then
+			Damagelog.PreviousReports:GetSelected()[1]:SetSelected(false)
+		end		
+	end
 end
 
 vgui.Register("RDM_Manager_ListView", PANEL, "DListView")
@@ -278,11 +395,22 @@ net.Receive("DL_UpdateReport", function()
 			Damagelog.CurrentReports:UpdateReport(index)
 		end
 	end
+	if Damagelog.SelectedReport then
+		PrintTable(Damagelog.SelectedReport)
+		if Damagelog.SelectedReport.index == index and ((not Damagelog.SelectedReport.previous and not previous) or Damagelog.SelectedReport.previous == previous) then
+			Damagelog.SelectedReport = updated
+		end
+	end
 end)
 
 net.Receive("DL_UpdateReports", function()
 	Damagelog.SelectedReport = nil
-	Damagelog.Reports = net.ReadTable()
+	local size = net.ReadUInt(32)
+	local data = net.ReadData(size)
+	if not data then return end
+	local json = util.Decompress(data)
+	if not json then return end
+	Damagelog.Reports = util.JSONToTable(json)
 	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
 		Damagelog.CurrentReports:UpdateAllReports()
 	end	
@@ -326,7 +454,7 @@ function Damagelog:DrawRDMManager(x,y)
 		TakeActionB:SetPos(380, 4)
 		TakeActionB:SetSize(125, 18)
 		TakeActionB.Think = function(self)
-			self:SetDisabled(not Damagelog.SelectedReport or Damagelog.SelectedReport.status == RDM_MANAGER_CANCELED)
+			self:SetDisabled(not Damagelog.SelectedReport)
 		end
 		TakeActionB.DoClick = function(self)
 			TakeAction()
@@ -346,7 +474,7 @@ function Damagelog:DrawRDMManager(x,y)
 				menu:AddOption(v, function()
 					net.Start("DL_UpdateStatus")
 					net.WriteUInt(Damagelog.SelectedReport.previous and 1 or 0, 1)
-					net.WriteUInt(Damagelog.SelectedReport.index, 8)
+					net.WriteUInt(Damagelog.SelectedReport.index, 16)
 					net.WriteUInt(k, 4)
 					net.SendToServer()
 				end):SetImage(icons[k])
@@ -357,7 +485,7 @@ function Damagelog:DrawRDMManager(x,y)
 		Manager:AddItem(Background)
 		
 		local VictimInfos = vgui.Create("DPanel")
-		VictimInfos:SetHeight(160)
+		VictimInfos:SetHeight(110)
 		VictimInfos.Paint = function(panel, w, h)
 			local bar_height = 27
 			surface.SetDrawColor(30, 200, 30);
@@ -376,28 +504,100 @@ function Damagelog:DrawRDMManager(x,y)
 		VictimMessage:SetMultiline(true);
 		VictimMessage:SetKeyboardInputEnabled(false);
 		VictimMessage:SetPos(1, 27)
-		VictimMessage:SetSize(319, 132)
+		VictimMessage:SetSize(319, 82)
 		
 		local KillerMessage = vgui.Create("DTextEntry", VictimInfos);
 		KillerMessage:SetMultiline(true);
 		KillerMessage:SetKeyboardInputEnabled(false);
 		KillerMessage:SetPos(319, 27)
-		KillerMessage:SetSize(319, 132)
+		KillerMessage:SetSize(319, 82)
 		
 		self.CurrentReports:SetOuputs(VictimMessage, KillerMessage)
 		self.PreviousReports:SetOuputs(VictimMessage, KillerMessage)
 
 		Manager:AddItem(VictimInfos)
 		
-		local VictimLogsForm = vgui.Create("DForm")
+		local VictimLogs
+		local VictimLogsForm
+		
+		local Conclusion = vgui.Create("DPanel")
+		surface.SetFont("DL_Conclusion")
+		local cx,cy = surface.GetTextSize("Conclusion :")
+		local cm = 5
+		Conclusion.PaintOver = function(panel, w, h)
+			if not panel.t1 then return end
+			surface.SetDrawColor(color_black)
+			surface.DrawLine(0, 0, w-1, 0)
+			surface.DrawLine(w-1, 0, w-1, h-1)
+			surface.DrawLine(w-1, h-1, 0, h-1)
+			surface.DrawLine(0, h-1, 0, 0)
+			surface.SetFont("DL_Conclusion")
+			surface.SetTextPos(cm, panel.t2 and (h/3 - cy/2) or (h/2 - cy/2))
+			surface.SetTextColor(Color(0, 108, 155))
+			surface.DrawText("Conclusion : ")
+			surface.SetFont("DL_ConclusionText")
+			surface.SetTextColor(color_black)
+			local tx1, ty1 = surface.GetTextSize(panel.t1)
+			surface.SetTextPos(cx + 2*cm, panel.t2 and (h/3 - ty1/2) or h/2 - ty1/2)
+			surface.DrawText(panel.t1)
+			if panel.t2 then
+				local tx2, ty2 = surface.GetTextSize(panel.t2)
+				surface.SetTextPos(cm, 2*h/3 - ty2/2)
+				surface.DrawText(panel.t2)
+			end
+		end
+		Conclusion.SetText = function(pnl, t)
+			pnl.Text = t
+			local t1, t2 = AdjustText(t, "DL_ConclusionText", pnl:GetWide() - cx - cm*3)
+			pnl.t1 = t1
+			pnl.t2 = nil
+			if t2 then
+				pnl.t2 = t2
+				pnl:SetHeight(45)
+				KillerMessage:SetHeight(97)
+				VictimMessage:SetHeight(97)
+				VictimInfos:SetHeight(125)
+				if VictimLogs then
+					VictimLogs:SetHeight(205)
+				end
+			else
+				pnl:SetHeight(30)
+				KillerMessage:SetHeight(82)
+				VictimMessage:SetHeight(82)
+				VictimInfos:SetHeight(110)
+				if VictimLogs then
+					VictimLogs:SetHeight(230)
+				end
+			end
+			if VictimLogsForm then
+				VictimLogsForm:PerformLayout()
+			end
+			Manager:PerformLayout()
+		end
+		Conclusion.SetDefaultText = function(pnl)
+			pnl:SetText("No selected report.")
+		end
+		Conclusion.ApplySchemeSettings = function(pnl)
+			if pnl.Text then
+				pnl:SetText(pnl.Text)
+			end
+		end		
+		Conclusion:SetHeight(45)
+		
+		self.CurrentReports.Conclusion = Conclusion
+		self.PreviousReports.Conclusion = Conclusion
+		
+		Manager:AddItem(Conclusion)
+		
+		VictimLogsForm = vgui.Create("DForm")
 		VictimLogsForm.SetExpanded = function() end
-		VictimLogsForm:SetName("Logs before the victim's death")
+		VictimLogsForm:SetName("Logs before victim's death")
 	
-		local VictimLogs = vgui.Create("DListView")
+		VictimLogs = vgui.Create("DListView")
 		VictimLogs:AddColumn("Time"):SetFixedWidth(40)
 		VictimLogs:AddColumn("Type"):SetFixedWidth(40)
 		VictimLogs:AddColumn("Event"):SetFixedWidth(539)
-		VictimLogs:SetHeight(220)
+		VictimLogs:SetHeight(230)
 		
 		Damagelog.UpdateReportTexts = function()
 			local selected = Damagelog.SelectedReport
@@ -409,7 +609,7 @@ function Damagelog:DrawRDMManager(x,y)
 				KillerMessage:SetText(selected.response or "No response yet")
 			end
 			VictimLogs:Clear()
-			if selected.logs then
+			if selected and selected.logs then
 				Damagelog:SetListViewTable(VictimLogs, selected.logs, false)
 			end
 		end
@@ -420,6 +620,7 @@ function Damagelog:DrawRDMManager(x,y)
 		
 		self.Tabs:AddSheet("RDM Manager", Manager, "icon16/magnifier.png", false, false)	
 		
+		Conclusion:SetDefaultText()
 		self.CurrentReports:UpdateAllReports()
 		self.PreviousReports:UpdateAllReports()
 	end
