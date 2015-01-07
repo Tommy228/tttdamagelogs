@@ -401,7 +401,12 @@ end)
 
 net.Receive("DL_UpdateReports", function()
 	Damagelog.SelectedReport = nil
-	Damagelog.Reports = net.ReadTable()
+	local size = net.ReadUInt(32)
+	local data = net.ReadData(size)
+	if not data then return end
+	local json = util.Decompress(data)
+	if not json then return end
+	Damagelog.Reports = util.JSONToTable(json)
 	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
 		Damagelog.CurrentReports:UpdateAllReports()
 	end	

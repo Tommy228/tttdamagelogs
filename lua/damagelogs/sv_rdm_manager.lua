@@ -51,8 +51,13 @@ end
 
 function Player:UpdateReports()
 	if not self:CanUseRDMManager() then return end
+	local tbl = util.TableToJSON(Damagelog.Reports)
+	if not tbl then return end
+	local compressed = util.Compress(tbl)
+	if not compressed then return end
 	net.Start("DL_UpdateReports")
-	net.WriteTable(Damagelog.Reports)
+	net.WriteUInt(#compressed, 32)
+	net.WriteData(compressed, #compressed)
 	net.Send(self)
 end
 
