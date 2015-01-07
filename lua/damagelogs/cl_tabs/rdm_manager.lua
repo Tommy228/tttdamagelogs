@@ -84,6 +84,10 @@ local function TakeAction()
 	local victim = GetBySteamID(report.victim)
 	local menuPanel = DermaMenu()
 	menuPanel:AddOption("Set conclusion", function()
+		if report.status != RDM_MANAGER_FINISHED then
+			Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "This report is not finished!", 3, "buttons/weapon_cant_buy.wav")
+			return
+		end
 		Derma_StringRequest("Conclusion", "Please write the conclusion for this report", "", function(txt)
 			if #txt > 0 and #txt < 200 then
 				net.Start("DL_Conclusion")
