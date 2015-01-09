@@ -5,9 +5,9 @@ local function CreateCommand()
 	if not ulx then return end
 
 	function ulx.autoslay(calling_ply, target, rounds, reason)
-		Damagelog:SetSlays(calling_ply, target:SteamID(), rounds, reason, target)
+		Damagelog:AddSlays(calling_ply, target:SteamID(), rounds, reason, target)
 	end
-	
+
 	function ulx.autoslayid(calling_ply, target, rounds, reason)
 		if ULib.isValidSteamID(target) then
 			for k,v in pairs(player.GetAll()) do
@@ -16,7 +16,25 @@ local function CreateCommand()
 					return
 				end
 			end
-			Damagelog:SetSlays(calling_ply, target, rounds, reason, false)
+			Damagelog:AddSlays(calling_ply, target, rounds, reason, false)
+		else
+			ULib.tsayError(calling_ply, "Invalid steamid.", true)
+		end
+	end
+	
+	function ulx.removeautoslay(calling_ply, target, rounds)
+		Damagelog:RemoveSlays(calling_ply, target:SteamID(), rounds, target)
+	end
+
+	function ulx.removeautoslayid(calling_ply, target, rounds, reason)
+		if ULib.isValidSteamID(target) then
+			for k,v in pairs(player.GetAll()) do
+				if v:SteamID() == target then
+					ulx.removeautoslay(calling_ply, v, rounds, reason)
+					return
+				end
+			end
+			Damagelog:RemoveSlays(calling_ply, target, rounds, reason, false)
 		else
 			ULib.tsayError(calling_ply, "Invalid steamid.", true)
 		end
@@ -26,9 +44,9 @@ local function CreateCommand()
 	autoslay:addParam({ type=ULib.cmds.PlayerArg })
 	autoslay:addParam({ 
 		type=ULib.cmds.NumArg,
-		min = 0,
+		min = 1,
 		default = 1, 
-		hint= "rounds (0 to cancel slay)", 
+		hint= "number of rounds", 
 		ULib.cmds.optional, 
 		ULib.cmds.round 
 	})
@@ -40,7 +58,7 @@ local function CreateCommand()
 		ULib.cmds.takeRestOfLine
 	})
 	autoslay:defaultAccess(ULib.ACCESS_ADMIN)
-	autoslay:help("Slays the target for a specified number of rounds. Set the rounds to 0 to cancel the slay.")
+	autoslay:help("Slays the target for a specified number of rounds.")
 	
 	local autoslayid = ulx.command("TTT", "ulx aslayid", ulx.autoslayid, "!aslayid" )
 	autoslayid:addParam({ 
@@ -49,9 +67,9 @@ local function CreateCommand()
 	})
 	autoslayid:addParam({ 
 		type=ULib.cmds.NumArg,
-		min = 0,
+		min = 1,
 		default = 1, 
-		hint= "rounds (0 to cancel slay)", 
+		hint= "rounds", 
 		ULib.cmds.optional, 
 		ULib.cmds.round 
 	})
@@ -63,7 +81,36 @@ local function CreateCommand()
 		ULib.cmds.takeRestOfLine
 	})
 	autoslayid:defaultAccess(ULib.ACCESS_ADMIN)
-	autoslayid:help("Slays a steamid for a specified number of rounds. Set the rounds to 0 to cancel the slay.")
+	autoslayid:help("Slays a steamid for a specified number of rounds.")
+	
+	local removeautoslay = ulx.command("TTT", "ulx raslay", ulx.removeautoslay, "!raslay" )
+	removeautoslay:addParam({ type=ULib.cmds.PlayerArg })
+	removeautoslay:addParam({ 
+		type=ULib.cmds.NumArg,
+		min = 1,
+		default = 1, 
+		hint= "number of rounds", 
+		ULib.cmds.optional, 
+		ULib.cmds.round 
+	})
+	removeautoslay:defaultAccess(ULib.ACCESS_ADMIN)
+	removeautoslay:help("Remove slays form the target.")
+	
+	local removeautoslayid = ulx.command("TTT", "ulx raslayid", ulx.removeautoslayid, "!raslayid" )
+	removeautoslayid:addParam({ 
+		type=ULib.cmds.StringArg, 
+		hint="steamid"
+	})
+	removeautoslayid:addParam({ 
+		type=ULib.cmds.NumArg,
+		min = 1,
+		default = 1, 
+		hint= "number of rounds", 
+		ULib.cmds.optional, 
+		ULib.cmds.round 
+	})
+	removeautoslayid:defaultAccess(ULib.ACCESS_ADMIN)
+	removeautoslayid:help("Remove slays form the steamid.")
 end
 hook.Add("Initialize", "AutoSlay", CreateCommand)
 
