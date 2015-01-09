@@ -26,7 +26,7 @@ hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
 	elseif query != name then
 		sql.Query("UPDATE damagelog_names SET name = "..sql.SQLStr(name).." WHERE steamid = '"..steamid.."' LIMIT 1;")
 	end
-	ply:SetNWInt("Autoslays_left", sql.Query("SELECT slays FROM damagelog_autoslay WHERE steamid = '"..steamid.."' LIMIT 1;") or 0)
+	ply:SetNWInt("Autoslays_left", sql.Query("SELECT sum(slays) FROM damagelog_autoslay WHERE steamid = '"..steamid.."';") or 0)
 end)
 
 function Damagelog:GetName(steamid)
@@ -82,6 +82,10 @@ function Damagelog:FormatTime(t)
 	end
 end
 
+local function NetworkSlays(steamid)
+	NetworkSlays(steamid, sql.Query("SELECT sum(slays) FROM damagelog_autoslay WHERE steamid = '"..steamid.."';") or 0)
+end
+
 local function NetworkSlays(steamid, number)
 	for k,v in pairs(player.GetAll()) do
 		if v:SteamID() == steamid then
@@ -91,71 +95,53 @@ local function NetworkSlays(steamid, number)
 	end
 end
 
-function Damagelog:SetSlays(admin, steamid, slays, reason, target)
+function Damagelog:AddSlays(admin, steamid, slays, reason, target)
 	if reason == "" then
 		reason = "No reason specified"
 	end
-	if slays == 0 then
-	    sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."';")
-		local name = self:GetName(steamid)
-		if target then
-			ulx.fancyLogAdmin(admin, "#A removed the autoslays of #T.", target)
-		else
-			ulx.fancyLogAdmin(admin, "#A removed the autoslays of #s.", steamid)
-		end
-		NetworkSlays(steamid, 0)
+	local admins
+	if IsValid(admin) and type(admin) == "Player" then
+		admins = util.TableToJSON( { admin:SteamID() } )
 	else
-	    local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..steamid.."' LIMIT 1;")
+		admins = util.TableToJSON( { "Console" } )
+	end
+	sql.Query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
+	if target then
+		ulx.fancyLogAdmin(admin, "#A added "..slays.." autoslays to #T with the reason : '#s'", target, reason)
+	else
+		ulx.fancyLogAdmin(admin, "#A added "..slays.." autoslays to #T with the reason : '#s'", steamid, reason)
+	end
+	NetworkSlays(steamid)
+end
+
+function Damagelog:RemoveSlays(admin, steamid, slays, target)
+	local slays_to_remove = slays
+	local slays_removed = 0
+	while slays_to_remove > 0 do
+		local data = sql.QueryRow("SELECT *,rowid FROM damagelog_autoslay WHERE ply = '"..steamid.."' ORDER BY time DESC LIMIT 1;")
 		if data then
-			local adminid
-			if IsValid(admin) and type(admin) == "Player" then
-				adminid = admin:SteamID()
-			else
-				adminid = "Console"
+			local slays_found = tonumber(data.slays)
+			local rowid = data.rowid
+			if slays_found > slays_to_remove then -- found more, than i need to remove
+				slays_removed = slays_removed + slays_to_remove
+				slays_found = slays_found - slays_to_remove
+				slays_to_remove = 0
+				sql.Query("UPDATE damagelog_autoslay SET slays = '"..slays_found.."' WHERE ply = '"..steamid.."' AND rowid = '"..rowid.."';")
+			else -- found equal or less than i need to remove
+				slays_to_remove = slays_to_remove - slays_found
+				slays_removed = slays_removed + slays_found
+				sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."' AND rowid = '"..rowid.."';")
 			end
-			local old_slays = tonumber(data.slays)
-			local old_steamids = util.JSONToTable(data.admins) or {}
-		    local new_steamids = table.Copy(old_steamids)
-	        if not table.HasValue(new_steamids, adminid) then
-			    table.insert(new_steamids, adminid)
-			end
-		    if old_slays == slays then
-				sql.Query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
-				local list = self:CreateSlayList(new_steamids)
-				local nick = self:GetName(steamid)
-				if target then
-					ulx.fancyLogAdmin(admin, "#A changed the reason of #T's autoslay to : '#s'. He was already autoslain "..slays.." time(s) by #s.", target, reason, list)
-				else
-					ulx.fancyLogAdmin(admin, "#A changed the reason of #s's autoslay to : '#s'. He was already autoslain "..slays.." time(s) by #s.", steamid, reason, list)
-				end
-			else
-				local difference = slays - old_slays
-				sql.Query(string.format("UPDATE damagelog_autoslay SET admins = %s, slays = %i, reason = %s, time = %s WHERE ply = '%s' LIMIT 1;", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
-				local list = self:CreateSlayList(new_steamids)
-				local nick = self:GetName(steamid)
-				if target then
-					ulx.fancyLogAdmin(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference).." slays to #T for the reason : '#s'. He was previously autoslain "..old_slays.." time(s) by #s.", target, reason, list)
-				else
-					ulx.fancyLogAdmin(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference).." slays to #s for the reason : '#s'. He was previously autoslain "..old_slays.." time(s) by #s.", steamid, reason, list)
-				end
-				NetworkSlays(steamid, slays)
-			end
-		else
-			local admins
-			if IsValid(admin) and type(admin) == "Player" then
-			    admins = util.TableToJSON( { admin:SteamID() } )
-			else
-			    admins = util.TableToJSON( { "Console" } )
-			end
-			sql.Query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
-			if target then
-				ulx.fancyLogAdmin(admin, "#A added "..slays.." autoslays to #T with the reason : '#s'", target, reason)
-			else
-				ulx.fancyLogAdmin(admin, "#A added "..slays.." autoslays to #s with the reason : '#s'", steamid, reason)
-			end
-			NetworkSlays(steamid, slays)
+		else -- no slays found
+			slays_to_remove = 0
 		end
 	end
+	if target then
+		ulx.fancyLogAdmin(admin, "#A removed "..slays_removed.." autoslays from #T.", target)
+	else
+		ulx.fancyLogAdmin(admin, "#A removed "..slays_removed.." autoslays from #T.", steamid)
+	end
+	NetworkSlays(steamid)
 end
 
 hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
@@ -164,21 +150,21 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 			timer.Simple(1, function()
 				v:SetNWBool("PlayedSRound", true)
 			end)
-			local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."' LIMIT 1;")
+			local data = sql.QueryRow("SELECT *,rowid FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."' ORDER BY time ASC LIMIT 1;")
 			if data then
 				v:Kill()
 				local admins = util.JSONToTable(data.admins) or {}
 				local slays = data.slays
 				local reason = data.reason
 				local _time = data.time
+				local rowid = tonumber(data.rowid)
 				slays = slays - 1
 				if slays <= 0 then
-					sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."';")
-					NetworkSlays(steamid, 0)
+					sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..v:SteamID().."' AND rowid = '"..rowid.."';")
 				else
-					sql.Query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."';")
-					NetworkSlays(steamid, slays - 1)
+					sql.Query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '"..v:SteamID().."' AND rowid = '"..rowid.."';")
 				end
+				NetworkSlays(steamid)
 				local list = Damagelog:CreateSlayList(admins)
 				net.Start("DL_AutoSlay")
 				net.WriteEntity(v)
