@@ -416,7 +416,7 @@ hook.Add("Think", "Think_Record", function()
 				models[k]:SetAngles(angle)
 			end
 		end
-		if scene and not playedsounds[scene] then
+		if scene and playedsounds != scene then
 			for k,v in pairs(scene) do
 				if v.shot then
 					models[k]:EmitSound(v.shot, 100, 100)
@@ -433,7 +433,7 @@ hook.Add("Think", "Think_Record", function()
 					end)
 				end
 			end
-			playedsounds[scene] = true
+			playedsounds = scene
 		end
 	end
 end)
