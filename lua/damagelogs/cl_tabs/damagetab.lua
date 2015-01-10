@@ -314,13 +314,13 @@ function Damagelog:DrawDamageTab(x, y)
 		end
 		if PlayedRounds <= 10 then
 			if LastMapExists then
-				if GetConVar("ttt_dmglogs_currentround"):GetBool() then
+				if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() then
 					self.Round:ChooseOptionID(PlayedRounds + 1)
 				else
 					self.Round:ChooseOptionID(PlayedRounds > 0 and PlayedRounds or PlayedRounds+1)
 				end
 			else
-				if GetConVar("ttt_dmglogs_currentround"):GetBool() then
+				if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() then
 					self.Round:ChooseOptionID(PlayedRounds)
 				else
 					self.Round:ChooseOptionID(PlayedRounds-1 > 0 and PlayedRounds-1 or PlayedRounds)
@@ -329,7 +329,7 @@ function Damagelog:DrawDamageTab(x, y)
 		else
 			self.Round:ChooseOptionID(LastMapExists and 12 or 11)
 		end
-		if GetConVar("ttt_dmglogs_currentround"):GetBool() or PlayedRounds <= 1 then
+		if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() or PlayedRounds <= 1 then
 			self.SelectedRound = PlayedRounds
 		else
 			self.SelectedRound = PlayedRounds-1
