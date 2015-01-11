@@ -94,7 +94,7 @@ local function CreateCommand()
 		ULib.cmds.round 
 	})
 	removeautoslay:defaultAccess(ULib.ACCESS_ADMIN)
-	removeautoslay:help("Remove slays from the target.")
+	removeautoslay:help("Remove slays form the target.")
 	
 	local removeautoslayid = ulx.command("TTT", "ulx raslayid", ulx.removeautoslayid, "!raslayid" )
 	removeautoslayid:addParam({ 
@@ -110,7 +110,7 @@ local function CreateCommand()
 		ULib.cmds.round 
 	})
 	removeautoslayid:defaultAccess(ULib.ACCESS_ADMIN)
-	removeautoslayid:help("Remove slays from the steamid.")
+	removeautoslayid:help("Remove slays form the steamid.")
 end
 hook.Add("Initialize", "AutoSlay", CreateCommand)
 
