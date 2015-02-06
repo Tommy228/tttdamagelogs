@@ -173,7 +173,8 @@ local function TakeAction()
 						end
 					end):SetImage("icon16/mouse.png")
 					numbers:AddOption("Set reason...", function()
-						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..attacker:Nick(), "", function(txt)
+						local nick = reported and report.attacker_nick or report.victim_nick
+						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..nick, "", function(txt)
 							local ply = reported and attacker or victim
 							if IsValid(ply) then
 								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
