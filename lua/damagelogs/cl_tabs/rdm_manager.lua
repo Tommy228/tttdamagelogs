@@ -396,7 +396,6 @@ net.Receive("DL_UpdateReport", function()
 		end
 	end
 	if Damagelog.SelectedReport then
-		PrintTable(Damagelog.SelectedReport)
 		if Damagelog.SelectedReport.index == index and ((not Damagelog.SelectedReport.previous and not previous) or Damagelog.SelectedReport.previous == previous) then
 			Damagelog.SelectedReport = updated
 		end
