@@ -342,7 +342,7 @@ end)
 net.Receive("DL_Answering_global", function(_len)
 	local nick = net.ReadString()
 	local ply = LocalPlayer()
-	if not ply:IsActive() or ply:CanUseRDMManager() then
+	if not ply:IsActive() then
 		chat.AddText(Color(255,62,62), nick, color_white, " is answering to his reports.")
 	end
 end)

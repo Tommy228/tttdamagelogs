@@ -173,7 +173,8 @@ local function TakeAction()
 						end
 					end):SetImage("icon16/mouse.png")
 					numbers:AddOption("Set reason...", function()
-						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..attacker:Nick(), "", function(txt)
+						local nick = reported and report.attacker_nick or report.victim_nick
+						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..nick, "", function(txt)
 							local ply = reported and attacker or victim
 							if IsValid(ply) then
 								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
@@ -228,7 +229,7 @@ function PANEL:GetAttackerSlays(report)
 		local steamid = v:IsBot() and "BOT" or v:SteamID()
 		if steamid == report.attacker then
 			local slays = v:GetNWInt("Autoslays_left", 0)
-			if slays <= 0 then
+			if tonumber(slays) <= 0 then
 				return v:Nick().." not slain"
 			else
 				return v:Nick().." slain "..slays.." times"
@@ -396,7 +397,6 @@ net.Receive("DL_UpdateReport", function()
 		end
 	end
 	if Damagelog.SelectedReport then
-		PrintTable(Damagelog.SelectedReport)
 		if Damagelog.SelectedReport.index == index and ((not Damagelog.SelectedReport.previous and not previous) or Damagelog.SelectedReport.previous == previous) then
 			Damagelog.SelectedReport = updated
 		end
@@ -465,7 +465,7 @@ function Damagelog:DrawRDMManager(x,y)
 		SetState:SetPos(510, 4)
 		SetState:SetSize(125, 18)
 		SetState.Think = function(self)
-			self:SetDisabled(not Damagelog.SelectedReport or Damagelog.SelectedReport.status == RDM_MANAGER_CANCELED)
+			self:SetDisabled(not Damagelog.SelectedReport)
 		end
 		SetState.DoClick = function()
 			local menu = DermaMenu()

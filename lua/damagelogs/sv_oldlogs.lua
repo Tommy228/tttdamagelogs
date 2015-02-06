@@ -132,8 +132,8 @@ end
 net.Receive("DL_AskOldLogRounds", function(_, ply)
 	local id = net.ReadUInt(32)
 	local year = net.ReadUInt(32)
-	local month = net.ReadUInt(32)
-	local day = net.ReadUInt(32)
+	local month = string.format("%02d",net.ReadUInt(32))
+	local day = string.format("%02d",net.ReadUInt(32))
 	local _date = "20"..year.."-"..month.."-"..day
 	if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
 		local query_str = "SELECT date,map FROM damagelog_oldlogs WHERE date BETWEEN UNIX_TIMESTAMP(\"".._date.." 00:00:00\") AND UNIX_TIMESTAMP(\"".._date.." 23:59:59\") ORDER BY date ASC;"
