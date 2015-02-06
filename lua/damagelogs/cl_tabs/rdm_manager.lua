@@ -464,7 +464,7 @@ function Damagelog:DrawRDMManager(x,y)
 		SetState:SetPos(510, 4)
 		SetState:SetSize(125, 18)
 		SetState.Think = function(self)
-			self:SetDisabled(not Damagelog.SelectedReport or Damagelog.SelectedReport.status == RDM_MANAGER_CANCELED)
+			self:SetDisabled(not Damagelog.SelectedReport)
 		end
 		SetState.DoClick = function()
 			local menu = DermaMenu()
