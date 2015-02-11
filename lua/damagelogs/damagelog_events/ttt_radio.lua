@@ -16,7 +16,6 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 	local name_role = false
 	local target_steamid = false
 
-	-- translation of strings is clientside?
 	if isstring(msg_target) then
 		name = msg_target
 	else
@@ -27,7 +26,8 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 				target_steamid = msg_target:SteamID()
 			elseif msg_target:GetClass() == "prop_ragdoll" then
 				name = "corpse of "
-				name = name..CORPSE.GetPlayerNick(msg_target, "<Player disconnected>")
+				name = name..CORPSE.GetPlayerNick(msg_target, "<Disconnected Player>")
+				name_role = "disconnected"
 			end
 		end
 	end
@@ -44,11 +44,35 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 end
 
 function event:ToString(v)
-	if not v[6] then
-		return string.format("%s [%s] used the radio with %s on %s.", v[1], Damagelog:StrRole(v[2]), v[4], v[5])
-	else
-		return string.format("%s [%s] used the radio with %s on %s [%s].", v[1], Damagelog:StrRole(v[2]), v[4], v[5], Damagelog:StrRole(v[6]))
+
+	-- copied localization from cl_voice.lua
+	local targetply = true
+	local param = v[5]
+	local lang_param = LANG.GetNameParam(param)
+	if lang_param then
+		if lang_param == "quick_corpse_id" then
+			-- special case where nested translation is needed
+			param = LANG.GetPTranslation(lang_param, {player = v[5]})
+		else
+			param = LANG.GetTranslation(lang_param)
+		end
+	elseif LANG.GetRawTranslation(param) then
+			targetply = false
+			param = LANG.GetTranslation(param)
 	end
+
+	local text = LANG.GetPTranslation(v[4], {player = param})
+
+	if lang_param then
+		text = util.Capitalize(text)
+	end
+	
+	local targetrole = ""
+	if targetply then
+		targetrole = " ["..Damagelog:StrRole(v[6]).."]"
+	end
+
+	return string.format("%s [%s] used his radio: %s%s", v[1], Damagelog:StrRole(v[2]), text, targetrole)
 end
 
 function event:IsAllowed(tbl)
@@ -63,10 +87,7 @@ function event:Highlight(line, tbl, text)
 end
 
 function event:GetColor(tbl)
-	if not tbl[6] then
-		return Damagelog:GetColor("TTTRadio")
-	end
-	if tbl[4] == "quick_traitor" and tbl[2] == tbl[6] then
+	if tbl[6] and tbl[4] == "quick_traitor" and tbl[2] == tbl[6] then
 		return Damagelog:GetColor("Radio Command TeamKOS")
 	else
 		return Damagelog:GetColor("Radio Command Default")
@@ -75,7 +96,7 @@ end
 
 function event:RightClick(line, tbl, text)
 	line:ShowTooLong(true)
-	if not tbl[6] then
+	if not tbl[7] then
 		line:ShowCopy(true, { tbl[1], tbl[3] })
 	else
 		line:ShowCopy(true, { tbl[1], tbl[3] }, { tbl[5], tbl[7] })
