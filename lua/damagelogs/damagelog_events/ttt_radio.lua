@@ -2,9 +2,8 @@ if SERVER then
 	Damagelog:EventHook("TTTPlayerRadioCommand")
 else
 	Damagelog:AddFilter("Show Radio commands", DAMAGELOG_FILTER_BOOL, true)
-	Damagelog:AddColor("TTTRadio", Color(0,0,0))
-	Damagelog:AddColor("TTTRadioSuspect", Color(255,144,0))
-	Damagelog:AddColor("TTTRadioTraitor", Color(255,0,0))
+	Damagelog:AddColor("Radio Command Default", Color(182,182,182))
+	Damagelog:AddColor("Radio Command TeamKOS", Color(255,0,0))
 end
 
 local event = {}
@@ -45,7 +44,6 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 end
 
 function event:ToString(v)
-	-- local ent = Damagelog.weapon_table[v[7]] or tostring(v[7])
 	if not v[6] then
 		return string.format("%s [%s] used the radio with %s on %s.", v[1], Damagelog:StrRole(v[2]), v[4], v[5])
 	else
@@ -68,12 +66,10 @@ function event:GetColor(tbl)
 	if not tbl[6] then
 		return Damagelog:GetColor("TTTRadio")
 	end
-	if tbl[4] == "quick_traitor" and tbl[2] ~= tbl[6] then
-		return Damagelog:GetColor("TTTRadioTraitor")
-	elseif tbl[4] == "quick_suspect" and tbl[2] ~= tbl[6] then
-		return Damagelog:GetColor("TTTRadioSuspect")
+	if tbl[4] == "quick_traitor" and tbl[2] == tbl[6] then
+		return Damagelog:GetColor("Radio Command TeamKOS")
 	else
-		return Damagelog:GetColor("TTTRadio")
+		return Damagelog:GetColor("Radio Command Default")
 	end
 end
 
