@@ -289,8 +289,10 @@ function Damagelog:DrawDamageTab(x, y)
 	
 	local PlayedRounds = sync_ent:GetPlayedRounds()
 	local LastMapExists = sync_ent:GetLastRoundMapExists()
+	local LastChoise = 0
 	if LastMapExists then
 		self.Round:AddChoice("Last round of the previous map", -1)
+		LastChoise = LastChoise + 1
 		if PlayedRounds <= 0 then
 			self.SelectedRound = -1
 			askLogs()
@@ -311,28 +313,12 @@ function Damagelog:DrawDamageTab(x, y)
 			else
 				self.Round:AddChoice("Round "..tostring(i), i)
 			end
+			LastChoise = LastChoise + 1
 		end
-		if PlayedRounds <= 10 then
-			if LastMapExists then
-				if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() then
-					self.Round:ChooseOptionID(PlayedRounds + 1)
+		if not LocalPlayer():CanUseDamagelog() or (GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive()) then
+			self.Round:ChooseOptionID(LastChoise)
 				else
-					self.Round:ChooseOptionID(PlayedRounds > 0 and PlayedRounds or PlayedRounds+1)
-				end
-			else
-				if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() then
-					self.Round:ChooseOptionID(PlayedRounds)
-				else
-					self.Round:ChooseOptionID(PlayedRounds-1 > 0 and PlayedRounds-1 or PlayedRounds)
-				end
-			end
-		else
-			self.Round:ChooseOptionID(LastMapExists and 12 or 11)
-		end
-		if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() or PlayedRounds <= 1 then
-			self.SelectedRound = PlayedRounds
-		else
-			self.SelectedRound = PlayedRounds-1
+			self.Round:ChooseOptionID(LastChoise - 1)
 		end
 		askLogs()
 	elseif not LastMapExists then
