@@ -301,7 +301,7 @@ function PANEL:UpdateReport(index)
 		end
 		if report.conclusion then
 			local selected = Damagelog.SelectedReport
-			if selected.index == report.index and selected.previous == report.previous then
+			if selected and selected.index == report.index and selected.previous == report.previous then
 				self.Conclusion:SetText(report.conclusion)
 			end
 		end
