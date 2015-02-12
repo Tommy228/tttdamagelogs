@@ -10,7 +10,6 @@ local event = {}
 event.Type = "BODY"
 
 function event:TTTBodyFound(ply, deadply, rag)
-	print( (IsValid(deadply) and deadply:Nick() or CORPSE.GetPlayerNick(rag, "<Disconnected Player>")) )
 	self.CallEvent({
 		[1] = (IsValid(ply) and ply:Nick() or "<Disconnected Player>"),
 		[2] = (IsValid(ply) and ply:GetRole() or "disconnected"),

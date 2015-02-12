@@ -76,7 +76,7 @@ function event:ToString(v)
 end
 
 function event:IsAllowed(tbl)
-	return Damagelog.filter_settings["Show TTTRadio"]
+	return Damagelog.filter_settings["Show Radio commands"]
 end
 
 function event:Highlight(line, tbl, text)
