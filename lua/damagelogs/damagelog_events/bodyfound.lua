@@ -1,7 +1,7 @@
 if SERVER then
 	Damagelog:EventHook("TTTBodyFound")
 else
-	Damagelog:AddFilter("Show Found Bodies", DAMAGELOG_FILTER_BOOL, true)
+	Damagelog:AddFilter("Show found bodies", DAMAGELOG_FILTER_BOOL, true)
 	Damagelog:AddColor("Found Body", Color(127,0,255))
 end
 
@@ -25,7 +25,7 @@ function event:ToString(v)
 end
 
 function event:IsAllowed(tbl)
-	return Damagelog.filter_settings["Show Found Bodies"]
+	return Damagelog.filter_settings["Show found bodies"]
 end
 
 function event:Highlight(line, tbl, text)
