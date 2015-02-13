@@ -1,7 +1,7 @@
 if SERVER then
 	Damagelog:EventHook("TTTPlayerRadioCommand")
 else
-	Damagelog:AddFilter("Show Radio commands", DAMAGELOG_FILTER_BOOL, true)
+	Damagelog:AddFilter("Show Radio commands", DAMAGELOG_FILTER_BOOL, false)
 	Damagelog:AddColor("Radio Command Default", Color(182,182,182))
 	Damagelog:AddColor("Radio Command TeamKOS", Color(255,0,0))
 end
