@@ -228,7 +228,7 @@ function Damagelog:ReportWindow(tbl)
 	end
 	
 	local Label = vgui.Create("DLabel", ReportPanel)
-	Label:SetTextColor(color_black)
+	Label:SetFGColor(color_black)
 	Label:SetText("Explain the situation. At least 10 characters are required.")
 	Label:SizeToContents()
 	Label:SetPos(210, 30)
