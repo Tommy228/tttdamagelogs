@@ -271,13 +271,13 @@ function PANEL:UpdateReport(index)
 			self:InvalidateLayout()
 			self.Reports[index].PaintOver = function(self)
 				if self:IsLineSelected() then 
-					self.Columns[2]:SetTextColor(color_white)
-					self.Columns[3]:SetTextColor(color_white)
-					self.Columns[6]:SetTextColor(color_white)
+					self.Columns[2]:SetFGColor(color_white)
+					self.Columns[3]:SetFGColor(color_white)
+					self.Columns[6]:SetFGColor(color_white)
 				else
-					self.Columns[2]:SetTextColor(Color(0, 190, 0))
-					self.Columns[3]:SetTextColor(Color(190, 0, 0))
-					self.Columns[6]:SetTextColor(colors[self.status] or color_white)
+					self.Columns[2]:SetFGColor(Color(0, 190, 0))
+					self.Columns[3]:SetFGColor(Color(190, 0, 0))
+					self.Columns[6]:SetFGColor(colors[self.status] or color_white)
 				end
 			end
 			self.Reports[index].OnRightClick = function(self)

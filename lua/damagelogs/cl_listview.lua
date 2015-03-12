@@ -103,7 +103,7 @@ function Damagelog:AddLogsLine(listview, tbl, nofilters, old)
 			surface.DrawRect(0, 0, w, h)
 		else
 			for k,v in pairs(item.Columns) do
-				v:SetTextColor(infos:GetColor(tbl.infos))
+				v:SetFGColor(infos:GetColor(tbl.infos))
 			end
 		end
 	end
@@ -142,7 +142,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 	local item = listview:AddLine(nick, self:StrRole(role), "")
 	function item:PaintOver()
 		for k,v in pairs(item.Columns) do
-			v:SetTextColor(role_colors[role])
+			v:SetFGColor(role_colors[role])
 		end
 	end
 	item.Nick = nick
@@ -263,12 +263,12 @@ function Damagelog:SetDamageInfosLV(listview, att, victim, beg, t, result)
 				item.PaintOver = function()
 					if att and victim then
 						if i[1] == players[1] then
-							item.Columns[1]:SetTextColor(Color(25, 25, 220))
+							item.Columns[1]:SetFGColor(Color(25, 25, 220))
 						elseif i[1] == players[2] then
-							item.Columns[1]:SetTextColor(Color(255, 128, 0))
+							item.Columns[1]:SetFGColor(Color(255, 128, 0))
 						end
 					else
-						item.Columns[1]:SetTextColor(color)
+						item.Columns[1]:SetFGColor(color)
 					end
 				end
 			end	
