@@ -297,7 +297,7 @@ net.Receive("DL_SendLogsList", function()
 	if not received then return end
 	Damagelog.OlderDate = net.ReadUInt(32)
 	Damagelog.LatestDate = net.ReadUInt(32)
-	if ValidPanel(Damagelog.OldLogs) then
+	if IsValid(Damagelog.OldLogs) then
 		Damagelog.OldLogs:UpdateDates()
 	end
 end)

@@ -132,7 +132,7 @@ net.Receive("DL_SendWeaponTable", function()
 	else
 		Damagelog.weapon_table[net.ReadString()] = net.ReadString()
 	end
-	if ValidPanel(Damagelog.WepListview) then
+	if IsValid(Damagelog.WepListview) then
 		Damagelog.WepListview:Update()
 	end
 end)
