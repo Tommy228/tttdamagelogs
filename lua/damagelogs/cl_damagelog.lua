@@ -136,7 +136,7 @@ Damagelog.pressed_key = false
 function Damagelog:Think()
 	if input.IsKeyDown(self.Key) and not self.pressed_key then
 		self.pressed_key = true
-		if not ValidPanel(self.Menu) then
+		if not IsValid(self.Menu) then
 			self:OpenMenu()
 		else
 			if self:IsRecording() then

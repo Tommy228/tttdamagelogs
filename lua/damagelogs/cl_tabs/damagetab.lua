@@ -397,7 +397,7 @@ net.Receive("DL_RefreshDamagelog", function()
 	if not IsValid(LocalPlayer()) then return end -- sometimes happens while joining
 	if not LocalPlayer().CanUseDamagelog then return end
 	if not LocalPlayer():CanUseDamagelog() then return end
-	if ValidPanel(Damagelog.Damagelog) then
+	if IsValid(Damagelog.Damagelog) then
 		local lines = Damagelog.Damagelog:GetLines()
 		if lines[1] and lines[1]:GetValue(3) == "Nothing here..." then
 			Damagelog.Damagelog:Clear()
