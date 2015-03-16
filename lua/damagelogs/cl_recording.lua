@@ -98,7 +98,7 @@ function Damagelog:CreateDSPanel()
 	
 	local note = vgui.Create("DLabel", self.DSPanel)
 	note:SetText("Note : Press C to enable the mouse.")
-	note:SetFGColor(color_black)
+	note:SetTextColor(color_black)
 	note:SetPos(140, 10)
 	note:SizeToContents()
 	
@@ -141,7 +141,7 @@ function Damagelog:CreateDSPanel()
 	slowmo:SetText("Enable slowmotion")
 	slowmo:SetConVar("ttt_death_scene_slowmo")
 	slowmo:SetPos(w - 125, h-30)
-	slowmo:SetFGColor(color_black)
+	slowmo:SetTextColor(color_black)
 	slowmo:SizeToContents()
 	
 	local stop = vgui.Create("DButton", self.DSPanel)

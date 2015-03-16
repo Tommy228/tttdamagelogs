@@ -10,7 +10,7 @@ function PANEL:Init()
 	self.icon:SizeToContents()
 	self.label = vgui.Create("DLabel", self)
 	self.label:SetText("")
-	self.label:SetFGColor(color_white)
+	self.label:SetTextColor(color_white)
 	self.label:SetExpensiveShadow(1, Color(0, 0, 0, 150))
 end;
 
@@ -86,8 +86,8 @@ function PANEL:IsHovered()
 	return self.isHovered;
 end
 
-function PANEL:SetFGColor(color)
-	self.label:SetFGColor(color);
+function PANEL:SetTextColor(color)
+	self.label:SetTextColor(color);
 end
 
 function PANEL:OnMousePressed(mouseCode)
@@ -134,5 +134,4 @@ function PANEL:SetInfoColor(color)
 	end
 end
 	
-vgui.Register("Damagelog_InfoLabel", PANEL, "DPanel")
-
+vgui.Register("Damagelog_InfoLabel", PANEL, "DPanel")
