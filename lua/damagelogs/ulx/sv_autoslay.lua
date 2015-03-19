@@ -26,7 +26,9 @@ hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
 	elseif query != name then
 		sql.Query("UPDATE damagelog_names SET name = "..sql.SQLStr(name).." WHERE steamid = '"..steamid.."' LIMIT 1;")
 	end
-	ply:SetNWInt("Autoslays_left", sql.Query("SELECT slays FROM damagelog_autoslay WHERE steamid = '"..steamid.."' LIMIT 1;") or 0)
+	local c = sql.Query("SELECT slays FROM damagelog_autoslay WHERE steamid = '"..steamid.."' LIMIT 1;")
+	if not tonumber(c) then c = 0 end
+	ply:SetNWInt("Autoslays_left", c or 0)
 end)
 
 function Damagelog:GetName(steamid)
