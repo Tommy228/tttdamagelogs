@@ -180,6 +180,10 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	local message = net.ReadString()
 	if ply:RemainingReports() <= 0 or not ply.CanReport then return end
 	if attacker == ply then return end
+	if not IsValid(attacker) then 
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "Error reporting : Invalid attacker entity!", 5, "buttons/weapon_cant_buy.wav")
+		return 
+	end
 	if not attacker:GetNWBool("PlayedSRound", true) then
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "You can't report spectators!", 5, "buttons/weapon_cant_buy.wav")
 		return
