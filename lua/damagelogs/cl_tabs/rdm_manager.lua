@@ -163,25 +163,25 @@ local function TakeAction()
 					numbers_pnl:SetImage("icon16/"..v)
 					ply:AddPanel(numbers_pnl)
 					numbers:AddOption("Default reason", function()
-						local ply = reported and attacker or victim
+						local ply = (reported and attacker) or (not reported and victim)
 						if IsValid(ply) then
 							RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k))
 							SetConclusion(ply:Nick(), k, "the default reason")
 						else
-							RunConsoleCommand("ulx", "aslayid", reported and report.attacker or report.victim, tostring(k))
-							SetConclusion(reported and report.attacker_nick or report.victim_nick, k, "the default reason")
+							RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k))
+							SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "the default reason")
 						end
 					end):SetImage("icon16/mouse.png")
 					numbers:AddOption("Set reason...", function()
-						local nick = reported and report.attacker_nick or report.victim_nick
+						local nick = (reported and report.attacker_nick) or (not reported and report.victim_nick)
 						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..nick, "", function(txt)
-							local ply = reported and attacker or victim
+							local ply = (reported and attacker) or (not reported and victim)
 							if IsValid(ply) then
 								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
 								SetConclusion(ply:Nick(), k, "\""..txt.."\"")
 							else
-								RunConsoleCommand("ulx", "aslayid", reported and report.attacker or report.victim, tostring(k), txt)
-								SetConclusion(reported and report.attacker_nick or report.victim_nick, k, "\""..txt.."\"")
+								RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k), txt)
+								SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "\""..txt.."\"")
 							end
 						end)
 					end):SetImage("icon16/page_edit.png")
