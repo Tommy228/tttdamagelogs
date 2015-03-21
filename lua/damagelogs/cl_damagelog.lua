@@ -59,7 +59,7 @@ function Damagelog:OpenMenu()
 	self.Menu:SetKeyboardInputEnabled(false)
 	self.Menu:Center()
 	self.Menu.AboutPos = 0
-	self.Menu.AboutPosMax = 80
+	self.Menu.AboutPosMax = 95
 	self.Menu.AboutState = false
 	self.Menu.About = function(self)
 		self.AboutState = not self.AboutState
@@ -96,11 +96,13 @@ function Damagelog:OpenMenu()
 			surface.SetTextPos(_x + 5, _y  + 25)
 			surface.DrawText("Code contributors :")
 			surface.SetTextPos(_x + 5, _y  + 40)
-			surface.DrawText("- Azarym")
+			surface.DrawText("- Joschasa")
 			surface.SetTextPos(_x + 5, _y  + 55)
-			surface.DrawText("- Bytewave")
+			surface.DrawText("- Azarym")
 			surface.SetTextPos(_x + 5, _y  + 70)
-			surface.DrawText("- Pandaman09")			
+			surface.DrawText("- Pandaman09")
+			surface.SetTextPos(_x + 5, _y  + 85)
+			surface.DrawText("- Bytewave")
 		end
 	end
 	if outdated then
