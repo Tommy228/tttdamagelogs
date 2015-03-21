@@ -176,6 +176,8 @@ net.Receive("DL_Ded", function()
 	 	if LocalPlayer().IsGhost and LocalPlayer():IsGhost() then return end
 	
 		local death_reason = net.ReadString()
+		
+		if not death_reason  then return end
 	
 		local frame = vgui.Create("DFrame")
 		frame:SetSize(250, 120)
