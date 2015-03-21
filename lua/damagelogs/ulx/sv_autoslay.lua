@@ -2,6 +2,7 @@
 util.AddNetworkString("DL_SlayMessage")
 util.AddNetworkString("DL_AutoSlay")
 util.AddNetworkString("DL_AutoslaysLeft")
+util.AddNetworkString("DL_PlayerLeft")
 
 if not sql.TableExists("damagelog_autoslay") then
 	sql.Query([[CREATE TABLE damagelog_autoslay (
@@ -215,6 +216,16 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 			end
 		end
 	end	
+end)
+
+hook.Add("PlayerDisconnected", "Autoslay_Message", function(ply)
+	if tonumber(ply.AutoSlaysLeft) and ply.AutoslaysLeft > 0 then
+		net.Start("DL_PlayerLeft")
+		net.WriteString(ply:Nick())
+		net.WriteString(ply:SteamID())
+		net.WriteUInt(ply.AutoSlaysLeft, 32)
+		net.Broadcast()
+	end
 end)
 
 if Damagelog.Autoslay_ForceRole then
