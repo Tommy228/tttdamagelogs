@@ -197,8 +197,29 @@ local function TakeAction()
 				Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 			end
 		end):SetImage("icon16/lightning.png")
+		local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+		local slaynr = DermaMenu(menuPanel)
+		slaynr:SetVisible(false)
+		slaynr_pnl:SetSubMenu(slaynr)
+		slaynr_pnl:SetText("Remove slays of")
+		slaynr_pnl:SetImage("icon16/cancel.png")
+		menuPanel:AddPanel(slaynr_pnl)
+		slaynr:AddOption("The reported player", function()
+			if IsValid(attacker) then
+				RunConsoleCommand("ulx", "aslay", attacker:Nick(), "0")
+			else
+				RunConsoleCommand("ulx", "aslayid", report.attacker, "0")
+			end
+		end):SetImage("icon16/user_delete.png")
+		slaynr:AddOption("The victim", function()
+			if IsValid(victim) then
+				RunConsoleCommand("ulx", "aslay", victim:Nick(), "0")
+			else
+				RunConsoleCommand("ulx", "aslayid", report.victim, "0")
+			end
+		end):SetImage("icon16/user.png")
 	end
-	menuPanel:Open()
+	menuPanel:Open() 
 end
 
 

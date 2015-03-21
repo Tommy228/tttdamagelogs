@@ -59,7 +59,7 @@ function Damagelog:OpenMenu()
 	self.Menu:SetKeyboardInputEnabled(false)
 	self.Menu:Center()
 	self.Menu.AboutPos = 0
-	self.Menu.AboutPosMax = 80
+	self.Menu.AboutPosMax = 95
 	self.Menu.AboutState = false
 	self.Menu.About = function(self)
 		self.AboutState = not self.AboutState
@@ -78,10 +78,6 @@ function Damagelog:OpenMenu()
 			old_think(self)
 		end
 	end
-	local about_text = [[Created by Tommy228. Code contributors :
-	- Azarym
-	- Pandaman09
-	- Bytewave]]
 	self.Menu.PaintOver = function(self, w, h)
 		local _x,_y,_w,_h = x-200, outdated and 80 or 50, 195, self.AboutPos
 		surface.SetDrawColor(color_black)
@@ -96,11 +92,13 @@ function Damagelog:OpenMenu()
 			surface.SetTextPos(_x + 5, _y  + 25)
 			surface.DrawText("Code contributors :")
 			surface.SetTextPos(_x + 5, _y  + 40)
-			surface.DrawText("- Azarym")
+			surface.DrawText("- Joschasa")
 			surface.SetTextPos(_x + 5, _y  + 55)
-			surface.DrawText("- Bytewave")
+			surface.DrawText("- Azarym")
 			surface.SetTextPos(_x + 5, _y  + 70)
-			surface.DrawText("- Pandaman09")			
+			surface.DrawText("- Pandaman09")
+			surface.SetTextPos(_x + 5, _y  + 85)
+			surface.DrawText("- Bytewave")
 		end
 	end
 	if outdated then
@@ -176,10 +174,12 @@ net.Receive("DL_Ded", function()
 	 	if LocalPlayer().IsGhost and LocalPlayer():IsGhost() then return end
 	
 		local death_reason = net.ReadString()
+		
+		if not death_reason  then return end
 	
 		local frame = vgui.Create("DFrame")
 		frame:SetSize(250, 120)
-		frame:SetTitle("You died, "..LocalPlayer():Nick())
+		frame:SetTitle("(note : you can disable this popup on F1)")
 		frame:ShowCloseButton(false)
 		frame:Center()
 	

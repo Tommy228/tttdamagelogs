@@ -357,7 +357,7 @@ hook.Add("Think", "Think_Record", function()
 		for k,v in pairs(scene or {}) do
 			if tonumber(k) then 
 				if not props[k] then
-					props[k] = ClientsideModel(v.model, RENDERGROUP_TRANSLUCENT)
+					props[k] = ClientsideModel(v.model or "", RENDERGROUP_TRANSLUCENT)
 				end
 				local vector = v.pos
 				local angle = v.ang
