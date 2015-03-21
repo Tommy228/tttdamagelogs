@@ -219,9 +219,7 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 end)
 
 hook.Add("PlayerDisconnected", "Autoslay_Message", function(ply)
-	print("LOLOLOLo")
 	if tonumber(ply.AutoslaysLeft) and ply.AutoslaysLeft > 0 then
-		print("test!")
 		net.Start("DL_PlayerLeft")
 		net.WriteString(ply:Nick())
 		net.WriteString(ply:SteamID())
