@@ -78,10 +78,6 @@ function Damagelog:OpenMenu()
 			old_think(self)
 		end
 	end
-	local about_text = [[Created by Tommy228. Code contributors :
-	- Azarym
-	- Pandaman09
-	- Bytewave]]
 	self.Menu.PaintOver = function(self, w, h)
 		local _x,_y,_w,_h = x-200, outdated and 80 or 50, 195, self.AboutPos
 		surface.SetDrawColor(color_black)

@@ -34,10 +34,13 @@ Damagelog.AbuseMessageMode = 1
 
 Damagelog.RDM_Manager_Enabled = true
 
--- Commands to open the report and response menu. Don't forget the quotation marks
+-- Command to open the report menu. Don't forget the quotation marks
 
 Damagelog.RDM_Manager_Command = "!report"
 
+-- Command to open the respond menu while you're alive
+
+Damagelog.Respond_Command = "!respond"
 
 --[[ Set to true if you want to enable MySQL (it needs to be configured on config/mysqloo.lua)
 	Setting it to false will make the logs use SQLite (garrysmod/sv.db)
