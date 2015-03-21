@@ -343,6 +343,27 @@ function Damagelog:DrawDamageTab(x, y)
 	self.PlayersCombo.PaintOver = function(self)
 		drawStupid(self, 8, 3)
 	end
+	self.Round.OpenMenu = function(self, pControlOpener)
+		if pControlOpener then
+			if pControlOpener == self.TextEntry then
+				return
+			end
+		end
+		if #self.Choices == 0 then return end
+		if IsValid(self.Menu) then
+			self.Menu:Remove()
+			self.Menu = nil
+		end
+		self.Menu = DermaMenu()
+		local sorted = {}
+		for k,v in pairs(self.Choices) do table.insert(sorted, { id = k, data = v }) end
+		for k,v in pairs(sorted, "data") do
+			self.Menu:AddOption(v.data, function() self:ChooseOption( v.data, v.id ) end)
+		end
+		local x, y = self:LocalToScreen(0, self:GetTall())
+		self.Menu:SetMinimumWidth(self:GetWide())
+		self.Menu:Open(x, y, false, self)
+	end
 end
 
 function Damagelog:ReceiveLogs(empty, tbl, last)
