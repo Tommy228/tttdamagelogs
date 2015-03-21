@@ -35,7 +35,7 @@ local function CreateCommand()
 	autoslay:addParam({ 
 		type=ULib.cmds.StringArg, 
 		hint="slay reason", 
-		default = "No reason specified",
+		default = Damagelog.Autoslay_DefaultReason,
 		ULib.cmds.optional,
 		ULib.cmds.takeRestOfLine
 	})
@@ -58,7 +58,7 @@ local function CreateCommand()
 	autoslayid:addParam({ 
 		type=ULib.cmds.StringArg, 
 		hint="slay reason", 
-		default = "No reason specified",
+		default = Damagelog.Autoslay_DefaultReason,
 		ULib.cmds.optional,
 		ULib.cmds.takeRestOfLine
 	})

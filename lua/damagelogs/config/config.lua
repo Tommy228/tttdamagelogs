@@ -57,6 +57,10 @@ Damagelog.Enable_Autoslay = true
 
 Damagelog.Autoslay_ForceRole = false
 
+-- Default autoslay reason
+
+Damagelog.Autoslay_DefaultReason = "No reason specified"
+
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 
 Damagelog.LogDays = 31

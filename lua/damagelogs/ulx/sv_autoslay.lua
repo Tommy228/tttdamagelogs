@@ -111,7 +111,7 @@ end
 
 function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 	if reason == "" then
-		reason = "No reason specified"
+		reason = Damagelog.Autoslay_DefaultReason
 	end
 	if slays == 0 then
 	    sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '"..steamid.."';")
