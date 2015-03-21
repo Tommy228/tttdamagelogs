@@ -219,7 +219,7 @@ local function TakeAction()
 			end
 		end):SetImage("icon16/user.png")
 	end
-	menuPanel:Open()
+	menuPanel:Open() 
 end
 
 
