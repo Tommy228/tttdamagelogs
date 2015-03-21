@@ -206,6 +206,7 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				net.Broadcast()
 				if IsValid(v.server_ragdoll) then
 					local ply = player.GetByUniqueID(v.server_ragdoll.uqid)
+					if not IsValid(ply) then return end
 					ply:SetCleanRound(false)
 					ply:SetNWBool("body_found", true)
 					CORPSE.SetFound(v.server_ragdoll, true)
