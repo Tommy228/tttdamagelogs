@@ -1,6 +1,7 @@
 
 util.AddNetworkString("DL_SlayMessage")
 util.AddNetworkString("DL_AutoSlay")
+util.AddNetworkString("DL_AutoslaysLeft")
 
 if not sql.TableExists("damagelog_autoslay") then
 	sql.Query([[CREATE TABLE damagelog_autoslay (
@@ -19,6 +20,13 @@ if not sql.TableExists("damagelog_names") then
 end
 
 hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
+	for k,v in pairs(player.GetAll()) do
+		if v == ply then continue end
+		net.Start("DL_AutoslaysLeft")
+		net.WriteEntity(v)
+		net.WriteUInt(v.AutoslaysLeft or 0, 32)
+		net.Broadcast()
+	end
 	local name = ply:Nick()
 	local query = sql.QueryValue("SELECT name FROM damagelog_names WHERE steamid = '"..steamid.."' LIMIT 1;")
 	if not query then
@@ -28,7 +36,11 @@ hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
 	end
 	local c = sql.Query("SELECT slays FROM damagelog_autoslay WHERE steamid = '"..steamid.."' LIMIT 1;")
 	if not tonumber(c) then c = 0 end
-	ply:SetNWInt("Autoslays_left", c or 0)
+	ply.AutoslaysLeft = c
+	net.Start("DL_AutoslaysLeft")
+	net.WriteEntity(ply)
+	net.WriteUInt(c, 32)
+	net.Broadcast()
 end)
 
 function Damagelog:GetName(steamid)
@@ -87,7 +99,11 @@ end
 local function NetworkSlays(steamid, number)
 	for k,v in pairs(player.GetAll()) do
 		if v:SteamID() == steamid then
-			v:SetNWInt("Autoslays_left", number)
+			v.AutoslaysLeft = number
+			net.Start("DL_AutoslaysLeft")
+			net.WriteEntity(v)
+			net.WriteUInt(number, 32)
+			net.Broadcast()
 			return
 		end
 	end
