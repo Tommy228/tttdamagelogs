@@ -179,7 +179,7 @@ net.Receive("DL_Ded", function()
 	
 		local frame = vgui.Create("DFrame")
 		frame:SetSize(250, 120)
-		frame:SetTitle("You died, "..LocalPlayer():Nick())
+		frame:SetTitle("(note : you can disable this popup on F1)")
 		frame:ShowCloseButton(false)
 		frame:Center()
 	
