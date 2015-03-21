@@ -46,13 +46,16 @@ Damagelog.RDM_Manager_Command = "!report"
 Damagelog.Use_MySQL = false
 
 --[[ Enables the !aslay and !aslayid command for ULX, designed to work with the logs.
-I recommend disabling the old slaynr script (if you are currently using it) and using this command instead.
 Works like that : !aslay target number_of_slays reason
 Example : !aslay tommy228 2 RDMing a traitor
 Example : !aslayid STEAM_0:0:1234567 2 RDMing a traitor
 ]]--
 
 Damagelog.Enable_Autoslay = true
+
+-- Force autoslain players to be innocents (overrides SelectRoles)
+
+Damagelog.Autoslay_ForceRole = false
 
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 
