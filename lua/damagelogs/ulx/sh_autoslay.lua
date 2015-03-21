@@ -95,6 +95,6 @@ if CLIENT then
 		local steamid = net.ReadString()
 		local slays = net.ReadUInt(32)
 		if not nick or not steamid or not slays then return end
-		chat.AddText(Color(255,62,62), nick.."("..steamid..") left with "..autoslays.." autoslay"..(slays > 1 and "s" or "").." left!")
+		chat.AddText(Color(255,62,62), nick.."("..steamid..") has disconnected with "..slays.." autoslay"..(slays > 1 and "s" or "").." left!")
 	end)
 end
