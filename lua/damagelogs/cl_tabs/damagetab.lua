@@ -170,13 +170,16 @@ function Damagelog:DrawDamageTab(x, y)
 		end
 		if table.Count(self.Players) > 0 then
 			self:ChooseOptionID(1)
+			self:SetDisabled(false)
+		else
+			self:SetDisabled(true)
 		end
 	end
 	self.PlayersCombo.FirstSelect = true
 	self.PlayersCombo.OnSelect = function(self, index, value, data)
 		self.CurrentlySelected = value
 	end
-	self.PlayersCombo:ChooseOptionID(1)
+	self.PlayersCombo:SetDisabled(true)
 	
 	self.Highlight = vgui.Create("DButton", self.PlayerSelect)
 	self.Highlight:SetPos(500, 30)
