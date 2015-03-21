@@ -228,7 +228,7 @@ function PANEL:GetAttackerSlays(report)
 	for k,v in pairs(player.GetAll()) do
 		local steamid = v:IsBot() and "BOT" or v:SteamID()
 		if steamid == report.attacker then
-			local slays = v:GetNWInt("Autoslays_left", 0)
+			local slays = v.AutoslaysLeft or 0
 			if tonumber(slays) <= 0 then
 				return v:Nick().." not slain"
 			else

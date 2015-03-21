@@ -82,4 +82,12 @@ if CLIENT then
 		if not IsValid(ply) or not list or not reason or not _time then return end
 		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, " has been autoslain by ",  Color(98, 176, 255), list.." ", color_white, _time.." ago with the reason: '"..reason.."'.")
 	end)
+	
+	net.Receive("DL_AutoSlaysLeft", function()
+		local ply = net.ReadEntity()
+		local slays = net.ReadUInt(32)
+		if not IsValid(ply) or not slays then return end
+		ply.AutoslaysLeft = slays
+	end)
+	
 end
