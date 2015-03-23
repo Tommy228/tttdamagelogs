@@ -21,6 +21,9 @@ function Damagelog:DrawSettings(x, y)
 		selectedcolor = value
 	end
 	self.ColorSettings:AddItem(self.ColorChoice)
+	self.ColorChoice.PaintOver = function(self)
+		Damagelog:drawStupid(self, 8, 4)
+	end
 	
 	self.ColorMixer = vgui.Create("DColorMixer")
 	self.ColorMixer:SetHeight(200)

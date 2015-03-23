@@ -328,20 +328,11 @@ function Damagelog:DrawDamageTab(x, y)
 		self.Round:AddChoice("No available logs for the current map")
 		self.Round:ChooseOptionID(1)
 	end
-	local function drawStupid(self, x, y)
-		local selected, data = self:GetSelected()
-		if selected then
-			surface.SetFont("DermaDefault")
-			surface.SetTextColor(color_black)
-			surface.SetTextPos(x, y)
-			surface.DrawText(selected)
-		end
-	end
 	self.Round.PaintOver = function(self)
-		drawStupid(self, 8, 4)
+		Damagelog:drawStupid(self, 8, 4)
 	end
 	self.PlayersCombo.PaintOver = function(self)
-		drawStupid(self, 8, 3)
+		Damagelog:drawStupid(self, 8, 3)
 	end
 	self.Round.OpenMenu = function(self, pControlOpener)
 		if pControlOpener then
@@ -363,6 +354,16 @@ function Damagelog:DrawDamageTab(x, y)
 		local x, y = self:LocalToScreen(0, self:GetTall())
 		self.Menu:SetMinimumWidth(self:GetWide())
 		self.Menu:Open(x, y, false, self)
+	end
+end
+
+function Damagelog:drawStupid(self, x, y)
+	local selected, data = self:GetSelected()
+	if selected then
+		surface.SetFont("DermaDefault")
+		surface.SetTextColor(color_black)
+		surface.SetTextPos(x, y)
+		surface.DrawText(selected)
 	end
 end
 
