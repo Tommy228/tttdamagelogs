@@ -22,6 +22,8 @@ include("damagelogs/cl_recording.lua")
 include("damagelogs/ulx/sh_autoslay.lua")
 include("damagelogs/sh_notify.lua")
 include("damagelogs/cl_infolabel.lua")
+include("damagelogs/sh_chat.lua")
+include("damagelogs/cl_chat.lua")
 
 local outdated = false
 http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version.md?ref=master", function(body)

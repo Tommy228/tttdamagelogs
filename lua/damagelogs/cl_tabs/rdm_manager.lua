@@ -109,6 +109,13 @@ local function TakeAction()
 			Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 		end
 	end):SetImage("icon16/clock_red.png")
+	--if not report.chat_open then
+		menuPanel:AddOption("Open chat", function()
+			net.Start("DL_StartChat")
+			net.WriteUInt(report.index, 32)
+			net.SendToServer()
+		end)
+	--end
 	menuPanel:AddOption("View Death Scene", function()
 		local found = false
 		for k,v in pairs(report.logs or {}) do

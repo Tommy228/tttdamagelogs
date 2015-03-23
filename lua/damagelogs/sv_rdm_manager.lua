@@ -170,6 +170,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		status = RDM_MANAGER_WAITING,
 		admin = false,
 		round = Damagelog.CurrentRound,
+		chat_open = false,
 		logs = ply.DeathDmgLog and ply.DeathDmgLog[Damagelog.CurrentRound] or false,
 		conclusion = false
 	})
