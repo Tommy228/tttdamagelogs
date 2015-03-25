@@ -4,6 +4,11 @@ surface.CreateFont("DL_ChatCategory", {
 	weight = 700
 })
 
+surface.CreateFont("DL_ChatFont", {
+	font = "DermaDefault",
+	size = 17
+})
+
 surface.CreateFont("DL_ChatPlayer", {
 	font = "DermaDefault",
 	size = 16,
@@ -114,19 +119,40 @@ end
 
 vgui.Register("DL_ChatList", PANEL, "DPanelList")
 
-function Damagelog:StartChat(admin, victim, attacker)
+local CurrentChats = {}
+
+function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	
 	local Chat = vgui.Create("DFrame")
 	Chat:SetSize(600, 350)
 	Chat:SetTitle("Damagelog's private chat system")
 	Chat:Center()
+	Chat.RID = report
+	table.insert(CurrentChats, Chat)
+	
+	Chat.OnRemove = function()
+		for k,v in pairs(CurrentChats) do
+			if v == Chat then
+				table.remove(CurrentChats, k)
+			end
+		end
+	end
 	
 	local List = vgui.Create("DL_ChatList", Chat)
 	List:SetPos(2, 26)
 	List:SetSize(152, Chat:GetTall() - 27)
-	List:AddPlayer(admin, DAMAGELOG_ADMIN)
+	for k,v in ipairs(admins) do
+		List:AddPlayer(v, DAMAGELOG_ADMIN)
+	end
 	List:AddPlayer(victim, DAMAGELOG_VICTIM)
 	List:AddPlayer(attacker, DAMAGELOG_REPORTED)
+	for k,v in ipairs(players) do
+		List:AddPlayer(v, DAMAGELOG_OTHER)
+	end
+	
+	Chat.AddPlayer = function(self, ply, category)
+		List:AddPlayer(ply, category)
+	end
 		
 	local Sheet = vgui.Create("DPropertySheet", Chat)
 	Sheet:SetPos(List:GetWide()+2, 25)
@@ -138,28 +164,117 @@ function Damagelog:StartChat(admin, victim, attacker)
 		
 	local ChatBox = vgui.Create("DPanel")
 	ChatBox.Paint = function(self, w, h)
-		surface.SetDrawColor(Color( 101, 100, 105, 255 ))
+		surface.SetDrawColor(Color(101, 100, 105, 255))
 		surface.DrawRect(0, 0, w, h)
-		surface.SetDrawColor(Color( 220, 220, 220, 255 ))
-		surface.DrawRect(0, h - 55, w, 55)
+		surface.SetDrawColor(Color(220, 220, 220, 255))
+		surface.DrawRect(0, h - 35, w, 35)
 	end
-		
+	
+	local RichText = vgui.Create("RichText", ChatBox)
+	RichText:SetPos(5, 10)
+	RichText:SetSize(Sheet:GetWide() - 25, Sheet:GetTall() - 90)
+	RichText.AddText = function(self, nick, color, text)
+		self.m_FontName = "DL_ChatFont"
+		self:SetFontInternal("DL_ChatFont")	
+		self:InsertColorChange(color.r, color.g, color.b, color.a or 255)
+		self:AppendText(nick.. ": ")
+		self:InsertColorChange(255, 255, 255, 255)
+		self:AppendText(text.."\n")
+	end
+	Chat.RichText = RichText
+	
+	timer.Simple(0.1, function()
+		for k,v in ipairs(history) do
+			RichText:AddText(v.nick, v.color, v.msg)
+		end
+	end)
+	
 	Sheet:AddSheet("Chatbox", ChatBox, "icon16/application_view_list.png")
 	
 	local TextEntry = vgui.Create("DTextEntry", ChatBox)
-	TextEntry:SetPos(3, Sheet:GetTall() - 84)
+	local Send = vgui.Create("DButton", ChatBox)
+	
+	local function SendMessage(msg)
+		if #msg == 0 or #msg > 200 then return end
+		net.Start("DL_SendChatMessage")
+		net.WriteUInt(report, 32)
+		net.WriteString(msg)
+		net.SendToServer()
+		TextEntry:SetText("")
+		TextEntry:RequestFocus()
+	end
+	
+	TextEntry:SetPos(3, Sheet:GetTall() - 65)
 	TextEntry:SetSize(Sheet:GetWide() - 80, 25)
+	TextEntry.OnEnter = function(self)
+		SendMessage(self:GetValue())
+	end
+	TextEntry:RequestFocus()
+		
+	Send:SetPos(Sheet:GetWide() - 75, Sheet:GetTall() - 65)
+	Send:SetSize(55, 25)
+	Send:SetText("Send")
+	Send.DoClick = function()
+		SendMessage(TextEntry:GetValue())
+	end
 		
 	Chat:MakePopup()
 	
 end
 
+net.Receive("DL_BroadcastMessage", function()
+	local id = net.ReadUInt(32)
+	local ply = net.ReadEntity()
+	local color = net.ReadColor()
+	local message = net.ReadString()
+	if not id or not IsValid(ply) or not color or not message then return end
+	for k,v in pairs(CurrentChats) do
+		if v.RID == id then
+			v.RichText:AddText(ply:Nick(), color, message)
+			break
+		end
+	end
+end)
+
 net.Receive("DL_OpenChat", function()
 
+	local report = net.ReadUInt(32)
 	local admin = net.ReadEntity()
 	local victim = net.ReadEntity()
 	local attacker = net.ReadEntity()
 	
-	Damagelog:StartChat(admin, victim, attacker)
+	if not report or not IsValid(admin) or not IsValid(victim) or not IsValid(attacker) then return end
+	
+	Damagelog:StartChat(report, { admin }, victim, attacker, {}, {})
 
+end)
+
+net.Receive("DL_JoinChatCL", function()
+
+	local is_joining = net.ReadUInt(1) == 1
+	
+	if is_joining then
+		
+		local id = net.ReadUInt(32)
+		local size = net.ReadUInt(32)
+		local compressed = net.ReadData(size)
+		local not_compressed = util.Decompress(compressed)
+		local history = util.JSONToTable(not_compressed)
+		local tbl = net.ReadTable()
+						
+		Damagelog:StartChat(id, tbl.admins, tbl.victim, tbl.attacker, tbl.players, history)
+		
+	else
+	
+		local id = net.ReadUInt(32)
+		local ply = net.ReadEntity()
+		local category = net.ReadUInt(32)
+		
+		local chat = CurrentChats[id]
+		if not chat then return end
+		
+		chat:AddPlayer(ply, category)
+		
+	end
+			
 end)

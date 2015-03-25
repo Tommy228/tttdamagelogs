@@ -1,20 +1,29 @@
 
 util.AddNetworkString("DL_StartChat")
 util.AddNetworkString("DL_OpenChat")
+util.AddNetworkString("DL_JoinChat")
+util.AddNetworkString("DL_SendChatMessage")
+util.AddNetworkString("DL_BroadcastMessage")
+util.AddNetworkString("DL_JoinChatCL")
 
-Damagelog.CurrentChat = Damagelog.CurrentChat or {}
+local COLOR_VICTIM = Color(18, 190, 29)
+local COLOR_ATTACKER = Color(190, 18, 29)
+local COLOR_ADMIN = Color(160, 160, 0)
+local COLOR_OTHER = Color(29, 18, 190)
 
-local function GetFilter(chat)
+Damagelog.ChatHistory = Damagelog.ChatHistory or {}
+
+local function GetFilter(chat, block)
 	local filter = {}
-	if IsValid(chat.victim) then
+	if IsValid(chat.victim) and chat.victim != block then
 		table.insert(filter, chat.victim)
 	end
-	if IsValid(chat.attacker) then
+	if IsValid(chat.attacker) and chat.attacker != block then
 		table.insert(filter, chat.attacker)
 	end
 	local function process(tbl)
 		for k,v in pairs(tbl) do
-			if IsValid(v) then
+			if v != block and IsValid(v) then
 				table.insert(filter, v)
 			end
 		end
@@ -23,15 +32,30 @@ local function GetFilter(chat)
 	process(chat.admins)
 	return filter
 end
+
+local function IsAllowed(ply, chat)
+	if chat.victim == ply then
+		return true, COLOR_VICTIM
+	elseif chat.attacker == ply then
+		return true, COLOR_ATTACKER
+	elseif table.HasValue(chat.players, ply) then
+		return true, COLOR_OTHER
+	elseif table.HasValue(chat.admins, ply) then
+		return true, COLOR_ADMIN
+	end
+	return false
+end
 	
 
 net.Receive("DL_StartChat", function(_len, ply)
 
 	local report_index = net.ReadUInt(32)
 
-	if not ply:IsAdmin() then return end
+	if not ply:CanUseRDMManager() then return end
 
 	local report = Damagelog.Reports.Current[report_index]
+	
+	if not report then return end
 	
 	local victim
 	local attacker
@@ -51,25 +75,119 @@ net.Receive("DL_StartChat", function(_len, ply)
 		return 		
 	end
 	
-	for k,v in pairs(Damagelog.CurrentChat) do
-		if v.reportindex == report_index then
-			--ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "There is already a chat for this report!", 5, "buttons/weapon_cant_buy.wav")
+	for k,v in pairs(Damagelog.Reports.Current) do
+		if v.chat_open and k == report_index then
+			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "There is already a chat for this report!", 5, "buttons/weapon_cant_buy.wav")
 			return
 		end
 	end
 	
-	local id = table.insert(Damagelog.CurrentChat, {
-		reportindex = report_index,
+	report.chat_open = {
 		admins = { ply },
 		victim = victim,
 		attacker = attacker,
 		players = {}
-	})
+	}
+	
+	Damagelog.ChatHistory[report_index] = {}
 	
 	net.Start("DL_OpenChat")
+	net.WriteUInt(report_index, 32)
 	net.WriteEntity(ply)
 	net.WriteEntity(victim)
 	net.WriteEntity(attacker)
-	net.Send(GetFilter(Damagelog.CurrentChat[id]))
+	net.Send(GetFilter(report.chat_open))
+	
+	for k,v in pairs(player.GetHumans()) do
+		if v:CanUseRDMManager() then	
+			if v != ply then
+				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." has opened a chat for the report #"..report_index..".", 5, "")
+			end
+			v:UpdateReport(false, report_index)
+		end
+	end
 	
 end)
+
+net.Receive("DL_JoinChat", function(_len, ply)
+
+	local id = net.ReadUInt(32)
+		
+	local report = Damagelog.Reports.Current[id]
+	if not report or not report.chat_open then return end
+
+	local history = Damagelog.ChatHistory[id] or {}
+	local json = util.TableToJSON(history)
+	local compressed = util.Compress(json)
+	
+	net.Start("DL_JoinChatCL")
+	net.WriteUInt(1, 1)
+	net.WriteUInt(id, 32)
+	net.WriteUInt(#compressed, 32)
+	net.WriteData(compressed, #compressed)
+	net.WriteTable(report.chat_open)
+	net.Send(ply)
+		
+	local category = DAMAGELOG_OTHER
+	
+	if ply:CanUseRDMManager() and not table.HasValue(report.chat_open.admins, ply) then
+		table.insert(report.chat_open.admins, ply)
+		category = DAMAGELOG_ADMIN
+	end
+	if ply:SteamID() == report.victim then
+		report.chat_open.victim = ply
+		category = DAMAGELOG_VICTIM
+	elseif ply:SteamID() == report.attacker then
+		report.chat_open.attacker = ply
+		category = DAMAGELOG_REPORTED
+	elseif not table.HasValue(report.chat_open.players, ply) then
+		table.insert(report.chat_open.players, ply)
+		category = DAMAGELOG_OTHER
+	end
+		
+	net.Start("DL_JoinChatCL")
+	net.WriteUInt(0, 1)
+	net.WriteUInt(id, 32)
+	net.WriteEntity(ply)
+	net.WriteUInt(category, 32)
+	net.Send(GetFilter(report.chat_open, ply))
+	
+	for k,v in pairs(player.GetHumans()) do
+		if v:CanUseRDMManager() then	
+			v:UpdateReport(false, id)
+		end
+	end	
+	
+end)
+
+net.Receive("DL_SendChatMessage", function(_len, ply)
+	
+	local id = net.ReadUInt(32)
+	local message = net.ReadString()
+		
+	if #message == 0 or #message > 200 then return end
+		
+	local report = Damagelog.Reports.Current[id]
+	if not report then return end	
+		
+	local chat = report.chat_open
+	if not chat then return end
+	
+	local allowed, color = IsAllowed(ply, chat)
+	if not allowed then return end
+	
+	table.insert(Damagelog.ChatHistory[id], {
+		nick = ply:Nick(),
+		color = { r = color.r, g = color.g, b = color.b, a = color.a },
+		msg = message
+	})
+	
+	net.Start("DL_BroadcastMessage")
+	net.WriteUInt(id, 32)
+	net.WriteEntity(ply)
+	net.WriteColor(color)
+	net.WriteString(message)
+	net.Send(GetFilter(chat))
+	
+end)
+	
