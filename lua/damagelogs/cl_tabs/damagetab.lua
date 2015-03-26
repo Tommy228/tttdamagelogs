@@ -170,13 +170,16 @@ function Damagelog:DrawDamageTab(x, y)
 		end
 		if table.Count(self.Players) > 0 then
 			self:ChooseOptionID(1)
+			self:SetDisabled(false)
+		else
+			self:SetDisabled(true)
 		end
 	end
 	self.PlayersCombo.FirstSelect = true
 	self.PlayersCombo.OnSelect = function(self, index, value, data)
 		self.CurrentlySelected = value
 	end
-	self.PlayersCombo:ChooseOptionID(1)
+	self.PlayersCombo:SetDisabled(true)
 	
 	self.Highlight = vgui.Create("DButton", self.PlayerSelect)
 	self.Highlight:SetPos(500, 30)
@@ -289,8 +292,10 @@ function Damagelog:DrawDamageTab(x, y)
 	
 	local PlayedRounds = sync_ent:GetPlayedRounds()
 	local LastMapExists = sync_ent:GetLastRoundMapExists()
+	local LastChoise = 0
 	if LastMapExists then
 		self.Round:AddChoice("Last round of the previous map", -1)
+		LastChoise = LastChoise + 1
 		if PlayedRounds <= 0 then
 			self.SelectedRound = -1
 			askLogs()
@@ -311,33 +316,54 @@ function Damagelog:DrawDamageTab(x, y)
 			else
 				self.Round:AddChoice("Round "..tostring(i), i)
 			end
+			LastChoise = LastChoise + 1
 		end
-		if PlayedRounds <= 10 then
-			if LastMapExists then
-				if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() then
-					self.Round:ChooseOptionID(PlayedRounds + 1)
+		if not LocalPlayer():CanUseDamagelog() or (GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive()) then
+			self.Round:ChooseOptionID(LastChoise)
 				else
-					self.Round:ChooseOptionID(PlayedRounds > 0 and PlayedRounds or PlayedRounds+1)
-				end
-			else
-				if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() then
-					self.Round:ChooseOptionID(PlayedRounds)
-				else
-					self.Round:ChooseOptionID(PlayedRounds-1 > 0 and PlayedRounds-1 or PlayedRounds)
-				end
-			end
-		else
-			self.Round:ChooseOptionID(LastMapExists and 12 or 11)
-		end
-		if GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive() or PlayedRounds <= 1 then
-			self.SelectedRound = PlayedRounds
-		else
-			self.SelectedRound = PlayedRounds-1
+			self.Round:ChooseOptionID(LastChoise-1 > 0 and LastChoise-1 or LastChoise)
 		end
 		askLogs()
 	elseif not LastMapExists then
 		self.Round:AddChoice("No available logs for the current map")
 		self.Round:ChooseOptionID(1)
+	end
+	self.Round.PaintOver = function(self)
+		Damagelog:drawStupid(self, 8, 4)
+	end
+	self.PlayersCombo.PaintOver = function(self)
+		Damagelog:drawStupid(self, 8, 3)
+	end
+	self.Round.OpenMenu = function(self, pControlOpener)
+		if pControlOpener then
+			if pControlOpener == self.TextEntry then
+				return
+			end
+		end
+		if #self.Choices == 0 then return end
+		if IsValid(self.Menu) then
+			self.Menu:Remove()
+			self.Menu = nil
+		end
+		self.Menu = DermaMenu()
+		local sorted = {}
+		for k,v in pairs(self.Choices) do table.insert(sorted, { id = k, data = v }) end
+		for k,v in pairs(sorted, "data") do
+			self.Menu:AddOption(v.data, function() self:ChooseOption( v.data, v.id ) end)
+		end
+		local x, y = self:LocalToScreen(0, self:GetTall())
+		self.Menu:SetMinimumWidth(self:GetWide())
+		self.Menu:Open(x, y, false, self)
+	end
+end
+
+function Damagelog:drawStupid(self, x, y)
+	local selected, data = self:GetSelected()
+	if selected then
+		surface.SetFont("DermaDefault")
+		surface.SetTextColor(color_black)
+		surface.SetTextPos(x, y)
+		surface.DrawText(selected)
 	end
 end
 
@@ -411,7 +437,7 @@ net.Receive("DL_RefreshDamagelog", function()
 	if not IsValid(LocalPlayer()) then return end -- sometimes happens while joining
 	if not LocalPlayer().CanUseDamagelog then return end
 	if not LocalPlayer():CanUseDamagelog() then return end
-	if ValidPanel(Damagelog.Damagelog) then
+	if IsValid(Damagelog.Damagelog) then
 		local lines = Damagelog.Damagelog:GetLines()
 		if lines[1] and lines[1]:GetValue(3) == "Nothing here..." then
 			Damagelog.Damagelog:Clear()

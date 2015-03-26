@@ -1,4 +1,4 @@
- 
+
 local mdl = Model("models/player/arctic.mdl")
 
 CreateClientConVar("ttt_death_scene_slowmo", "0", FCVAR_ARCHIVE)
@@ -237,12 +237,12 @@ hook.Add("HUDPaint", "Scene_Record", function()
 			if model.corpse then
 				local pos = model.pos:ToScreen()
 				if IsOffScreen(pos) then continue end
-				if not found then
+				if model.found then
 					surface.SetTextColor(Color(255, 200, 15))
 				else
-					surface.SetTextColor(color_white)
+					surface.SetTextColor(Color(255, 0, 0))
 				end
-				local text = nick.."'s corpse"
+				local text = nick.."'s corpse "..(model.found and "(ID)" or "(UnID)")
 				local w,h = surface.GetTextSize(text)
 				surface.SetTextPos(pos.x - w/2, pos.y)
 				surface.DrawText(text)
@@ -357,7 +357,7 @@ hook.Add("Think", "Think_Record", function()
 		for k,v in pairs(scene or {}) do
 			if tonumber(k) then 
 				if not props[k] then
-					props[k] = ClientsideModel(v.model, RENDERGROUP_TRANSLUCENT)
+					props[k] = ClientsideModel(v.model or "", RENDERGROUP_TRANSLUCENT)
 				end
 				local vector = v.pos
 				local angle = v.ang
@@ -388,6 +388,7 @@ hook.Add("Think", "Think_Record", function()
 			if v.corpse then
 				models[k].pos = v.pos
 				models[k].ang = v.ang
+				models[k].found = v.found
 			else
 				local vector = v.pos
 				local angle = v.ang

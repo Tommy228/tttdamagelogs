@@ -163,25 +163,25 @@ local function TakeAction()
 					numbers_pnl:SetImage("icon16/"..v)
 					ply:AddPanel(numbers_pnl)
 					numbers:AddOption("Default reason", function()
-						local ply = reported and attacker or victim
+						local ply = (reported and attacker) or (not reported and victim)
 						if IsValid(ply) then
 							RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k))
 							SetConclusion(ply:Nick(), k, "the default reason")
 						else
-							RunConsoleCommand("ulx", "aslayid", reported and report.attacker or report.victim, tostring(k))
-							SetConclusion(reported and report.attacker_nick or report.victim_nick, k, "the default reason")
+							RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k))
+							SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "the default reason")
 						end
 					end):SetImage("icon16/mouse.png")
 					numbers:AddOption("Set reason...", function()
-						local nick = reported and report.attacker_nick or report.victim_nick
+						local nick = (reported and report.attacker_nick) or (not reported and report.victim_nick)
 						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..nick, "", function(txt)
-							local ply = reported and attacker or victim
+							local ply = (reported and attacker) or (not reported and victim)
 							if IsValid(ply) then
 								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
 								SetConclusion(ply:Nick(), k, "\""..txt.."\"")
 							else
-								RunConsoleCommand("ulx", "aslayid", reported and report.attacker or report.victim, tostring(k), txt)
-								SetConclusion(reported and report.attacker_nick or report.victim_nick, k, "\""..txt.."\"")
+								RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k), txt)
+								SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "\""..txt.."\"")
 							end
 						end)
 					end):SetImage("icon16/page_edit.png")
@@ -197,8 +197,29 @@ local function TakeAction()
 				Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 			end
 		end):SetImage("icon16/lightning.png")
+		local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+		local slaynr = DermaMenu(menuPanel)
+		slaynr:SetVisible(false)
+		slaynr_pnl:SetSubMenu(slaynr)
+		slaynr_pnl:SetText("Remove slays of")
+		slaynr_pnl:SetImage("icon16/cancel.png")
+		menuPanel:AddPanel(slaynr_pnl)
+		slaynr:AddOption("The reported player", function()
+			if IsValid(attacker) then
+				RunConsoleCommand("ulx", "aslay", attacker:Nick(), "0")
+			else
+				RunConsoleCommand("ulx", "aslayid", report.attacker, "0")
+			end
+		end):SetImage("icon16/user_delete.png")
+		slaynr:AddOption("The victim", function()
+			if IsValid(victim) then
+				RunConsoleCommand("ulx", "aslay", victim:Nick(), "0")
+			else
+				RunConsoleCommand("ulx", "aslayid", report.victim, "0")
+			end
+		end):SetImage("icon16/user.png")
 	end
-	menuPanel:Open()
+	menuPanel:Open() 
 end
 
 
@@ -228,7 +249,7 @@ function PANEL:GetAttackerSlays(report)
 	for k,v in pairs(player.GetAll()) do
 		local steamid = v:IsBot() and "BOT" or v:SteamID()
 		if steamid == report.attacker then
-			local slays = v:GetNWInt("Autoslays_left", 0)
+			local slays = v.AutoslaysLeft or 0
 			if tonumber(slays) <= 0 then
 				return v:Nick().." not slain"
 			else
@@ -301,7 +322,7 @@ function PANEL:UpdateReport(index)
 		end
 		if report.conclusion then
 			local selected = Damagelog.SelectedReport
-			if selected.index == report.index and selected.previous == report.previous then
+			if selected and selected.index == report.index and selected.previous == report.previous then
 				self.Conclusion:SetText(report.conclusion)
 			end
 		end

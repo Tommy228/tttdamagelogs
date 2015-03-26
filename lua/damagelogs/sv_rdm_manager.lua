@@ -86,9 +86,14 @@ function Player:SendReport(tbl)
 end
 
 hook.Add("PlayerSay", "Damagelog_RDMManager", function(ply, text, teamOnly)
-	if Damagelog.RDM_Manager_Enabled and (string.Left(string.lower(text), #Damagelog.RDM_Manager_Command) == Damagelog.RDM_Manager_Command) then
-		Damagelog:StartReport(ply)
-		return ""
+	if Damagelog.RDM_Manager_Enabled then
+		if (string.Left(string.lower(text), #Damagelog.RDM_Manager_Command) == Damagelog.RDM_Manager_Command) then
+			Damagelog:StartReport(ply)
+			return ""
+		elseif (Damagelog.Respond_Command and string.Left(string.lower(text), #Damagelog.Respond_Command) == Damagelog.Respond_Command) then
+			net.Start("DL_Death")
+			net.Send(ply)
+		end
 	end
 end)
 
@@ -137,49 +142,15 @@ function Damagelog:StartReport(ply)
 	end
 end
 
-concommand.Add("testreport", function()
-local ply = player.GetAll()[2]
-local attacker = player.GetAll()[1]
-local message = "testing report"
-if not ply.Reported then ply.Reported = {} end
-table.insert(ply.Reported, attacker)
-	local index = table.insert(Damagelog.Reports.Current, {
-		victim = ply:SteamID(),
-		victim_nick = ply:Nick(),
-		attacker = attacker:SteamID(),
-		attacker_nick = attacker:Nick(),
-		message = message,
-		response = false,
-		status = RDM_MANAGER_WAITING,
-		admin = false,
-		round = Damagelog.CurrentRound,
-		logs = ply.DeathDmgLog and ply.DeathDmgLog[Damagelog.CurrentRound] or false,
-		conclusion = false
-	})
-	Damagelog.Reports.Current[index].index = index
-	for k,v in pairs(player.GetHumans()) do
-		if v:CanUseRDMManager() then
-			if v:IsActive() then
-				v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "A new report has been created! (#"..index..") !", 5, "ui/vote_failure.wav")
-			else
-				v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, ply:Nick().." has reported "..attacker:Nick().. " (#"..index..") !", 5, "ui/vote_failure.wav")
-			end
-			v:NewReport(Damagelog.Reports.Current[index])
-		end
-	end
-	attacker:SendReport(Damagelog.Reports.Current[index])
-	if not attacker:CanUseRDMManager() then
-		attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, ply:Nick().." has reported you!", 5, "ui/vote_failure.wav")
-	end
-	ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "You have reported "..attacker:Nick(), 5, "")
-	UpdatePreviousReports()
-end)
-
 net.Receive("DL_ReportPlayer", function(_len, ply)
 	local attacker = net.ReadEntity()
 	local message = net.ReadString()
 	if ply:RemainingReports() <= 0 or not ply.CanReport then return end
 	if attacker == ply then return end
+	if not IsValid(attacker) then 
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "Error reporting : Invalid attacker entity!", 5, "buttons/weapon_cant_buy.wav")
+		return 
+	end
 	if not attacker:GetNWBool("PlayedSRound", true) then
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, "You can't report spectators!", 5, "buttons/weapon_cant_buy.wav")
 		return
@@ -236,6 +207,11 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 		msg = ply:Nick().." has set the report #"..index.." to Waiting."
 	elseif status == RDM_MANAGER_PROGRESS then
 		msg = ply:Nick().." is now dealing with the report #"..index.."."
+		for k,v in pairs(player.GetAll()) do
+			if v:SteamID() == tbl.victim then
+				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." is now handling your report.", 5, "ui/vote_yes.wav")
+			end
+		end
 	elseif status == RDM_MANAGER_FINISHED then
 		msg = ply:Nick().." has set the report #"..index.." to Finished."
 	end

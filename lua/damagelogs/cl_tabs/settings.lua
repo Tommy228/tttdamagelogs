@@ -21,6 +21,9 @@ function Damagelog:DrawSettings(x, y)
 		selectedcolor = value
 	end
 	self.ColorSettings:AddItem(self.ColorChoice)
+	self.ColorChoice.PaintOver = function(self)
+		Damagelog:drawStupid(self, 8, 4)
+	end
 	
 	self.ColorMixer = vgui.Create("DColorMixer")
 	self.ColorMixer:SetHeight(200)
@@ -132,7 +135,7 @@ net.Receive("DL_SendWeaponTable", function()
 	else
 		Damagelog.weapon_table[net.ReadString()] = net.ReadString()
 	end
-	if ValidPanel(Damagelog.WepListview) then
+	if IsValid(Damagelog.WepListview) then
 		Damagelog.WepListview:Update()
 	end
 end)

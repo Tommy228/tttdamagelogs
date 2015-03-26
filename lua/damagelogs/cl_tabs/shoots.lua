@@ -35,7 +35,7 @@ net.Receive("DL_SendShootLogs", function()
 	if tbl[1] != "empty" then
 		Damagelog.ShootTableTemp[t] = tbl
 	end
-	if finished and ValidPanel(Damagelog.ShootsList) then
+	if finished and IsValid(Damagelog.ShootsList) then
 		Damagelog.ShootsList:Clear()
 		Damagelog:SetDamageInfosLV(Damagelog.ShootsList, nil, nil, nil, nil, Damagelog.ShootTableTemp)
 	end
