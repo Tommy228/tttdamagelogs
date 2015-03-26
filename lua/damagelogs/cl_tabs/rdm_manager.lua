@@ -227,7 +227,7 @@ local PANEL = {}
 
 function PANEL:Init()
 	self:SetMultiSelect(false)
-	self:AddColumn("id"):SetFixedWidth(34)
+	self:AddColumn("ID"):SetFixedWidth(34)
 	self:AddColumn("Victim"):SetFixedWidth(105)
 	self:AddColumn("Reported player"):SetFixedWidth(105)
 	self:AddColumn("Round"):SetFixedWidth(54)
