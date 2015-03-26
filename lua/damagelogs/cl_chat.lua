@@ -90,7 +90,7 @@ function PANEL:Init()
 	self.Normal = vgui.Create("DL_ChatCategory", self)
 	self.Normal:SetCategoryName("Players")
 	self.Admins = vgui.Create("DL_ChatCategory", self)
-	self.Admins:SetCategoryName("Administraitors")
+	self.Admins:SetCategoryName("Administrators")
 end
 
 function PANEL:AddPlayer(ply, playertype)
@@ -119,7 +119,7 @@ end
 
 vgui.Register("DL_ChatList", PANEL, "DPanelList")
 
-local CurrentChats = {}
+Damagelog.CurrentChats = Damagelog.CurrentChats or {}
 
 function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	
@@ -128,12 +128,13 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	Chat:SetTitle("Damagelog's private chat system")
 	Chat:Center()
 	Chat.RID = report
-	table.insert(CurrentChats, Chat)
+	table.insert(self.CurrentChats, Chat)
+	Chat:SetDeleteOnClose(false)
 	
 	Chat.OnRemove = function()
-		for k,v in pairs(CurrentChats) do
+		for k,v in pairs(self.CurrentChats) do
 			if v == Chat then
-				table.remove(CurrentChats, k)
+				table.remove(self.CurrentChats, k)
 			end
 		end
 	end
@@ -230,6 +231,13 @@ net.Receive("DL_BroadcastMessage", function()
 	if not id or not IsValid(ply) or not color or not message then return end
 	for k,v in pairs(CurrentChats) do
 		if v.RID == id then
+			if not v:IsVisible() then
+				if not v.MissingMessages then 
+					v.MissingMessages = 1
+				else
+					v.MissingMessages = v.MissingMessages + 1
+				end
+			end
 			v.RichText:AddText(ply:Nick(), color, message)
 			break
 		end
@@ -277,4 +285,87 @@ net.Receive("DL_JoinChatCL", function()
 		
 	end
 			
+end)
+
+local drawing = false
+
+hook.Add("TTTBeginRound", "Damagelog_Chat", function()
+	drawing = false
+end)
+
+local exclamation = Material("icon16/exclamation.png")
+
+hook.Add("HUDPaint", "Damagelog_Chat", function()
+
+	if IsValid(LocalPlayer()) then
+	
+		local wr, hr = 150, 40
+		local w, h = ScrW()/2, ScrH() - 50
+			
+		if not drawing and #Damagelog.CurrentChats > 0 then
+			TIPS.Hide()
+			drawing = true
+			if Damagelog.ChatButton then
+				Damagelog.ChatButton:Remove()
+			end
+			Damagelog.ChatButton = vgui.Create("DButton")
+			Damagelog.ChatButton:SetSize(16, 16)
+			Damagelog.ChatButton:SetPos(w + wr/2 - Damagelog.ChatButton:GetWide() - 10, h - Damagelog.ChatButton:GetTall()/2)
+			Damagelog.ChatButton:SetText("")
+			Damagelog.ChatButton.TextI = "▲"
+			Damagelog.ChatButton.PaintOver = function(self, w, h)
+				surface.SetFont("DermaDefault")
+				local text = self.TextI
+				local wt, ht = surface.GetTextSize(text)
+				surface.SetTextPos(w/2 - wt/2 + 2, h/2 - ht/2)
+				surface.DrawText(text)
+			end
+		elseif drawing and #Damagelog.CurrentChats == 0 then
+			if LocalPlayer():IsSpec() then
+				TIPS.Show()
+			end
+			drawing = false
+			Damagelog.ChatButton:Remove()
+		end
+		
+		if #Damagelog.CurrentChats > 0 then
+			
+			surface.SetDrawColor(Color(171, 181, 198, 200))
+			surface.DrawRect(w - wr/2, h - hr/2, wr, hr)
+			surface.SetDrawColor(color_black)
+			surface.DrawLine(w - wr/2, h - hr/2, w + wr/2, h - hr/2)
+			surface.DrawLine(w + wr/2, h - hr/2, w + wr/2, h + hr/2)
+			surface.DrawLine(w + wr/2, h + hr/2, w - wr/2, h + hr/2)
+			surface.DrawLine(w - wr/2, h + hr/2, w - wr/2, h - hr/2)
+			
+			surface.SetTextColor(color_black)
+			surface.SetFont("DL_ChatCategory")
+			local text = tostring(#Damagelog.CurrentChats).." active chat(s)"
+			local wt, ht = surface.GetTextSize(text)
+			surface.SetTextPos(w - wr/2 + 10, h - ht/2)
+			surface.DrawText(text)
+			
+			local missing_messages = 0
+			for k,v in pairs(Damagelog.CurrentChats) do
+				if v.MissingMessages then
+					missing_messages = missing_messages + v.MissingMessages
+				end
+			end
+			
+			if missing_messages > 0 then
+				
+				surface.SetDrawColor(Color(92, 127, 183))
+				Damagelog.DrawCircle(w + wr/2, h-hr/2, 13, 50)
+				
+				surface.SetFont("DL_ChatCategory")
+				surface.SetTextPos(w + wr/2 - 4, h-hr/2 - 8)
+				surface.SetTextColor(color_white)
+				surface.DrawText(tostring(missing_messages))
+			
+			end
+			
+		end
+	
+	end
+
 end)

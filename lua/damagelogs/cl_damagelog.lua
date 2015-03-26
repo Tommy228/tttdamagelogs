@@ -14,6 +14,7 @@ include("damagelogs/cl_listview.lua")
 include("damagelogs/sh_weapontable.lua")
 include("damagelogs/not_my_code/orderedPairs.lua")
 include("damagelogs/not_my_code/base64decode.lua")
+include("damagelogs/not_my_code/drawcircle.lua")
 if Damagelog.RDM_Manager_Enabled then
 	include("damagelogs/cl_rdm_manager.lua")
 end

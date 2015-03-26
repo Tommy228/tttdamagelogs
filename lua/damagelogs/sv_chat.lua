@@ -89,6 +89,8 @@ net.Receive("DL_StartChat", function(_len, ply)
 		players = {}
 	}
 	
+	report.chat_opened = true
+	
 	Damagelog.ChatHistory[report_index] = {}
 	
 	net.Start("DL_OpenChat")
