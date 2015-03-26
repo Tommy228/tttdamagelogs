@@ -240,9 +240,7 @@ function Damagelog:DrawOldLogs()
 	end
 	self.LoadLogs.Bot = false
 	self.LoadLogs.Top = true
-	self.LoadLogs.OldThink = self.LoadLogs.Think
 	self.LoadLogs.Think = function(panel)
-		self.LoadLogs.OldThink(panel)
 		if panel.MoveTop then
 			local x,y = date_panel:GetPos()
 			if y > -225 then
