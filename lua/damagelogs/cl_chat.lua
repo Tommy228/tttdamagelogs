@@ -130,6 +130,8 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	Chat.RID = report
 	table.insert(self.CurrentChats, Chat)
 	Chat:SetDeleteOnClose(false)
+	Chat.VictimName = victim:Nick()
+	Chat.AttackerName = attacker:Nick()
 	
 	Chat.OnRemove = function()
 		for k,v in pairs(self.CurrentChats) do
@@ -295,6 +297,22 @@ end)
 
 local exclamation = Material("icon16/exclamation.png")
 
+local show_chats = false
+
+local buttons = {}
+
+local function IsButtonHovered(tbl)
+	local mx, my = gui.MousePos()
+	return (mx >= tbl.x and mx <= (tbl.x + tbl.w)) and (my >= tbl.y and my <= (tbl.y + tbl.h))
+end
+
+
+hook.Add("Think", "Damagelog_Chat", function()
+
+	
+
+end)
+
 hook.Add("HUDPaint", "Damagelog_Chat", function()
 
 	if IsValid(LocalPlayer()) then
@@ -319,6 +337,10 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 				local wt, ht = surface.GetTextSize(text)
 				surface.SetTextPos(w/2 - wt/2 + 2, h/2 - ht/2)
 				surface.DrawText(text)
+			end
+			Damagelog.ChatButton.DoClick = function(self)
+				show_chats = not show_chats
+				self.TextI = show_chats and "▼" or "▲"
 			end
 		elseif drawing and #Damagelog.CurrentChats == 0 then
 			if LocalPlayer():IsSpec() then
@@ -352,7 +374,7 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 				end
 			end
 			
-			if missing_messages > 0 then
+			if missing_messages > 0 and not show_chats then
 				
 				surface.SetDrawColor(Color(92, 127, 183))
 				Damagelog.DrawCircle(w + wr/2, h-hr/2, 13, 50)
@@ -361,6 +383,85 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 				surface.SetTextPos(w + wr/2 - 4, h-hr/2 - 8)
 				surface.SetTextColor(color_white)
 				surface.DrawText(tostring(missing_messages))
+			
+			end
+			
+			if show_chats then
+			
+				table.Empty(buttons)
+			
+				local i = h - hr
+				
+				surface.SetFont("DL_ChatPlayer")
+				
+				local max_w = 0
+				for k,v in pairs(Damagelog.CurrentChats) do
+					local w = surface.GetTextSize(v.VictimName.." and "..v.AttackerName)
+					if w > max_w then
+						max_w = w
+					end
+				end
+				
+				max_w = max_w + 30
+			
+				for k,v in ipairs(Damagelog.CurrentChats) do
+				
+					if k == 1 then
+						i = i - 17
+					else
+						i = i - 27
+					end
+					
+					surface.SetDrawColor(color_black)
+					local _x, _y, _w, _h = w - max_w/2, i, max_w, 30
+					local tbl = {
+						x = _x,
+						y = _y,
+						w = _w,
+						h = _h
+					}
+					table.insert(buttons, tbl)
+					surface.DrawRect(_x, _y, _w, _h)
+					if IsButtonHovered(tbl) then
+						surface.SetDrawColor(Color(255, 255, 255))
+					else
+						surface.SetDrawColor(Color(215, 216, 222))
+					end
+					surface.DrawRect(_x+1, _y+1, _w-2, _h-2)
+					
+					surface.SetTextColor(Color(62, 141, 99))
+					local victim = v.VictimName
+					local w_victim, h_victim = surface.GetTextSize(victim)
+					local ytext =  _y + _h/2 - h_victim/2
+					surface.SetTextPos(_x + 5, ytext)
+					surface.DrawText(victim)
+					
+					w_victim = w_victim + _x + 5
+					
+					local w_and, y_and = surface.GetTextSize("and")
+					surface.SetTextColor(color_black)
+					surface.SetTextPos(w_victim + 3, ytext)
+					surface.DrawText("and")
+					
+					w_victim = w_victim + w_and + 2
+					
+					local attacker = v.AttackerName
+					local w_attacker, h_attacker = surface.GetTextSize(attacker)
+					surface.SetTextPos(w_victim + 3, ytext)
+					surface.SetTextColor(Color(181, 62, 99))
+					surface.DrawText(attacker)
+					
+					surface.SetDrawColor(Color(92, 127, 183))
+					Damagelog.DrawCircle(_x + max_w - 15, _y + 15, 10, 20)
+					
+					surface.SetTextColor(color_white)
+					surface.SetFont("DL_ChatPlayer")
+					local count = v.MissingMessages or 0
+					local count_x = count >= 10 and 22 or 18
+					surface.SetTextPos(_x + max_w - count_x, _y + 7)
+					surface.DrawText(tostring(count))
+				
+				end
 			
 			end
 			
