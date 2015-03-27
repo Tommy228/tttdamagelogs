@@ -124,6 +124,9 @@ local function TakeAction()
 			net.Start("DL_StartChat")
 			net.WriteUInt(report.index, 32)
 			net.SendToServer()
+			if not report.response then
+				Damagelog.DisableResponse(true)
+			end
 		end):SetImage("icon16/application_view_list.png")
 	else
 		menuPanel:AddOption("Join chat", function()

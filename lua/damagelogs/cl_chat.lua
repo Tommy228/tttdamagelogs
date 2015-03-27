@@ -231,7 +231,7 @@ net.Receive("DL_BroadcastMessage", function()
 	local color = net.ReadColor()
 	local message = net.ReadString()
 	if not id or not IsValid(ply) or not color or not message then return end
-	for k,v in pairs(CurrentChats) do
+	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
 			if not v:IsVisible() then
 				if not v.MissingMessages then 
@@ -271,7 +271,18 @@ net.Receive("DL_JoinChatCL", function()
 		local not_compressed = util.Decompress(compressed)
 		local history = util.JSONToTable(not_compressed)
 		local tbl = net.ReadTable()
-						
+		
+		for k,v in pairs(Damagelog.CurrentChats) do
+			if v.RID == id then
+				if not v:IsVisible() then
+					v:SetVisible(true)
+				end
+				v:Center()
+				v:MakePopup()
+				return
+			end
+		end
+		
 		Damagelog:StartChat(id, tbl.admins, tbl.victim, tbl.attacker, tbl.players, history)
 		
 	else
@@ -306,10 +317,33 @@ local function IsButtonHovered(tbl)
 	return (mx >= tbl.x and mx <= (tbl.x + tbl.w)) and (my >= tbl.y and my <= (tbl.y + tbl.h))
 end
 
+local pressed_key = false
 
 hook.Add("Think", "Damagelog_Chat", function()
 
+	for k,v in pairs(buttons) do
+		if IsButtonHovered(v) and not v.cursor_set then
+			vgui.GetWorldPanel():SetCursor("hand")
+			v.cursor_set = true
+		elseif v.cursor_set and not IsButtonHovered(v) then
+			vgui.GetWorldPanel():SetCursor("arrow")
+			v.cursor_set = false
+		end
+	end
 	
+	if input.IsMouseDown(MOUSE_LEFT) and not pressed_key then
+		pressed_key = true
+		for k,v in pairs(buttons) do
+			if IsButtonHovered(v) then
+				v:callback()
+				show_chats = false
+				break
+			end
+		end
+	elseif pressed_key and not input.IsMouseDown(MOUSE_LEFT) then
+		pressed_key = false
+		vgui.GetWorldPanel():SetCursor("arrow")
+	end
 
 end)
 
@@ -330,17 +364,15 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 			Damagelog.ChatButton:SetSize(16, 16)
 			Damagelog.ChatButton:SetPos(w + wr/2 - Damagelog.ChatButton:GetWide() - 10, h - Damagelog.ChatButton:GetTall()/2)
 			Damagelog.ChatButton:SetText("")
-			Damagelog.ChatButton.TextI = "▲"
 			Damagelog.ChatButton.PaintOver = function(self, w, h)
 				surface.SetFont("DermaDefault")
-				local text = self.TextI
+				local text = show_chats and "▼" or "▲"
 				local wt, ht = surface.GetTextSize(text)
 				surface.SetTextPos(w/2 - wt/2 + 2, h/2 - ht/2)
 				surface.DrawText(text)
 			end
 			Damagelog.ChatButton.DoClick = function(self)
 				show_chats = not show_chats
-				self.TextI = show_chats and "▼" or "▲"
 			end
 		elseif drawing and #Damagelog.CurrentChats == 0 then
 			if LocalPlayer():IsSpec() then
@@ -386,9 +418,9 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 			
 			end
 			
-			if show_chats then
+			table.Empty(buttons)
 			
-				table.Empty(buttons)
+			if show_chats then
 			
 				local i = h - hr
 				
@@ -418,7 +450,15 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 						x = _x,
 						y = _y,
 						w = _w,
-						h = _h
+						h = _h,
+						menu = v,
+						callback = function(self)
+							if not self.menu:IsVisible() then
+								self.menu:SetVisible(true)
+							end
+							self.menu:Center()
+							self.menu:MakePopup()
+						end
 					}
 					table.insert(buttons, tbl)
 					surface.DrawRect(_x, _y, _w, _h)
