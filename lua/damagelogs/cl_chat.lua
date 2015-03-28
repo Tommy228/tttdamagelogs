@@ -15,17 +15,29 @@ surface.CreateFont("DL_ChatPlayer", {
 	weight = 600
 })
 
+function AAText(text, font, x, y, color, align)
+	draw.SimpleText(text, font, x+1, y+1, Color(0,0,0,math.min(color.a,120)), align)
+	draw.SimpleText(text, font, x+2, y+2, Color(0,0,0,math.min(color.a,50)), align)
+	draw.SimpleText(text, font, x, y, color, align)
+end
+
+
 local PANEL = {}
 
 function PANEL:SetPlayer(ply, playertype)
 	self.Player = ply
 	self.PlayerName = ply:Nick()
+	self.PlayerValid = true
 	self.Avatar = vgui.Create("AvatarImage", self)
 	self.Avatar:SetSize(32, 32)
 	self.Avatar:SetPos(5, 0)
 	self.Avatar:CenterVertical()
 	self.Avatar:SetPlayer(self.Player, 32)
 	self.PlayerType = playertype
+end
+
+function PANEL:Think()
+	self.PlayerValid = IsValid(self.Player)
 end
 
 function PANEL:Paint(w, h)
@@ -35,15 +47,20 @@ function PANEL:Paint(w, h)
 	surface.DrawText(self.PlayerName)
 	surface.SetFont("DL_ChatPlayer")
 	surface.SetTextPos(40, 16)
-	if self.PlayerType == DAMAGELOG_REPORTED then
-		surface.SetTextColor(Color(190, 18, 29))
-		surface.DrawText("Reported")
-	elseif self.PlayerType == DAMAGELOG_VICTIM then
-		surface.SetTextColor(Color(18, 190, 29))
-		surface.DrawText("Victim")
-	elseif self.PlayerType == DAMAGELOG_ADMIN then
-		surface.SetTextColor(Color(160, 160, 0))
-		surface.DrawText("Admin")
+	if self.PlayerValid then
+		if self.PlayerType == DAMAGELOG_REPORTED then
+			surface.SetTextColor(Color(190, 18, 29))
+			surface.DrawText("Reported")
+		elseif self.PlayerType == DAMAGELOG_VICTIM then
+			surface.SetTextColor(Color(18, 190, 29))
+			surface.DrawText("Victim")
+		elseif self.PlayerType == DAMAGELOG_ADMIN then
+			surface.SetTextColor(Color(160, 160, 0))
+			surface.DrawText("Admin")
+		end
+	else
+		surface.SetTextColor(color_black)
+		surface.DrawText("DISCONNECTED")
 	end
 end
 
@@ -69,7 +86,7 @@ function PANEL:AddPlayer(ply, playertype)
 	self.List:AddItem(panel)
 	if not self.Players then 
 		self.Players = { ply }
-	else --elseif not table.HasValue(self.Players, ply) then
+	elseif not table.HasValue(self.Players, ply) then
 		table.insert(self.Players, ply)
 	end
 end
@@ -87,6 +104,7 @@ vgui.Register("DL_ChatCategory", PANEL, "DPanel")
 local PANEL = {}
 
 function PANEL:Init()
+	self:EnableVerticalScrollbar(true)
 	self.Normal = vgui.Create("DL_ChatCategory", self)
 	self.Normal:SetCategoryName("Players")
 	self.Admins = vgui.Create("DL_ChatCategory", self)
@@ -107,6 +125,21 @@ function PANEL:AddPlayer(ply, playertype)
 end
 
 function PANEL:RemovePlayer(ply)
+end
+
+function PANEL:GetPlayers()
+	local tbl = {}
+	for k,v in pairs(self.Normal.Players or {}) do
+		if not table.HasValue(tbl, v) then
+			table.insert(tbl, v)
+		end
+	end
+	for k,v in pairs(self.Admins.Players or {}) do
+		if not table.HasValue(tbl, v) then
+			table.insert(tbl, v)
+		end
+	end	
+	return tbl
 end
 
 function PANEL:Paint(w, h)
@@ -143,7 +176,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	
 	local List = vgui.Create("DL_ChatList", Chat)
 	List:SetPos(2, 26)
-	List:SetSize(152, Chat:GetTall() - 27)
+	List:SetSize(152, Chat:GetTall() - 57)
 	for k,v in ipairs(admins) do
 		List:AddPlayer(v, DAMAGELOG_ADMIN)
 	end
@@ -151,6 +184,103 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	List:AddPlayer(attacker, DAMAGELOG_REPORTED)
 	for k,v in ipairs(players) do
 		List:AddPlayer(v, DAMAGELOG_OTHER)
+	end
+	
+	local Actions = vgui.Create("DButton", Chat)
+	Actions:SetPos(2, Chat:GetTall() - 30)
+	Actions:SetSize(152, 28)
+	Actions:SetText("Actions")
+	if not LocalPlayer():CanUseRDMManager() then
+		Actions:SetDisabled(true)
+	end
+	Actions.DoClick = function(self)
+		local menu = DermaMenu()
+		menu:AddOption("Add Player", function()
+			local selection = vgui.Create("DFrame")
+			selection:SetTitle("Select player")
+			selection:SetSize(270, 400)
+			selection:SetDraggable(false)
+			selection:Center()
+			selection:MakePopup()
+			selection.Think = function(panel)
+				panel:MoveToFront()
+			end
+			local button = vgui.Create("DButton", selection)
+			button:SetText("Add selected player")
+			button:SetSize(255, 25)
+			button:SetPos(0, 28)
+			button:CenterHorizontal()
+			local plist = vgui.Create("DPanelList", selection)
+			plist:SetPos(0, 60)
+			plist:SetSize(255, 340)
+			plist:CenterHorizontal()
+			plist:EnableVerticalScrollbar(true)
+			local cur_selected
+			plist.AddPlayer = function(pnl, pl)  
+				local pl = pl
+				if not IsValid(pl) then return end
+				if not IsValid(pnl) then return end
+				local ply = vgui.Create("DPanel")
+				ply:SetSize(0, 30) 
+				local alpha = 140
+				local col = { r = 40, g = 40, b = 40 }
+				local col_selected = { r = 204, g = 204, b = 51 }
+				ply.pl = pl
+				local function checkValidity()
+					if not IsValid(pl) then
+						ply:Remove()
+						pnl:Clear(false)
+						return false
+					end	
+					return true
+				end
+				ply.Think = checkValidity
+				ply.Paint = function(self, w, h)
+					if not checkValidity() then return end
+					if cur_selected != ply then
+						draw.RoundedBox(0, 0, 0, w, h, Color(13, 14, 15, alpha))
+						draw.RoundedBox(0, 1, 1, w - 2, h - 2, Color(col.r + 40, col.g + 40, col.b + 40, alpha))
+						draw.RoundedBox(0, 2, 2, w - 4, h - 4, Color(col.r, col.g, col.b, alpha))
+					else
+						draw.RoundedBox(0, 0, 0, w, h, Color(13, 14, 15, alpha))
+						draw.RoundedBox(0, 1, 1, w - 2, h - 2, Color(col_selected.r + 40, col_selected.g + 40, col_selected.b + 40, alpha))
+						draw.RoundedBox(0, 2, 2, w - 4, h - 4, Color(col_selected.r, col_selected.g, col_selected.b, alpha))
+					end			    
+					AAText(pl:Nick(), "GModNotify", 40, 7, Color(255, 255, 255, 255), TEXT_ALIGN_LEFT)
+				end
+				ply.OnMousePressed = function(pnl, mc)
+					if mc == MOUSE_LEFT and cur_selected != ply then
+						cur_selected = ply  
+					end
+				end
+				local ava = vgui.Create("AvatarImage", ply)
+				ava:SetSize(24, 24)
+				ava:SetPlayer(pl, 32)
+				ava:SetPos(4, 4)
+				pnl:AddItem(ply) 
+			end
+			local list = List:GetPlayers()
+			for k,v in pairs(player.GetAll()) do
+				if not table.HasValue(list, v) then
+					plist:AddPlayer(v)
+				end
+			end
+			button.DoClick = function()
+				if IsValid(cur_selected) and IsValid(cur_selected.pl) then
+					local ply = cur_selected.pl
+					net.Start("DL_AddChatPlayer")
+					net.WriteUInt(Chat.RID, 32)
+					net.WriteEntity(ply)
+					net.SendToServer()
+				end
+			end			
+		end)
+		menu:AddOption("Close chat", function()
+			net.Start("DL_CloseChat")
+			net.WriteUInt(Chat.RID, 32)
+			net.SendToServer()
+		end)
+		menu:Open()
 	end
 	
 	Chat.AddPlayer = function(self, ply, category)
@@ -175,7 +305,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	
 	local RichText = vgui.Create("RichText", ChatBox)
 	RichText:SetPos(5, 10)
-	RichText:SetSize(Sheet:GetWide() - 25, Sheet:GetTall() - 90)
+	RichText:SetSize(Sheet:GetWide() - 25, Sheet:GetTall() - 78)
 	RichText.AddText = function(self, nick, color, text)
 		self.m_FontName = "DL_ChatFont"
 		self:SetFontInternal("DL_ChatFont")	
@@ -196,6 +326,18 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	
 	local TextEntry = vgui.Create("DTextEntry", ChatBox)
 	local Send = vgui.Create("DButton", ChatBox)
+	
+	Chat.Stop = function(self)
+		TextEntry:SetDisabled(true)
+		self:SetDeleteOnClose(true)
+	end
+	
+	Chat.AddMessage = function(self, msg)
+		RichText.m_FontName = "DL_ChatFont"
+		RichText:SetFontInternal("DL_ChatFont")	
+		RichText:InsertColorChange(230, 62, 99, 255)
+		RichText:AppendText(msg.."\n")
+	end
 	
 	local function SendMessage(msg)
 		if #msg == 0 or #msg > 200 then return end
@@ -291,7 +433,7 @@ net.Receive("DL_JoinChatCL", function()
 		local ply = net.ReadEntity()
 		local category = net.ReadUInt(32)
 		
-		local chat = CurrentChats[id]
+		local chat = Damagelog.CurrentChats[id]
 		if not chat then return end
 		
 		chat:AddPlayer(ply, category)
@@ -346,6 +488,32 @@ hook.Add("Think", "Damagelog_Chat", function()
 	end
 
 end)
+
+net.Receive("DL_StopChat", function()
+
+	local id = net.ReadUInt(32)
+	local forced = net.ReadUInt(1) == 1
+	
+	local msg
+	
+	if not forced then
+		msg = "All admins disconnected! The chat has been closed."
+	else
+		local admin = net.ReadEntity()
+		msg = "This chat has been closed by "..admin:Nick().."."
+	end
+
+	for k,v in pairs(Damagelog.CurrentChats) do
+		if v.RID == id then
+			v:AddMessage("All admins disconnected! The chat has been closed.")
+			v:Stop()
+			table.remove(Damagelog.CurrentChats, k)
+			break
+		end
+	end	
+	
+end)
+	
 
 hook.Add("HUDPaint", "Damagelog_Chat", function()
 

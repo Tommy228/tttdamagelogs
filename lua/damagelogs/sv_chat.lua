@@ -5,6 +5,9 @@ util.AddNetworkString("DL_JoinChat")
 util.AddNetworkString("DL_SendChatMessage")
 util.AddNetworkString("DL_BroadcastMessage")
 util.AddNetworkString("DL_JoinChatCL")
+util.AddNetworkString("DL_StopChat")
+util.AddNetworkString("DL_AddChatPlayer")
+util.AddNetworkString("DL_CloseChat")
 
 local COLOR_VICTIM = Color(18, 190, 29)
 local COLOR_ATTACKER = Color(190, 18, 29)
@@ -111,25 +114,11 @@ net.Receive("DL_StartChat", function(_len, ply)
 	
 end)
 
-net.Receive("DL_JoinChat", function(_len, ply)
-
-	local id = net.ReadUInt(32)
-		
-	local report = Damagelog.Reports.Current[id]
-	if not report or not report.chat_open then return end
-
+local function AddToChat(id, report, ply)
 	local history = Damagelog.ChatHistory[id] or {}
 	local json = util.TableToJSON(history)
 	local compressed = util.Compress(json)
-	
-	net.Start("DL_JoinChatCL")
-	net.WriteUInt(1, 1)
-	net.WriteUInt(id, 32)
-	net.WriteUInt(#compressed, 32)
-	net.WriteData(compressed, #compressed)
-	net.WriteTable(report.chat_open)
-	net.Send(ply)
-		
+
 	local category = DAMAGELOG_OTHER
 	
 	if ply:CanUseRDMManager() and not table.HasValue(report.chat_open.admins, ply) then
@@ -146,6 +135,14 @@ net.Receive("DL_JoinChat", function(_len, ply)
 		table.insert(report.chat_open.players, ply)
 		category = DAMAGELOG_OTHER
 	end
+	
+	net.Start("DL_JoinChatCL")
+	net.WriteUInt(1, 1)
+	net.WriteUInt(id, 32)
+	net.WriteUInt(#compressed, 32)
+	net.WriteData(compressed, #compressed)
+	net.WriteTable(report.chat_open)
+	net.Send(ply)
 		
 	net.Start("DL_JoinChatCL")
 	net.WriteUInt(0, 1)
@@ -159,6 +156,18 @@ net.Receive("DL_JoinChat", function(_len, ply)
 			v:UpdateReport(false, id)
 		end
 	end	
+end
+
+net.Receive("DL_JoinChat", function(_len, ply)
+
+	local id = net.ReadUInt(32)
+		
+	local report = Damagelog.Reports.Current[id]
+	if not report or not report.chat_open then return end
+	
+	if not ply:CanUseRDMManager() then return end
+
+	AddToChat(id, report, ply)
 	
 end)
 
@@ -192,4 +201,75 @@ net.Receive("DL_SendChatMessage", function(_len, ply)
 	net.Send(GetFilter(chat))
 	
 end)
+
+hook.Add("PlayerDisconnected", "Damagelog_Chat", function(ply)
 	
+	for k,v in pairs(Damagelog.Reports.Current) do
+		
+		if v.chat_open then
+			
+			if table.HasValue(v.admins, ply) then
+				table.RemoveByValue(v.admins, ply)
+				if #v.admins == 1 then
+					net.Start("DL_StopChat")
+					net.WriteUInt(k, 32)
+					net.WriteUInt(0, 1)
+					net.Send(GetFilter(v.chat_open))
+					v.chat_open = false
+					for k,v in pairs(player.GetHumans()) do
+						if v:CanUseRDMManager() then	
+							v:UpdateReport(false, id)
+						end
+					end	
+				end
+			end
+			if table.HasValue(v.players, ply) then
+				table.RemoveByValue(v.players, ply)
+			end
+		end
+	
+	end
+end)
+
+net.Receive("DL_AddChatPlayer", function(_len, ply)
+	
+	local id = net.ReadUInt(32)
+	local to_add = net.ReadEntity()
+	
+	if not ply:CanUseRDMManager() then return end
+	
+	local report = Damagelog.Reports.Current[id]
+	if not report then return end
+	
+	AddToChat(id, report, to_add)
+	
+	to_add:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, "You have been added to a chat by an admin!", 5, "")
+
+end)
+
+net.Receive("DL_CloseChat", function(_len, ply)
+	
+	local id = net.ReadUInt(32)
+	local to_add = net.ReadEntity()
+	
+	if not ply:CanUseRDMManager() then return end
+	
+	local report = Damagelog.Reports.Current[id]
+	if not report then return end
+	
+	if report.chat_open then
+		net.Start("DL_StopChat")
+		net.WriteUInt(id, 32)
+		net.WriteUInt(1, 1)
+		net.WriteEntity(ply)
+		net.Send(GetFilter(report.chat_open))
+		report.chat_open = false
+	end
+	
+	for k,v in pairs(player.GetHumans()) do
+		if v:CanUseRDMManager() then	
+			v:UpdateReport(false, id)
+		end
+	end	
+	
+end)
