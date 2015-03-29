@@ -116,7 +116,7 @@ local function TakeAction()
 		end
 	end):SetImage("icon16/clock_red.png")
 	if not report.chat_open then
-		menuPanel:AddOption("Open chat", function()
+		menuPanel:AddOption(report.chat_opened and "Reopen chat" or "Open chat", function()
 			if report.status != RDM_MANAGER_PROGRESS then
 				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "The report needs to be in progress!", 3, "buttons/weapon_cant_buy.wav")
 				return
@@ -299,6 +299,7 @@ end
 
 function PANEL:UpdateReport(index)
 	local report = self.ReportsTable[index]
+	if not report then return end
 	local tbl = {
 		report.index,
 		report.victim_nick,
@@ -467,6 +468,7 @@ net.Receive("DL_UpdateReport", function()
 			Damagelog.SelectedReport = updated
 		end
 	end
+	Damagelog:UpdateReportTexts()
 end)
 
 net.Receive("DL_UpdateReports", function()

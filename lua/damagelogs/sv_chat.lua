@@ -41,10 +41,10 @@ local function IsAllowed(ply, chat)
 		return true, COLOR_VICTIM
 	elseif chat.attacker == ply then
 		return true, COLOR_ATTACKER
-	elseif table.HasValue(chat.players, ply) then
-		return true, COLOR_OTHER
 	elseif table.HasValue(chat.admins, ply) then
 		return true, COLOR_ADMIN
+	elseif table.HasValue(chat.players, ply) then
+		return true, COLOR_OTHER
 	end
 	return false
 end
@@ -92,15 +92,29 @@ net.Receive("DL_StartChat", function(_len, ply)
 		players = {}
 	}
 	
-	report.chat_opened = true
+	local history = false
 	
-	Damagelog.ChatHistory[report_index] = {}
+	if report.chat_opened then
+		history = Damagelog.ChatHistory[report_index] or {}
+	else
+		report.chat_opened = true
+		Damagelog.ChatHistory[report_index] = {}
+	end
 	
 	net.Start("DL_OpenChat")
 	net.WriteUInt(report_index, 32)
 	net.WriteEntity(ply)
 	net.WriteEntity(victim)
 	net.WriteEntity(attacker)
+	if history then
+		net.WriteUInt(1, 1)
+		local json = util.TableToJSON(history)
+		local compressed = util.Compress(json)
+		net.WriteUInt(#compressed, 32)
+		net.WriteData(compressed, #compressed)
+	else
+		net.WriteUInt(0, 1)
+	end
 	net.Send(GetFilter(report.chat_open))
 	
 	for k,v in pairs(player.GetHumans()) do
@@ -115,6 +129,9 @@ net.Receive("DL_StartChat", function(_len, ply)
 end)
 
 local function AddToChat(id, report, ply)
+
+	if not report.chat_open then return end
+
 	local history = Damagelog.ChatHistory[id] or {}
 	local json = util.TableToJSON(history)
 	local compressed = util.Compress(json)
@@ -131,7 +148,7 @@ local function AddToChat(id, report, ply)
 	elseif ply:SteamID() == report.attacker then
 		report.chat_open.attacker = ply
 		category = DAMAGELOG_REPORTED
-	elseif not table.HasValue(report.chat_open.players, ply) then
+	elseif not table.HasValue(report.chat_open.admins, ply) and not table.HasValue(report.chat_open.players, ply) then
 		table.insert(report.chat_open.players, ply)
 		category = DAMAGELOG_OTHER
 	end

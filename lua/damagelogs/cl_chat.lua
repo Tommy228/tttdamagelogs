@@ -273,13 +273,14 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 					net.WriteEntity(ply)
 					net.SendToServer()
 				end
+				selection:Close()
 			end			
-		end)
+		end):SetImage("icon16/user_add.png")
 		menu:AddOption("Close chat", function()
 			net.Start("DL_CloseChat")
 			net.WriteUInt(Chat.RID, 32)
 			net.SendToServer()
-		end)
+		end):SetImage("icon16/disconnect.png")
 		menu:Open()
 	end
 	
@@ -316,12 +317,6 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	end
 	Chat.RichText = RichText
 	
-	timer.Simple(0.1, function()
-		for k,v in ipairs(history) do
-			RichText:AddText(v.nick, v.color, v.msg)
-		end
-	end)
-	
 	Sheet:AddSheet("Chatbox", ChatBox, "icon16/application_view_list.png")
 	
 	local TextEntry = vgui.Create("DTextEntry", ChatBox)
@@ -354,7 +349,6 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	TextEntry.OnEnter = function(self)
 		SendMessage(self:GetValue())
 	end
-	TextEntry:RequestFocus()
 		
 	Send:SetPos(Sheet:GetWide() - 75, Sheet:GetTall() - 65)
 	Send:SetSize(55, 25)
@@ -364,6 +358,14 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	end
 		
 	Chat:MakePopup()
+	
+	timer.Simple(0.1, function()
+		for k,v in ipairs(history) do
+			RichText:AddText(v.nick, v.color, v.msg)
+		end
+		TextEntry:RequestFocus()
+	end)
+	
 	
 end
 
@@ -395,9 +397,22 @@ net.Receive("DL_OpenChat", function()
 	local victim = net.ReadEntity()
 	local attacker = net.ReadEntity()
 	
+	local loadhistory = net.ReadUInt(1) == 1
+		
+	local history = {}
+	
+	if loadhistory then
+	
+		local length = net.ReadUInt(32)
+		local compressed = net.ReadData(length)
+		local json = util.Decompress(compressed)
+		history = util.JSONToTable(json)
+		
+	end
+	
 	if not report or not IsValid(admin) or not IsValid(victim) or not IsValid(attacker) then return end
 	
-	Damagelog:StartChat(report, { admin }, victim, attacker, {}, {})
+	Damagelog:StartChat(report, { admin }, victim, attacker, {}, history)
 
 end)
 
@@ -505,7 +520,7 @@ net.Receive("DL_StopChat", function()
 
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
-			v:AddMessage("All admins disconnected! The chat has been closed.")
+			v:AddMessage(msg)
 			v:Stop()
 			table.remove(Damagelog.CurrentChats, k)
 			break
