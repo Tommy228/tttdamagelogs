@@ -468,7 +468,9 @@ net.Receive("DL_UpdateReport", function()
 			Damagelog.SelectedReport = updated
 		end
 	end
-	Damagelog:UpdateReportTexts()
+	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
+		Damagelog:UpdateReportTexts()
+	end
 end)
 
 net.Receive("DL_UpdateReports", function()
