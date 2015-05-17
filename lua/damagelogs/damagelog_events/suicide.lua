@@ -36,7 +36,7 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 end
 
 function event:ToString(v)
-	return string.format("<something/world> has killed %s [%s]", v[1], Damagelog:StrRole(v[2]), v[3]) 
+	return string.format("<something/world> killed %s [%s]", v[1], Damagelog:StrRole(v[2]), v[3]) 
 end
 
 function event:IsAllowed(tbl)

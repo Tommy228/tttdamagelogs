@@ -1,4 +1,4 @@
-
+	
 
 if SERVER then
 	Damagelog:EventHook("TTTFoundDNA")
@@ -29,7 +29,7 @@ end
 
 function event:ToString(v)
 	local ent = Damagelog.weapon_table[v[7]] or tostring(v[7])
-	return string.format("%s [%s] has retrieved the DNA of %s [%s] from the body of %s", v[1], Damagelog:StrRole(v[2]), v[4], Damagelog:StrRole(v[5]), ent)
+	return string.format("%s [%s] has retrieved the DNA of %s [%s] DNA from %s's body", v[1], Damagelog:StrRole(v[2]), v[4], Damagelog:StrRole(v[5]), ent)
 end
 
 function event:IsAllowed(tbl)

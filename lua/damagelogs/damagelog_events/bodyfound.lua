@@ -21,7 +21,7 @@ function event:TTTBodyFound(ply, deadply, rag)
 end
 
 function event:ToString(v)
-	return string.format("%s [%s] identified the body of %s [%s].", v[1], Damagelog:StrRole(v[2]), v[4], Damagelog:StrRole(v[5]))
+	return string.format("%s [%s] identified the body of %s [%s]", v[1], Damagelog:StrRole(v[2]), v[4], Damagelog:StrRole(v[5]))
 end
 
 function event:IsAllowed(tbl)
