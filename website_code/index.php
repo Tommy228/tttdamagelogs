@@ -507,6 +507,69 @@ if (isset($_GET['round_list'])) {
 				$display_text = sprintf('%s [%s] threw %s', htmlspecialchars($logrow['infos'][1], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][2]]), GetWeaponDisplayName($logrow['infos'][3]));
 				$text_color = '#008100';
 				break;
+			case 'BODY':
+				$display_text = sprintf('%s [%s] identified the body of %s [%s]', htmlspecialchars($logrow['infos'][1], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][2]]), htmlspecialchars($logrow['infos'][1], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][2]]), htmlspecialchars($logrow['infos'][4], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][5]]));
+				$text_color = '#008100';
+				break;
+			case 'CRED':
+				if ($logrow['infos'][4] > 0) {
+					$status = 'received';
+					$status1 = htmlspecialchars($logrow['infos'][4], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+				}
+				else {
+					$status = 'used';
+					$status1 = -htmlspecialchars($logrow['infos'][4], ENT_COMPAT | ENT_HTML401, 'UTF-8');
+				}
+				if ($logrow['infos'][4] > 1) {
+					$status2 = 's';
+				}
+				else {
+					$status2 = '';
+				}
+				$display_text = sprintf('%s [%s] %s %s credit%s', htmlspecialchars($logrow['infos'][1], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][2]]), $status, $status1, $status2);
+				$text_color = '#810081';
+				break;
+			case 'RADIO':
+				$status = '';
+				$status2 = '';
+				if ($logrow['infos'][5] == quick_nobody) {
+					$status2 = 'nobody';
+				} elseif ($logrow['infos'][5] == quick_disg) {
+					$status2 = 'nobody';
+				} elseif ($logrow['infos'][5] == quick_corpse) {
+					$status2 = 'an unidentified body';
+				} elseif ($logrow['infos'][5] == quick_corpse_id) {
+					$status2 = 's corpse';
+				} else {
+					$status2 = sprintf('%s [%s]',htmlspecialchars($logrow['infos'][5], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][6]]));
+				}
+				if ($logrow['infos'][4] == quick_yes) {
+					$status = 'Yes.';
+				} elseif ($logrow['infos'][4] == quick_no) {
+					$status = 'No.';
+				} elseif ($logrow['infos'][4] == quick_help) {
+					$status = 'Help!';
+				} elseif ($logrow['infos'][4] == quick_imwith) {
+					$msg = 'I\'m with';
+					$status = sprintf('%s %s', $msg, $status2);
+				} elseif ($logrow['infos'][4] == quick_see) {
+					$msg = 'I see';
+					$status = sprintf('%s %s', $msg, $status2);
+				} elseif ($logrow['infos'][4] == quick_suspect) {
+					$msg = 'acts suspicious.';
+					$status = sprintf('%s %s', $status2, $msg);
+				} elseif ($logrow['infos'][4] == quick_traitor) {
+					$msg = 'is a Traitor!';
+					$status = sprintf('%s %s', $status2, $msg);
+				} elseif ($logrow['infos'][4] == quick_inno) {
+					$msg = 'is innocent.';
+					$status = sprintf('%s %s', $status2, $msg);
+				} elseif ($logrow['infos'][4] == quick_check) {
+					$status = 'Anyone still alive?';
+				}
+				$display_text = sprintf('%s [%s] used their radio: %s', htmlspecialchars($logrow['infos'][1], ENT_COMPAT | ENT_HTML401, 'UTF-8'), strtolower($ROLES[$logrow['infos'][2]]), $status);
+				$text_color = '#810081';
+				break;
 			case 'MISC':
 				switch ($logrow['infos'][1]) {
 					case 1:
