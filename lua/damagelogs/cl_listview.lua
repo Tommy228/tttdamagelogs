@@ -24,17 +24,26 @@ function Damagelog:SetLineMenu(item, infos, tbl, text, old_logs)
 	item.OnRightClick = function()
 		if not item.ShowLong and not item.Copy and not item.DamageInfos then return end
 		local menu = DermaMenu()
+		local pnl = vgui.Create("DMenuOption", menu)
+		local copy = DermaMenu(menu)
+		copy:SetVisible(false)
+		pnl:SetSubMenu(copy)
+		pnl:SetText("Copy")
+		pnl:SetImage("icon16/tab_edit.png")
+		menu:AddPanel(pnl)
+		copy:AddOption("Line(s)", function()
+			local full_text = ""
+			local append = false
+			for _,line in pairs(item:GetListView():GetSelected()) do
+				if append then
+					full_text = full_text .. "\n"
+				end
+				full_text = full_text .. "[" .. line:GetColumnText(1) .. "] " .. line:GetColumnText(3)
+				append = true
+			end
+			SetClipboardText(full_text)
+		end)
 		if item.Copy then
-			local pnl = vgui.Create("DMenuOption", menu)
-			local copy = DermaMenu(menu)
-			copy:SetVisible(false)
-			pnl:SetSubMenu(copy)
-			pnl:SetText("Copy")
-			pnl:SetImage("icon16/tab_edit.png")
-			menu:AddPanel(pnl)
-			copy:AddOption("Line", function()
-				SetClipboardText(text)
-			end)
 			copy:AddOption("SteamID of "..item.steamid1[1], function()
 				SetClipboardText(item.steamid1[2])
 			end)
