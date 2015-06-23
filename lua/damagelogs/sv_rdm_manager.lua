@@ -345,6 +345,8 @@ net.Receive("DL_GetForgive", function(_, ply)
 		end
 	end
 	UpdatePreviousReports()
+	
+	hook.Call( "TTTDLog_Decide", nil, ply, IsValid( attacker ) and attacker or tbl.attacker, forgive, index )
 end)
 
 net.Receive("DL_Answering", function(_len, ply)
