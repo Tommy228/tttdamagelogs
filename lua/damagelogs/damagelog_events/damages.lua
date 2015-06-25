@@ -26,7 +26,8 @@ function event:EntityTakeDamage(ent, dmginfo)
 				[5] = math.Round(damages), 
 				[6] = Damagelog:WeaponFromDmg(dmginfo), 
 				[7] = ent:SteamID(), 
-				[8] = att:SteamID() 
+				[8] = att:SteamID(),
+				[9] = ent:LastHitGroup()
 			}
 			if Damagelog:IsTeamkill(tbl[2], tbl[4]) then
 				tbl.icon = { "icon16/exclamation.png" }

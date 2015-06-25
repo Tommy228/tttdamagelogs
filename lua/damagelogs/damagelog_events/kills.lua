@@ -23,7 +23,8 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 			[5] = Damagelog:WeaponFromDmg(dmginfo),
 			[6] = ply:SteamID(),
 			[7] = attacker:SteamID(),
-			[8] = scene
+			[8] = scene,
+			[9] = ply:LastHitGroup()
 		}
 		self.CallEvent(tbl)
 		if scene then
