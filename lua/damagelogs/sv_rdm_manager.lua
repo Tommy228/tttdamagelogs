@@ -319,7 +319,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 				if v:IsActive() then
 					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, "The report #"..index.." has been canceled by the victim!", 5, "ui/vote_yes.wav")
 				else
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." has canceled to the report #"..index.." !", 5, "ui/vote_yes.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick().." has canceled the report #"..index.." !", 5, "ui/vote_yes.wav")
 				end
 			else
 				if v:IsActive() then
