@@ -24,7 +24,6 @@ function Damagelog:SetLineMenu(item, infos, tbl, text, old_logs)
 	item.OnRightClick = function()
 		if not item.ShowLong and not item.Copy and not item.DamageInfos then return end
 		local menu = DermaMenu()
-		if item.Copy then
 		local pnl = vgui.Create("DMenuOption", menu)
 		local copy = DermaMenu(menu)
 		copy:SetVisible(false)
