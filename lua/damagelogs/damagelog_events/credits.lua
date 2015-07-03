@@ -28,7 +28,7 @@ function event:TTTAddCredits(ply, credits)
 end
 
 function event:ToString(v)
-	return string.format("%s [%s] %s %s credit%s.", v[1], Damagelog:StrRole(v[2]), v[4]>0 and "got" or "lost", v[4]>0 and v[4] or -v[4], v[4] > 1 and "s" or "")
+	return string.format("%s [%s] %s %s credit%s", v[1], Damagelog:StrRole(v[2]), v[4]>0 and "received" or "used", v[4]>0 and v[4] or -v[4], v[4] > 1 and "s" or "")
 end
 
 function event:IsAllowed(tbl)

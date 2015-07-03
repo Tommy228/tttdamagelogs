@@ -73,9 +73,9 @@ function event:ToString(tbl)
 	local weapon = Damagelog.weapon_table[tbl[6]] or tbl[6]
 	local str
 	if weapon then
-		str = string.format("%s [%s] has damaged %s [%s] for %s HP with %s.", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5], weapon) 
+		str = string.format("%s [%s] has damaged %s [%s] for %s HP with %s", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5], weapon) 
 	else
-		str = string.format("%s [%s] has damaged %s [%s] for %s HP with an unknown weapon.", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5]) 
+		str = string.format("%s [%s] has damaged %s [%s] for %s HP with an unknown weapon", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5]) 
 	end
 	return str
 	

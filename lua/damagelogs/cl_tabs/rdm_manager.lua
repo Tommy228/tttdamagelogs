@@ -117,10 +117,6 @@ local function TakeAction()
 	end):SetImage("icon16/clock_red.png")
 	if not report.chat_open then
 		menuPanel:AddOption(report.chat_opened and "Reopen chat" or "Open chat", function()
-			if report.status != RDM_MANAGER_PROGRESS then
-				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "The report needs to be in progress!", 3, "buttons/weapon_cant_buy.wav")
-				return
-			end
 			net.Start("DL_StartChat")
 			net.WriteUInt(report.index, 32)
 			net.SendToServer()
