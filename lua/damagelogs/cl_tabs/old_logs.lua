@@ -1,241 +1,164 @@
-CreateClientConVar("ttt_dmglogs_showinnocents", "0", true, true)
+local monthnames = {
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December"
+}
 
-cvars.AddChangeCallback("ttt_dmglogs_showinnocents", function(name, old, new)
-	if IsValid(Damagelog.Menu) then
-		Damagelog:SetRolesListView(Damagelog.Roles, Damagelog.CurrentRoles)
+surface.CreateFont("DL_OldLogsFont", {
+	font = "DermaLarge",
+	size = 20
+})
+
+local loading = {}
+local function LoadLogs(node)
+	if node.received or node.receiving then return end
+	node.receiving = true
+	local id = table.insert(loading, node)
+	net.Start("DL_AskOldLogRounds")
+	net.WriteUInt(id, 32)
+	net.WriteUInt(node.year, 32)
+	net.WriteUInt(node.month, 32)
+	net.WriteUInt(node.day, 32)
+	net.SendToServer()
+end
+
+net.Receive("DL_SendOldLogRounds", function()
+	local id = net.ReadUInt(32)
+	local list = net.ReadTable()
+	local node = loading[id]
+	if not node then return end
+	if #list <= 0 then
+		node:AddNode("Nothing found")
+	else
+		local dates = {}
+		for k,v in pairs(list) do
+			local _time = string.Explode(",", os.date("%H,%M", v.date))
+			local hour = _time[1]
+			hour = tonumber(hour)
+			v.min = tonumber(_time[2])
+			if not dates[hour] then
+				dates[hour] = { v }
+			end
+			table.insert(dates[hour], v)
+		end
+		for i=0, 24 do
+			local hour = dates[i]
+			if not hour then continue end
+			local node = node:AddNode(i.."h")
+			table.SortByMember(hour, "date")
+			node.rounds = hour
+			node.hour = i
+			node.min = hour.min
+		end
 	end
 end)
 
-surface.CreateFont("DL_Highlight", {
-	font = "Verdana",
-	size = 13
-})
+function Damagelog:DrawOldLogs()
 
-local PANEL = {}
+	self.CurSelectedRound = nil
 
-function PANEL:SetPlayer(nick)
-	self.Text = nick
-	surface.SetFont("DL_Highlight")
-	local xtext, ytext = surface.GetTextSize(self.Text)
-	self:SetSize(xtext+25, ytext+4)
-	self.Close = vgui.Create("TipsButton", self)
-	self.Close.Colors = {
-		default = COLOR_LGRAY,
-		hover = Color(0, 100, 200),
-		press = COLOR_BLUE
-	}
-	self.Close:SetPos(xtext + 10, 2)
-	self.Close:SetSize(13, 13)
-	self.Close:SetText("")
-	self.Close.PaintOver = function(self, w, h)
-		surface.SetFont("DermaDefault")
-		local x,y = surface.GetTextSize("X")
-		surface.SetTextPos(w/2 - x/2 + 1, h/2 - y/2)
-		surface.DrawText("X")
-	end
-	self.Close.DoClick = function()
-		for k,v in pairs(Damagelog.Highlighted) do
-			if v == self.Text then
-				table.remove(Damagelog.Highlighted, k)
-				Damagelog.PlayerSelect:UpdatePlayers()
-				break
+	self.OldLogs = vgui.Create("DPanel")
+	self.OldLogs.UpdateDates = function()
+		local older = string.Explode(",", os.date("%y,%m,%d,%H,%M", self.OlderDate))
+		local latest = string.Explode(",", os.date("%y,%m,%d,%H,%M", self.LatestDate))
+		for k,v in pairs({older, latest}) do
+			for _,data in pairs(v) do
+				v[_] = tonumber(data)
+			end
+		end
+		local years = latest[1] - older[1]
+		for i=0, years do
+			local year = latest[1] - i
+			local node_year = self.DateChoice:AddNode("20"..tostring(year))
+			node_year.year = year
+			local start_range
+			local end_range
+			if years == 0 then
+				start_range = older[2]
+				end_range = latest[2]
+			elseif year == latest[1] then
+				start_range = 1
+				end_range = latest[2]
+			elseif year == older[1] then
+				start_range = older[2]
+				end_range = 12
+			else
+				start_range = 1
+				end_range = 12
+			end
+			for i=start_range, end_range do
+				local month = monthnames[i]
+				local node_month = node_year:AddNode(month)
+				node_month.year = year
+				node_month.month = i
+				node_month.received = false
+				local number_of_days
+				if i == 2 then
+					local real_year = 2000 + year
+					if (real_year) % 4 == 0 and not (real_year % 100 == 0 and real_year % 400 != 0) then
+						number_of_days = 29
+					else
+						number_of_days = 28
+					end
+				else
+					number_of_days =  (i % 2 == 0) and 31 or 30
+				end
+				for d=1, number_of_days do
+					local day = node_month:AddNode(tostring(d))
+					day.year = node_month.year
+					day.month = node_month.month
+					day.day = d
+					day:SetForceShowExpander(true)
+					day.old_SetExpanded = day.SetExpanded
+					day.SetExpanded = function(pnl, expand, animation)
+						if expand then LoadLogs(day) end
+						return pnl.old_SetExpanded(pnl, expand, animation)
+					end
+				end
 			end
 		end
 	end
-	self.SizeX = xtext + 25
-end
-
-function PANEL:Paint(w,h)
-	if not self.Text then return end
-	surface.SetDrawColor(Color(242, 242, 242))
-	surface.DrawRect(0, 0, w, h)
-	surface.SetDrawColor(Color(0, 50, 200))
-	surface.DrawLine(0, 0, w-1, 0)
-	surface.DrawLine(w-1, 0, w-1, h-1)
-	surface.DrawLine(w-1, h-1, 0, h-1)
-	surface.DrawLine(0, h-1, 0, 0)
-	surface.SetFont("DL_Highlight")
-	surface.SetTextColor(color_black)
-	surface.SetTextPos(3, 1)
-	surface.DrawText(self.Text)
-end
-
-derma.DefineControl("DL_FiltersPlayer", "", PANEL, "DPanel")
-
-local cur_selected
-
-Damagelog.Highlighted = Damagelog.Highlighted or {}
-
-function Damagelog:DrawDamageTab(x, y)
-
-	local function askLogs()
-		if not self.SelectedRound then return end
-		self.Damagelog:Clear()
-		self.Damagelog:AddLine("", "", "Loading...")
-		self.loading = {}
-		self.receiving = true
-		net.Start("DL_AskDamagelog")
-		net.WriteInt(self.SelectedRound, 32)
-		net.SendToServer()
-	end
 	
-	self.DamageTab = vgui.Create("DListLayout")
+	local panel_list = vgui.Create("DPanelList", self.OldLogs)
+	panel_list:SetPos(15, 60)
+	panel_list:SetSize(609, 355)
+	panel_list:SetSpacing(10)
+	panel_list.Paint = function() end
 	
-	self.Panel = self.DamageTab:Add("DPanel")
-	self.Panel:SetSize(x-40, 195)
-	self.PanelOptions = vgui.Create("DPanelList", self.Panel)
-	self.PanelOptions:SetSpacing(7)
-	self.PanelOptions:StretchToParent(12, 5, 0, 0)
-		
 	local forms = {}
-		
-	self.RF = vgui.Create("DForm", self.PanelOptions)
-	self.RF:SetName("Round selection/filters")
-	self.RoundPanel = vgui.Create("DPanel")
-	self.RoundPanel:SetHeight(90)
-	self.RoundPanel.Paint = function() end
 	
-	self.Round = vgui.Create("DComboBox", self.RoundPanel)
-	self.Round:SetSize(500, 22)
-	self.Round:SetPos(0, 0)
-	local old_click = self.Round.DoClick
-	self.Round.DoClick = function(panel)
-		local sync_ent = self:GetSyncEnt()
-		if IsValid(sync_ent) and (sync_ent:GetLastRoundMapExists() or sync_ent:GetPlayedRounds() > 0) then
-			return old_click(panel)
-		end
-	end
+	local player_info = vgui.Create("DForm")
+	player_info:SetName("Player information")
+	player_info:SetHeight(300)
+	table.insert(forms, player_info)
+	self.PlayerList = vgui.Create("DListView")
+	self.PlayerList:SetHeight(130)
+	self.PlayerList:AddColumn("Player")
+	self.PlayerList:AddColumn("SteamID")
+	self.PlayerList:AddColumn("Role")
+	player_info:AddItem(self.PlayerList)
+	panel_list:AddItem(player_info)
 	
-	self.Filters = vgui.Create("DButton", self.RoundPanel)
-	self.Filters:SetText("Edit filters")
-	self.Filters:SetPos(505, 0)
-	self.Filters:SetSize(85, 22)
-	self.Filters.DoClick = function(self)
-		local filters = DermaMenu()
-		for k,v in pairs(Damagelog.filters) do
-			local value = Damagelog.filter_settings[k]
-			local option = filters:AddOption(k, function()
-				Damagelog.filter_settings[k] = not Damagelog.filter_settings[k]
-				Damagelog:SaveFilters()
-				askLogs()
-			end)
-			option:SetIcon(value and "icon16/accept.png" or "icon16/delete.png")
-		end
-		filters:Open()
-	end
+	self.DamageInfoForm = vgui.Create("DForm")
+	self.DamageInfoForm:SetName("Damage information")
+	self.DamageInfoForm:SetHeight(300)
+	self.DamageInfoForm:SetExpanded(false)
+	table.insert(forms, self.DamageInfoForm)
+	self.OldDamageInfo = vgui.Create("DListView")
+	self.OldDamageInfo:SetHeight(130)
+	self.OldDamageInfo:AddColumn("Damage information")
+	self.DamageInfoForm:AddItem(self.OldDamageInfo)
+	panel_list:AddItem(self.DamageInfoForm)
 	
-	self.PlayerSelect = vgui.Create("DPanel", self.RoundPanel)
-	self.PlayerSelect:SetPos(0, 30)
-	self.PlayerSelect:SetSize(590 ,60)
-	self.PlayerSelect.Panels = {}
-	self.PlayerSelect.UpdatePlayers = function(self)
-		for k,v in pairs(self.Panels) do
-			v:Remove()
-		end
-		table.Empty(self.Panels)
-		if #Damagelog.Highlighted > 0 then
-			Damagelog.PS_Label:SetText(Damagelog.PS_Label.Text)
-			surface.SetFont("DL_Highlight")
-			local x = surface.GetTextSize(Damagelog.PS_Label.Text)
-			x = x + 10
-			for k,v in ipairs(Damagelog.Highlighted) do
-				local ply = vgui.Create("DL_FiltersPlayer", self)
-				table.insert(self.Panels, ply)
-				ply:SetPlayer(v)
-				ply:SetPos(x, 8)
-				x = x + ply.SizeX + 5
-			end
-		else
-			Damagelog.PS_Label:SetText(Damagelog.PS_Label.Text.." none")
-		end
-	end
-	
-	self.PS_Label = vgui.Create("DLabel", self.PlayerSelect)
-	self.PS_Label.Text = "Currently highlighted players:"
-	self.PS_Label:SetFont("DL_Highlight")
-	self.PS_Label:SetTextColor(color_black)
-	self.PS_Label:SetText(self.PS_Label.Text.." none")
-	self.PS_Label:SetPos(5, 10)
-	self.PS_Label:SizeToContents()
-	
-	self.PlayersCombo = vgui.Create("DComboBox", self.PlayerSelect)
-	self.PlayersCombo:SetPos(5, 30)
-	self.PlayersCombo:SetSize(490, 20)
-	self.PlayersCombo:AddChoice("No players.", NULL)
-	self.PlayersCombo.Update = function(self)
-		self:Clear()
-		for k,v in pairs(self.Players) do
-			self:AddChoice(k)
-		end
-		if table.Count(self.Players) > 0 then
-			self:ChooseOptionID(1)
-			self:SetDisabled(false)
-		else
-			self:SetDisabled(true)
-		end
-	end
-	self.PlayersCombo.FirstSelect = true
-	self.PlayersCombo.OnSelect = function(self, index, value, data)
-		self.CurrentlySelected = value
-	end
-	self.PlayersCombo:SetDisabled(true)
-	
-	self.Highlight = vgui.Create("DButton", self.PlayerSelect)
-	self.Highlight:SetPos(500, 30)
-	self.Highlight:SetSize(80, 20)
-	self.Highlight:SetText("Highlight")
-	self.Highlight.DoClick = function(self)
-		local selected = Damagelog.PlayersCombo.CurrentlySelected
-		if table.HasValue(Damagelog.Highlighted, selected) then return end
-		if #Damagelog.Highlighted >= 3 then
-			Derma_Message("You can't highlight more than 3 players at once!", "Error", "OK")
-		else
-			table.insert(Damagelog.Highlighted, selected)
-			Damagelog.PlayerSelect:UpdatePlayers()
-		end
-	end
-	
-	self.RF:AddItem(self.RoundPanel)
-	
-	self.PanelOptions:AddItem(self.RF)
-	self.RF:SetHeight(150)
-	self.RF:SetExpanded(true)
-			
-	table.insert(forms, self.RF)
-		
-	self.DamageInfoBox = vgui.Create("DForm", self.PanelOptions)
-	self.DamageInfoBox:SetName("Damage information")
-	self.DamageInfo = vgui.Create("DListView")
-	self.DamageInfo:SetHeight(90)
-	self.DamageInfo:AddColumn("Damage information").DoClick = function() end
-	self.DamageInfoBox:AddItem(self.DamageInfo)
-	self.PanelOptions:AddItem(self.DamageInfoBox)
-	self.DamageInfoBox:SetHeight(350)
-	self.DamageInfoBox:SetExpanded(false)
-			
-	table.insert(forms, self.DamageInfoBox)
-			
-	self.RoleInfos = vgui.Create("DForm", self.PanelOptions)
-	self.RoleInfos:SetName("Roles")
-	self.Roles = vgui.Create("DListView")
-	self.Roles:AddColumn("Player")
-	self.Roles:AddColumn("Role")
-	self.Roles:AddColumn("Alive?")
-	self.Roles:SetHeight(90)
-	self.RoleInfos:AddItem(self.Roles)	
-	self.PanelOptions:AddItem(self.RoleInfos)
-	self.RoleInfos:SetHeight(350)
-	self.RoleInfos:SetExpanded(false)
-
-	local show_innocents = vgui.Create("DCheckBoxLabel", self.RoleInfos)
-	show_innocents:SetPos(465, 3)
-	show_innocents:SetText("Show innocent players")
-	show_innocents:SetTextColor(color_white)
-	show_innocents:SetConVar("ttt_dmglogs_showinnocents")
-	show_innocents:SizeToContents()
-	
-	table.insert(forms, self.RoleInfos)
-			
 	for k,v in pairs(forms) do
 		local old_toggle = v.Toggle
 		v.Toggle = function(self)
@@ -251,16 +174,108 @@ function Damagelog:DrawDamageTab(x, y)
 			return old_toggle(v)
 		end
 	end
-			
-	self.Damagelog = self.DamageTab:Add("DListView")
-	self.Damagelog:SetHeight(415)
-	self.Damagelog:AddColumn("Time"):SetFixedWidth(40)
-	self.Damagelog:AddColumn("Type"):SetFixedWidth(40)
-	self.Damagelog.EventColumn = self.Damagelog:AddColumn("Event")
-	self.Damagelog.EventColumn:SetFixedWidth(529)
-	self.Damagelog.IconColumn = self.Damagelog:AddColumn("")
-	self.Damagelog.IconColumn:SetFixedWidth(30)
-	self.Damagelog.Think = function(panel)
+	
+	local date_panel = vgui.Create("DPanel", self.OldLogs)
+	date_panel:SetPos(10, -225)
+	date_panel:SetSize(620, 275)
+	date_panel.Paint = function(panel,x,y)
+		surface.SetDrawColor(Color(150,150,150))
+		surface.DrawRect(0, 0, x,y)
+	end
+	
+	local date = vgui.Create("DLabel", date_panel)
+	date:SetFont("DL_OldLogsFont")
+	date:SetText("Select a date:")
+	date:SizeToContents()
+	date:SetPos(20, 7)
+
+	local round = vgui.Create("DLabel", date_panel)
+	round:SetFont("DL_OldLogsFont")
+	round:SetText("Select a round:")
+	round:SizeToContents()
+	round:SetPos(320, 7)
+	
+	self.DateChoice = vgui.Create("DTree", date_panel)
+	self.DateChoice:SetPos(10, 35)
+	self.DateChoice:SetSize(290, 190)
+	
+	self.RoundChoice = vgui.Create("DListView", date_panel)
+	self.RoundChoice:SetPos(315, 35)
+	self.RoundChoice:SetSize(290, 190)
+	local round_column = self.RoundChoice:AddColumn("")
+	
+	self.DateChoice.OnNodeSelected = function(panel, selected)
+		if selected.rounds then
+			self.RoundChoice:Clear()
+			round_column:SetName("Rounds of "..selected.hour.."h")
+			for k,v in ipairs(selected.rounds) do
+				local line = self.RoundChoice:AddLine("min"..v.min.." : "..v.map)
+				line.time = v.date
+			end
+		end
+	end	
+	
+	self.LoadLogs = vgui.Create("DButton", date_panel)
+	self.LoadLogs:SetPos(10, 235)
+	self.LoadLogs:SetSize(597, 30)
+	self.LoadLogs:SetText("Select a round to load")
+	self.LoadLogs.DoClick = function(panel)
+		if panel.MoveTop or panel.MoveBot then return end
+		if panel.Top then
+			panel.MoveBot = true
+		elseif panel.Bot then
+			if #self.RoundChoice:GetSelected() == 0 then
+				Derma_Message("Please select a round!", "Error", "OK")
+				return
+			end
+			if #self.RoundChoice:GetSelected() > 1 then
+				Derma_Message("Please select only one round!", "Error", "OK")
+				return
+			end
+			net.Start("DL_AskOldLog")
+			net.WriteUInt(self.RoundChoice:GetSelected()[1].time, 32)
+			net.SendToServer()
+			panel.MoveTop = true
+		end
+	end
+	self.LoadLogs.Bot = false
+	self.LoadLogs.Top = true
+	self.LoadLogs.OldThink = self.LoadLogs.Think
+	self.LoadLogs.Think = function(panel)
+		self.LoadLogs.OldThink(panel)
+		if panel.MoveTop then
+			local x,y = date_panel:GetPos()
+			if y > -225 then
+				date_panel:SetPos(x, y-6)
+			else
+				panel.Top = true
+				panel.Bot = false
+				panel.MoveTop = false
+				panel:SetText("Select a round to load")
+			end
+		elseif panel.MoveBot then
+			local x,y = date_panel:GetPos()
+			if y < 0 then
+				date_panel:SetPos(x, y+6)
+			else
+				panel.Top = false
+				panel.Bot = true
+				panel.MoveBot = false
+				panel:SetText("Load the logs of the selected round")
+			end
+		end
+	end
+	
+	self.OldDamagelog = vgui.Create("DListView", self.OldLogs)
+	self.OldDamagelog:SetPos(0, 280)
+	self.OldDamagelog:SetSize(639, 329)
+	self.OldDamagelog:AddColumn("Time"):SetFixedWidth(40)
+	self.OldDamagelog:AddColumn("Type"):SetFixedWidth(40)
+	self.OldDamagelog.EventColumn = self.OldDamagelog:AddColumn("Event")
+	self.OldDamagelog.EventColumn:SetFixedWidth(529)
+	self.OldDamagelog.IconColumn = self.OldDamagelog:AddColumn("")
+	self.OldDamagelog.IconColumn:SetFixedWidth(30)
+	self.OldDamagelog.Think = function(panel)
 		if panel.VBar.Enabled and not panel.Scrollbar then
 			panel.EventColumn:SetFixedWidth(509)
 			panel.IconColumn:SetFixedWidth(50)
@@ -271,179 +286,74 @@ function Damagelog:DrawDamageTab(x, y)
 			panel.Scrollbar = false
 		end
 	end
-
-	self.Tabs:AddSheet("Damagelog", self.DamageTab, "icon16/application_view_detail.png")
-
-	local sync_ent = self:GetSyncEnt()
-	if not IsValid(sync_ent) then
-		return
-	end
 	
-	self.Round.FirstSelect = true
-	self.Round.OnSelect = function(_, value, index, data)
-		self.SelectedRound = data
-		if self.Round.FirstSelect then
-			self.Round.FirstSelect = false
-			return
-		end
-		askLogs()
-	end
+	self.Tabs:AddSheet("Old logs", self.OldLogs, "icon16/calendar_view_week.png", false, false)
 	
-	local PlayedRounds = sync_ent:GetPlayedRounds()
-	local LastMapExists = sync_ent:GetLastRoundMapExists()
-	local LastChoise = 0
-	if LastMapExists then
-		self.Round:AddChoice("Last round of the previous map", -1)
-		LastChoise = LastChoise + 1
-		if PlayedRounds <= 0 then
-			self.SelectedRound = -1
-			askLogs()
-			self.Round:ChooseOptionID(1)
-		end
+	net.Start("DL_AskLogsList")
+	net.SendToServer()
+	
+end
+
+net.Receive("DL_SendLogsList", function()
+	local received = net.ReadUInt(1) == 1
+	if not received then return end
+	Damagelog.OlderDate = net.ReadUInt(32)
+	Damagelog.LatestDate = net.ReadUInt(32)
+	if IsValid(Damagelog.OldLogs) then
+		Damagelog.OldLogs:UpdateDates()
 	end
-	if PlayedRounds > 1 or (LocalPlayer():CanUseDamagelog() and PlayedRounds > 0) then
-		local i_count = 1
-		if PlayedRounds > 10 then
-			i_count = PlayedRounds - 10
-		end
-		if not LocalPlayer():CanUseDamagelog() then
-			PlayedRounds = PlayedRounds - 1
-		end
-		for i = i_count, PlayedRounds do
-			if i == PlayedRounds and LocalPlayer():CanUseDamagelog() then
-				self.Round:AddChoice("Current Round", i)
-			else
-				self.Round:AddChoice("Round "..tostring(i), i)
-			end
-			LastChoise = LastChoise + 1
-		end
-		if not LocalPlayer():CanUseDamagelog() or (GetConVar("ttt_dmglogs_currentround"):GetBool() or not LocalPlayer():IsActive()) then
-			self.Round:ChooseOptionID(LastChoise)
-				else
-			self.Round:ChooseOptionID(LastChoise-1 > 0 and LastChoise-1 or LastChoise)
-		end
-		askLogs()
-	elseif not LastMapExists then
-		self.Round:AddChoice("No available logs for the current map")
-		self.Round:ChooseOptionID(1)
-	end
-	self.Round.PaintOver = function(self)
-		Damagelog:drawStupid(self, 8, 4)
-	end
-	self.PlayersCombo.PaintOver = function(self)
-		Damagelog:drawStupid(self, 8, 3)
-	end
-	self.Round.OpenMenu = function(self, pControlOpener)
-		if pControlOpener then
-			if pControlOpener == self.TextEntry then
-				return
+end)
+
+net.Receive("DL_SendOldLog", function()
+	local exists = net.ReadUInt(1) == 1
+	if exists then
+		local size = net.ReadUInt(32)
+		local data = net.ReadData(size)
+		-- dataception
+		if data then
+			data = util.Decompress(data)
+			if data then
+				data = util.JSONToTable(data)
+				if data then
+					Damagelog.OldDamagelog:Clear()
+					Damagelog.OldShootTables = data.ShootTable
+					Damagelog:SetListViewTable(Damagelog.OldDamagelog, data.DamageTable, false, true)
+					if data.Infos then
+						Damagelog.PlayerList:Clear()
+						for k,v in pairs(data.Infos) do
+							local item = Damagelog.PlayerList:AddLine(k, v.steamid, Damagelog:StrRole(v.role))
+							item.steamid = v.steamid
+							item.OnRightClick = function()
+								local copy = DermaMenu()
+								copy:AddOption("Copy SteamID", function()
+									SetClipboardText(item.steamid)
+								end):SetImage("icon16/tab_edit.png")
+								copy:Open()
+							end
+						end
+					end
+				end
 			end
 		end
-		if #self.Choices == 0 then return end
-		if IsValid(self.Menu) then
-			self.Menu:Remove()
-			self.Menu = nil
-		end
-		self.Menu = DermaMenu()
-		local sorted = {}
-		for k,v in pairs(self.Choices) do table.insert(sorted, { id = k, data = v }) end
-		for k,v in pairs(sorted, "data") do
-			self.Menu:AddOption(v.data, function() self:ChooseOption( v.data, v.id ) end)
-		end
-		local x, y = self:LocalToScreen(0, self:GetTall())
-		self.Menu:SetMinimumWidth(self:GetWide())
-		self.Menu:Open(x, y, false, self)
-	end
-end
-
-function Damagelog:drawStupid(self, x, y)
-	local selected, data = self:GetSelected()
-	if selected then
-		surface.SetFont("DermaDefault")
-		surface.SetTextColor(color_black)
-		surface.SetTextPos(x, y)
-		surface.DrawText(selected)
-	end
-end
-
-function Damagelog:ReceiveLogs(empty, tbl, last)
-	if not self.receiving then return end
-	if not IsValid(self.Menu) then return end
-	self.Damagelog:Clear()
-	if empty then
-		self.Damagelog:AddLine("", "", "Nothing here...")
-	else
-		table.insert(self.loading, tbl)
-		if last then
-			self:FinishedLoading()
-		end
-	end
-end
-net.Receive("DL_SendDamagelog", function()
-	local empty = net.ReadUInt(1) == 1
-	if empty then
-		Damagelog:ReceiveLogs(true)
-	else
-		local tbl = net.ReadTable()
-		local last = net.ReadUInt(1) == 1
-		Damagelog:ReceiveLogs(false, tbl, last)
 	end
 end)
 
-function Damagelog:FinishedLoading()
-	self.receiving = false
-	self:SetListViewTable(self.Damagelog, self.loading)
-end
 
-function Damagelog:ReceiveRoles(tbl)
-	if not IsValid(self.Menu) then return end
-	self.CurrentRoles = tbl
-	self:SetRolesListView(self.Roles, tbl)
-end
-net.Receive("DL_SendRoles", function()
-	local tbl = net.ReadTable()
-	Damagelog.RoleNicks = {}
-	for k,v in pairs(player.GetAll()) do
-		Damagelog.RoleNicks[v:Nick()] = v
-	end
-	if IsValid(Damagelog.Menu) then
-		Damagelog.Highlighted = {}
-		if Damagelog.PlayerSelect and Damagelog.PlayerSelect.UpdatePlayers then
-			Damagelog.PlayerSelect:UpdatePlayers()
-		end
-		Damagelog.PlayersCombo.Players = tbl
-		Damagelog.PlayersCombo:Update()
-	end
-	Damagelog:ReceiveRoles(tbl)
-	Damagelog.RoleEnts = {}
-end)
-
-net.Receive("DL_SendDamageInfos", function()
-	local empty = net.ReadUInt(1) == 1
-	local beg = net.ReadUInt(32)
-	local t = net.ReadUInt(32)
-	local result
-	if not empty then
-		result = net.ReadTable()
-	end
-	local victim = net.ReadString()
-	local att = net.ReadString()
-	Damagelog:SetDamageInfosLV(Damagelog.DamageInfo, att, victim, beg, t, result)
-end)
-
-net.Receive("DL_RefreshDamagelog", function()
-	local tbl = net.ReadTable()
-	if not IsValid(LocalPlayer()) then return end -- sometimes happens while joining
-	if not LocalPlayer().CanUseDamagelog then return end
-	if not LocalPlayer():CanUseDamagelog() then return end
-	if IsValid(Damagelog.Damagelog) then
-		local lines = Damagelog.Damagelog:GetLines()
-		if lines[1] and lines[1]:GetValue(3) == "Nothing here..." then
-			Damagelog.Damagelog:Clear()
-		end
-		local rounds = Damagelog:GetSyncEnt():GetPlayedRounds()
-		if rounds == Damagelog.SelectedRound then
-			Damagelog:AddLogsLine(Damagelog.Damagelog, tbl)
+function Damagelog:FindFromOldLogs(t, att, victim, round)
+	local results = {}
+	local found = false
+	for k,v in pairs(self.OldShootTables or {}) do
+	    if k >= t - 10 and k <= t then
+		    for s,i in pairs(v) do
+		        if i[1] == victim or i[1] == att then
+		            if results[k] == nil then
+					    table.insert(results, k, {})
+					end
+					table.insert(results[k], i)
+			        found = true
+				end
+			end
 		end
 	end
-end)
+	return found, results
+end 

@@ -90,7 +90,7 @@ hook.Add("PlayerSay", "Damagelog_RDMManager", function(ply, text, teamOnly)
 		if (string.Left(string.lower(text), #Damagelog.RDM_Manager_Command) == Damagelog.RDM_Manager_Command) then
 			Damagelog:StartReport(ply)
 			return ""
-		elseif (string.Left(string.lower(text), #Damagelog.Respond_Command) == Damagelog.Respond_Command) then
+		elseif (Damagelog.Respond_Command and string.Left(string.lower(text), #Damagelog.Respond_Command) == Damagelog.Respond_Command) then
 			net.Start("DL_Death")
 			net.Send(ply)
 		end

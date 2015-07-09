@@ -1,4 +1,5 @@
-	
+
+
 if SERVER then
 	Damagelog:EventHook("TTTFoundDNA")
 else

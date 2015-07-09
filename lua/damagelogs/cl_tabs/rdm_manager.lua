@@ -474,7 +474,9 @@ function Damagelog:DrawRDMManager(x,y)
 		TakeActionB:SetText("Take Action")
 		TakeActionB:SetPos(380, 4)
 		TakeActionB:SetSize(125, 18)
+		TakeActionB.OldThink = TakeActionB.Think
 		TakeActionB.Think = function(self)
+			self.OldThink(self)
 			self:SetDisabled(not Damagelog.SelectedReport)
 		end
 		TakeActionB.DoClick = function(self)
@@ -485,7 +487,9 @@ function Damagelog:DrawRDMManager(x,y)
 		SetState:SetText("Set Status")
 		SetState:SetPos(510, 4)
 		SetState:SetSize(125, 18)
+		SetState.OldThink = SetState.Think
 		SetState.Think = function(self)
+			self.OldThink(self)
 			self:SetDisabled(not Damagelog.SelectedReport)
 		end
 		SetState.DoClick = function()
