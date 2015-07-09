@@ -72,7 +72,7 @@ function event:ToString(v)
 		targetrole = " ["..Damagelog:StrRole(v[6]).."]"
 	end
 
-	return string.format("%s [%s] used his radio: %s%s", v[1], Damagelog:StrRole(v[2]), text, targetrole)
+	return string.format("%s [%s] used their radio: %s%s", v[1], Damagelog:StrRole(v[2]), text, targetrole)
 end
 
 function event:IsAllowed(tbl)

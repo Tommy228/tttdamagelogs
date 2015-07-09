@@ -14,6 +14,7 @@ include("damagelogs/cl_listview.lua")
 include("damagelogs/sh_weapontable.lua")
 include("damagelogs/not_my_code/orderedPairs.lua")
 include("damagelogs/not_my_code/base64decode.lua")
+include("damagelogs/not_my_code/drawcircle.lua")
 if Damagelog.RDM_Manager_Enabled then
 	include("damagelogs/cl_rdm_manager.lua")
 end
@@ -22,6 +23,8 @@ include("damagelogs/cl_recording.lua")
 include("damagelogs/ulx/sh_autoslay.lua")
 include("damagelogs/sh_notify.lua")
 include("damagelogs/cl_infolabel.lua")
+include("damagelogs/sh_chat.lua")
+include("damagelogs/cl_chat.lua")
 
 local outdated = false
 http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version.md?ref=master", function(body)

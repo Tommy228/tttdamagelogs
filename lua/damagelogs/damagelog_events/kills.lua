@@ -48,9 +48,9 @@ end
 function event:ToString(v)
 
 	local weapon = Damagelog.weapon_table[v[5]] or v[5]
-	text = string.format("%s [%s] has killed %s [%s] with an unknown weapon", v[1], Damagelog:StrRole(v[2]), v[3], Damagelog:StrRole(v[4])) 
+	text = string.format("%s [%s] killed %s [%s] with an unknown weapon", v[1], Damagelog:StrRole(v[2]), v[3], Damagelog:StrRole(v[4])) 
 	if weapon then
-		text = string.format("%s [%s] has killed %s [%s] with %s", v[1], Damagelog:StrRole(v[2]), v[3], Damagelog:StrRole(v[4]), weapon)
+		text = string.format("%s [%s] killed %s [%s] with %s", v[1], Damagelog:StrRole(v[2]), v[3], Damagelog:StrRole(v[4]), weapon)
 	end
 	return text
 	
