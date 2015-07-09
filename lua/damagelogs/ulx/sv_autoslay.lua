@@ -254,7 +254,7 @@ if Damagelog.Autoslay_ForceRole then
 			};
 			if not GAMEMODE.LastRole then GAMEMODE.LastRole = {} end
 			for k,v in pairs(player.GetAll()) do
-				if IsValid(v) and (not v:IsSpec()) and not (v.AutoslaysLeft and tonumber(v.AutoslaysLeft) > 0) then
+				if IsValid(v) and (not v:IsSpec()) and not (v.AutoslaysLeft and v.AutoslaysLeft > 0) then
 					local r = GAMEMODE.LastRole[v:UniqueID()] or v:GetRole() or ROLE_INNOCENT
 					table.insert(prev_roles[r], v)
 					table.insert(choices, v)
