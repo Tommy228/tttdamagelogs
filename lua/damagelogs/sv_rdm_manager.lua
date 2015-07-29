@@ -168,7 +168,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		attacker_nick = attacker:Nick(),
 		message = message,
 		response = false,
-		status = RDM_MANAGER_WAITING,
+		status = RDM_MANAGER_WAITING_FOR_ATTACKER,
 		admin = false,
 		round = Damagelog.CurrentRound,
 		chat_open = false,
@@ -287,6 +287,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	if tbl.chat_opened then return end
 	if ply:SteamID() != tbl.attacker then return end
 	tbl.response = text
+	tbl.status = RDM_MANAGER_WAITING_FOR_VICTIM
 	for k,v in pairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, (v:IsActive() and "The reported player " or ply:Nick()).." has answered to the report #"..index.."!", 5, "ui/vote_yes.wav")
@@ -316,6 +317,8 @@ net.Receive("DL_GetForgive", function(_, ply)
 	if forgive then
 		tbl.status = RDM_MANAGER_CANCELED
 		tbl.conclusion = "(Auto) "..ply:Nick().." has canceled to the report."
+	else
+		tbl.status = RDM_MANAGER_WAITING
 	end
 	for k,v in pairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then	
