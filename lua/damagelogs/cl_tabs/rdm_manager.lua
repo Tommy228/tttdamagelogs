@@ -55,6 +55,8 @@ cvars.AddChangeCallback("rdm_manager_show_finished", function(name, old, new)
 end)
 
 local status = {
+	[RDM_MANAGER_WAITING_FOR_ATTACKER] = "Waiting for reported player",
+	[RDM_MANAGER_WAITING_FOR_VICTIM] = "Waiting for victim",
 	[RDM_MANAGER_WAITING] = "Waiting",
 	[RDM_MANAGER_PROGRESS] = "In progress",
 	[RDM_MANAGER_FINISHED] = "Finished",
@@ -68,26 +70,20 @@ local icons = {
 }
 
 local colors = {
+	[RDM_MANAGER_WAITING_FOR_ATTACKER] = Color(100,100, 0),
+	[RDM_MANAGER_WAITING_FOR_VICTIM] = Color(100,100, 0),
 	[RDM_MANAGER_WAITING] = Color(100,100, 0),
 	[RDM_MANAGER_PROGRESS] = Color(0,0,190),
 	[RDM_MANAGER_FINISHED] = Color(0,190, 0),
 	[RDM_MANAGER_CANCELED] = Color(100, 100, 100)
 }
 
-local function GetBySteamID(steamid)
-	for k,v in pairs(player.GetAll()) do
-		if v:SteamID() == steamid then
-			return v
-		end
-	end
-end
-
 local function TakeAction()
 	local report = Damagelog.SelectedReport
 	if not report then return end
 	local current = not report.previous
-	local attacker = GetBySteamID(report.attacker)
-	local victim = GetBySteamID(report.victim)
+	local attacker = player.GetBySteamID(report.attacker)
+	local victim = player.GetBySteamID(report.victim)
 	local menuPanel = DermaMenu()
 	menuPanel:AddOption("Set conclusion", function()
 		if report.status != RDM_MANAGER_FINISHED then
@@ -105,31 +101,35 @@ local function TakeAction()
 			end
 		end)
 	end):SetImage("icon16/comment.png")
-	menuPanel:AddOption("Force the reported player to respond", function()
-		if IsValid(attacker) then
-			net.Start("DL_ForceRespond")
-			net.WriteUInt(report.index, 16)
-			net.WriteUInt(current and 0 or 1, 1)
-			net.SendToServer()
-		else
-			Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
-		end
-	end):SetImage("icon16/clock_red.png")
-	if not report.chat_open then
-		menuPanel:AddOption(report.chat_opened and "Reopen chat" or "Open chat", function()
-			net.Start("DL_StartChat")
-			net.WriteUInt(report.index, 32)
-			net.SendToServer()
-			if not report.response then
-				Damagelog.DisableResponse(true)
+	if report.status == RDM_MANAGER_WAITING_FOR_ATTACKER then
+		menuPanel:AddOption("Force the reported player to respond", function()
+			if IsValid(attacker) then
+				net.Start("DL_ForceRespond")
+				net.WriteUInt(report.index, 16)
+				net.WriteUInt(current and 0 or 1, 1)
+				net.SendToServer()
+			else
+				Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 			end
-		end):SetImage("icon16/application_view_list.png")
-	else
-		menuPanel:AddOption("Join chat", function()
-			net.Start("DL_JoinChat")
-			net.WriteUInt(report.index, 32)
-			net.SendToServer()
-		end):SetImage("icon16/application_go.png")
+		end):SetImage("icon16/clock_red.png")
+	end
+	if report.status == RDM_MANAGER_PROGRESS then
+		if not report.chat_open then
+			menuPanel:AddOption(report.chat_opened and "Reopen chat" or "Open chat", function()
+				net.Start("DL_StartChat")
+				net.WriteUInt(report.index, 32)
+				net.SendToServer()
+				if not report.response then
+					Damagelog.DisableResponse(true)
+				end
+			end):SetImage("icon16/application_view_list.png")
+		else
+			menuPanel:AddOption("Join chat", function()
+				net.Start("DL_JoinChat")
+				net.WriteUInt(report.index, 32)
+				net.SendToServer()
+			end):SetImage("icon16/application_go.png")
+		end
 	end
 	menuPanel:AddOption("View Death Scene", function()
 		local found = false
@@ -485,6 +485,16 @@ net.Receive("DL_UpdateReports", function()
 	end		
 end)
 
+local function DrawStatusMenuOption(id)
+	menu:AddOption(status(id), function()
+		net.Start("DL_UpdateStatus")
+		net.WriteUInt(Damagelog.SelectedReport.previous and 1 or 0, 1)
+		net.WriteUInt(Damagelog.SelectedReport.index, 16)
+		net.WriteUInt(k, 4)
+		net.SendToServer()
+	end):SetImage(icons[id])
+end
+
 function Damagelog:DrawRDMManager(x,y)
 	if LocalPlayer():CanUseRDMManager() and Damagelog.RDM_Manager_Enabled then
 		
@@ -535,15 +545,15 @@ function Damagelog:DrawRDMManager(x,y)
 		end
 		SetState.DoClick = function()
 			local menu = DermaMenu()
-			for k,v in ipairs(status) do
-				if k == RDM_MANAGER_CANCELED then continue end
-				menu:AddOption(v, function()
-					net.Start("DL_UpdateStatus")
-					net.WriteUInt(Damagelog.SelectedReport.previous and 1 or 0, 1)
-					net.WriteUInt(Damagelog.SelectedReport.index, 16)
-					net.WriteUInt(k, 4)
-					net.SendToServer()
-				end):SetImage(icons[k])
+			if Damagelog.SelectedReport.status == RDM_MANAGER_WAITING then
+				DrawStatusMenuOption(RDM_MANAGER_PROGRESS)
+			end
+			if Damagelog.SelectedReport.status == RDM_MANAGER_PROGRESS then
+				DrawStatusMenuOption(RDM_MANAGER_WAITING)
+				DrawStatusMenuOption(RDM_MANAGER_FINISHED)
+			end
+			if Damagelog.SelectedReport.status == RDM_MANAGER_FINISHED then
+				DrawStatusMenuOption(RDM_MANAGER_PROGRESS)
 			end
 			menu:Open()
 		end
