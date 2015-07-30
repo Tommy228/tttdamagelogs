@@ -13,6 +13,7 @@ AddCSLuaFile("damagelogs/cl_colors.lua")
 AddCSLuaFile("damagelogs/cl_filters.lua")
 AddCSLuaFile("damagelogs/not_my_code/orderedPairs.lua")
 AddCSLuaFile("damagelogs/not_my_code/base64decode.lua")
+AddCSLuaFile("damagelogs/not_my_code/drawcircle.lua")
 AddCSLuaFile("damagelogs/cl_rdm_manager.lua")
 AddCSLuaFile("damagelogs/config/config.lua")
 AddCSLuaFile("damagelogs/cl_ttt_settings.lua")
@@ -21,6 +22,8 @@ AddCSLuaFile("damagelogs/ulx/sh_autoslay.lua")
 AddCSLuaFile("damagelogs/sh_notify.lua")
 AddCSLuaFile("damagelogs/cl_infolabel.lua")
 AddCSLuaFile("damagelogs/sh_rdm_manager.lua")
+AddCSLuaFile("damagelogs/cl_chat.lua")
+AddCSLuaFile("damagelogs/sh_chat.lua")
 
 include("damagelogs/config/config.lua")
 include("damagelogs/sh_sync_entity.lua")
@@ -37,6 +40,8 @@ include("damagelogs/sv_rdm_manager.lua")
 include("damagelogs/sv_stupidoverrides.lua")
 include("damagelogs/sv_recording.lua")
 include("damagelogs/sh_notify.lua")
+include("damagelogs/sh_chat.lua")
+include("damagelogs/sv_chat.lua")
 if Damagelog.RDM_Manager_Enabled then
 	include("damagelogs/sh_rdm_manager.lua")
 	resource.AddFile("sound/ui/vote_failure.wav")
@@ -116,15 +121,15 @@ function Damagelog:WeaponFromDmg(dmg)
 		elseif dmg:IsDamageType(DMG_CRUSH) then
 			wep = "falling or prop damage"
 		elseif dmg:IsDamageType(DMG_SLASH) then
-			wep = "sharp object"
+			wep = "a sharp object"
 		elseif dmg:IsDamageType(DMG_CLUB) then
 			wep = "clubbed to death"
 		elseif dmg:IsDamageType(DMG_SHOCK) then
-			wep = "electric shock"
+			wep = "an electric shock"
 		elseif dmg:IsDamageType(DMG_ENERGYBEAM) then
-			wep = "laser"
+			wep = "a laser"
 		elseif dmg:IsDamageType(DMG_SONIC) then
-			wep = "teleport collision"
+			wep = "a teleport collision"
 		elseif dmg:IsDamageType(DMG_PHYSGUN) then
 			wep = "a massive bulk"
 		elseif inf:IsPlayer() then

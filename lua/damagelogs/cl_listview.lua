@@ -35,7 +35,7 @@ function Damagelog:SetLineMenu(item, infos, tbl, text, old_logs)
 			local full_text = ""
 			local append = false
 			for _,line in pairs(item:GetListView():GetSelected()) do
-				if append then
+			if append then
 					full_text = full_text .. "\n"
 				end
 				full_text = full_text .. "[" .. line:GetColumnText(1) .. "] " .. line:GetColumnText(3)

@@ -80,6 +80,7 @@ function Player:UpdateReport(previous, index)
 end
 
 function Player:SendReport(tbl)
+	if tbl.chat_opened then return end
 	net.Start("DL_SendReport")
 	net.WriteTable(tbl)
 	net.Send(self)
@@ -170,6 +171,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		status = RDM_MANAGER_WAITING,
 		admin = false,
 		round = Damagelog.CurrentRound,
+		chat_open = false,
 		logs = ply.DeathDmgLog and ply.DeathDmgLog[Damagelog.CurrentRound] or false,
 		conclusion = false
 	})
@@ -282,6 +284,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	local index = net.ReadUInt(16)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end
+	if tbl.chat_opened then return end
 	if ply:SteamID() != tbl.attacker then return end
 	tbl.response = text
 	for k,v in pairs(player.GetHumans()) do
@@ -307,6 +310,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 	local previous = net.ReadUInt(1) == 1
 	local index = net.ReadUInt(16)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
+	if tbl.chat_opened then return end
 	if not tbl then return end
 	if ply:SteamID() != tbl.victim then return end
 	if forgive then
