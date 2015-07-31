@@ -1,7 +1,6 @@
 
 if SERVER then
-	Damagelog:EventHook("Initialize")
- 	Damagelog:EventHook("PlayerTakeRealDamage")
+	Damagelog:EventHook("EntityTakeDamage")
 else
 	Damagelog:AddFilter("Show damage", DAMAGELOG_FILTER_BOOL, true)
 	Damagelog:AddColor("Team Damage", Color(255, 40, 40))
@@ -13,23 +12,11 @@ local event = {}
 event.Type = "DMG"
 event.IsDamage = true
 
-function event:Initialize()
-	local old_func = GAMEMODE.PlayerTakeDamage
-	function GAMEMODE:PlayerTakeDamage(ent, infl, att, amount, dmginfo)
-		local original_dmg = dmginfo:GetDamage()
-
-		old_func(self, ent, infl, att, amount, dmginfo)
-
-		hook.Call("PlayerTakeRealDamage", GAMEMODE, ent, dmginfo, original_dmg)
-	end
-end
-
-function event:EntityTakeDamage(ent, dmginfo, original_dmg)
+function event:EntityTakeDamage(ent, dmginfo)
 
 	local att = dmginfo:GetAttacker()
 	if not (ent.IsGhost and ent:IsGhost()) and ent:IsPlayer() and (IsValid(att) and att:IsPlayer()) and ent != att then
 		local damages = dmginfo:GetDamage()
-		
 		if math.floor(damages) > 0 then
 			local tbl = { 
 				[1] = ent:Nick(), 
@@ -39,8 +26,7 @@ function event:EntityTakeDamage(ent, dmginfo, original_dmg)
 				[5] = math.Round(damages), 
 				[6] = Damagelog:WeaponFromDmg(dmginfo), 
 				[7] = ent:SteamID(), 
-				[8] = att:SteamID(), 
-				[9] = math.Round(original_dmg)
+				[8] = att:SteamID() 
 			}
 			if Damagelog:IsTeamkill(tbl[2], tbl[4]) then
 				tbl.icon = { "icon16/exclamation.png" }
@@ -85,15 +71,11 @@ end
 function event:ToString(tbl)
 
 	local weapon = Damagelog.weapon_table[tbl[6]] or tbl[6]
-	local karma_reduced = tbl[5] < tbl[9]
-	local str = string.format("%s [%s] has damaged %s [%s] for %s", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5]) 
-	if karma_reduced then
-		str = str .. string.format(" (%s)", tbl[9])
-	end
+	local str
 	if weapon then
-		str = str .. string.format(" HP with %s", weapon) 
+		str = string.format("%s [%s] has damaged %s [%s] for %s HP with %s", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5], weapon) 
 	else
-		str = str .. " HP with an unknown weapon"
+		str = string.format("%s [%s] has damaged %s [%s] for %s HP with an unknown weapon", tbl[3], Damagelog:StrRole(tbl[4]), tbl[1], Damagelog:StrRole(tbl[2]), tbl[5]) 
 	end
 	return str
 	
