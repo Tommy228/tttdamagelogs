@@ -64,8 +64,6 @@ local status = {
 }
 
 local icons = {
-	[RDM_MANAGER_WAITING_FOR_ATTACKER] = "icon16/clock.png",
-	[RDM_MANAGER_WAITING_FOR_VICTIM] = "icon16/clock.png",
 	[RDM_MANAGER_WAITING] = "icon16/clock.png",
 	[RDM_MANAGER_PROGRESS] = "icon16/arrow_refresh.png",
 	[RDM_MANAGER_FINISHED] = "icon16/accept.png"
