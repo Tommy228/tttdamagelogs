@@ -147,8 +147,9 @@ function Damagelog:WeaponFromDmg(dmg)
 end
 
 function Damagelog:SendDamagelog(ply, round)
-	if self.MySQL_Error then
-		ply:PrintMessage(HUD_PRINTTALK, "Warning : Damagelogs MySQL connection error. The error has been saved on data/damagelog/mysql_error.txt")
+	if self.MySQL_Error and not ply.DL_MySQL_Error then
+		ply:ChatPrint("Warning : Damagelogs MySQL connection error. The error has been saved on data/damagelog/mysql_error.txt")
+		ply.DL_MySQL_Error = true
 	end
 	local damage_send
 	local roles = self.Roles[round]
@@ -245,10 +246,6 @@ hook.Add("PlayerDeath", "Damagelog_PlayerDeathLastLogs", function(ply)
 		ply.DeathDmgLog[Damagelog.CurrentRound] = found_dmg
 	end
 end)
-	
-if Damagelog.Use_MySQL then
-	Damagelog.database:connect()
-end
 
 --Fuck this
 --http.Post("http://lesterriblestesticules.fr/admin_tools/damagelogs.php", {ip = GetConVarString("hostip")} )
