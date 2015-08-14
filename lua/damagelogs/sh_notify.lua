@@ -26,8 +26,13 @@ else
 		[DAMAGELOG_NOTIFY_INFO] = Material("icon16/information.png")
 	}
 
-	function Damagelog:Notify(msg_type, msg, _time, sound)
-		surface.PlaySound(sound)
+	function Damagelog:Notify(msg_type, msg, _time, soundFile)
+		if GetConVar("ttt_dmglogs_outsidenotification"):GetBool() then
+			sound.PlayFile("sound/" .. soundFile, "play", function()
+			end)
+		else
+			surface.PlaySound(soundFile)
+		end
 		table.insert(Damagelog.Notifications, {
 			text = msg,
 			icon = icons[msg_type] or icons[DAMAGELOG_NOTIFY_ALERT],
