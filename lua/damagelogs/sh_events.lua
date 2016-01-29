@@ -13,6 +13,7 @@ function Damagelog:AddEvent(event, f)
 		else
 			time = self.Time
 		end
+		tbl.horray = false
 		local infos = {
 			id = id,
 			type = event.Type,
