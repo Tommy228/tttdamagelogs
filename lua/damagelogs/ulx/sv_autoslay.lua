@@ -33,7 +33,7 @@ hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
 	if not query then
 		sql.Query("INSERT INTO damagelog_names (`steamid`, `name`) VALUES('"..steamid.."', "..sql.SQLStr(name)..");")
 	elseif query != name then
-		sql.Query("UPDATE damagelog_names SET name = "..sql.SQLStr(name).." WHERE steamid = '"..steamid.."' LIMIT 1;")
+		sql.Query("UPDATE damagelog_names SET name = '"..sql.SQLStr(name).."' WHERE steamid = '"..steamid.."' LIMIT 1;")
 	end
 	local c = sql.Query("SELECT slays FROM damagelog_autoslay WHERE ply = '"..steamid.."' LIMIT 1;")
 	if not tonumber(c) then c = 0 end
@@ -139,7 +139,7 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			    table.insert(new_steamids, adminid)
 			end
 		    if old_slays == slays then
-				sql.Query("UPDATE damagelog_autoslay SET admins = "..sql.SQLStr(util.TableToJSON(new_steamids))..", reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
+				sql.Query("UPDATE damagelog_autoslay SET admins = '"..sql.SQLStr(util.TableToJSON(new_steamids)).."', reason = "..sql.SQLStr(reason)..", time = "..os.time().." WHERE ply = '"..steamid.."' LIMIT 1;")
 				local list = self:CreateSlayList(old_steamids)
 				local nick = self:GetName(steamid)
 				if target then
@@ -149,7 +149,7 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 				end
 			else
 				local difference = slays - old_slays
-				sql.Query(string.format("UPDATE damagelog_autoslay SET admins = %s, slays = %i, reason = %s, time = %s WHERE ply = '%s' LIMIT 1;", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
+				sql.Query(string.format("UPDATE damagelog_autoslay SET admins = '%s', slays = '%i', reason = '%s', time = '%s' WHERE ply = '%s' LIMIT 1;", sql.SQLStr(new_admins), slays, sql.SQLStr(reason), tostring(os.time()), steamid))
 				local list = self:CreateSlayList(old_steamids)
 				local nick = self:GetName(steamid)
 				if target then
