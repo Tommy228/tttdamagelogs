@@ -151,7 +151,7 @@ local function TakeAction()
 			Derma_Message("Could not find the Death Scene", "Error", "OK")
 		end
 	end):SetImage("icon16/television.png")
-	if ulx then
+	if ulx or serverguard then
 		if Damagelog.Enable_Autoslay then
 			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
 			local slaynr = DermaMenu(menuPanel)
@@ -187,26 +187,36 @@ local function TakeAction()
 					numbers:AddOption("Default reason", function()
 						local ply = (reported and attacker) or (not reported and victim)
 						if IsValid(ply) then
-							RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k))
+							if ulx then
+								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k))
+							elseif serverguard then
+								serverguard.command.Run("aslay", false, ply:Nick(), k)
+							end
 							SetConclusion(ply:Nick(), k, "the default reason")
 						else
-							RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k))
+							if ulx then
+								RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k))
+							elseif serverguard then
+								serverguard.command.Run("aslay", false, (reported and report.attacker) or (not reported and report.victim), tostring(k))
+							end
 							SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "the default reason")
 						end
 					end):SetImage("icon16/mouse.png")
-					numbers:AddOption("Set reason...", function()
-						local nick = (reported and report.attacker_nick) or (not reported and report.victim_nick)
-						Derma_StringRequest("Reason", "Please type the reason why you want to slay "..nick, "", function(txt)
-							local ply = (reported and attacker) or (not reported and victim)
-							if IsValid(ply) then
-								RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
-								SetConclusion(ply:Nick(), k, "\""..txt.."\"")
-							else
-								RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k), txt)
-								SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "\""..txt.."\"")
-							end
-						end)
-					end):SetImage("icon16/page_edit.png")
+					if ulx then
+						numbers:AddOption("Set reason...", function()
+							local nick = (reported and report.attacker_nick) or (not reported and report.victim_nick)
+							Derma_StringRequest("Reason", "Please type the reason why you want to slay "..nick, "", function(txt)
+								local ply = (reported and attacker) or (not reported and victim)
+								if IsValid(ply) then
+									RunConsoleCommand("ulx", "aslay", ply:Nick(), tostring(k), txt)
+									SetConclusion(ply:Nick(), k, "\""..txt.."\"")
+								else
+									RunConsoleCommand("ulx", "aslayid", (reported and report.attacker) or (not reported and report.victim), tostring(k), txt)
+									SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "\""..txt.."\"")
+								end
+							end)
+						end):SetImage("icon16/page_edit.png")
+					end
 				end
 			end
 			AddSlayPlayer(true)
@@ -214,7 +224,11 @@ local function TakeAction()
 		end
 		menuPanel:AddOption("Slay the reported player now", function()
 			if IsValid(attacker) then
-				RunConsoleCommand("ulx", "slay", attacker:Nick())
+				if ulx then
+					RunConsoleCommand("ulx", "slay", attacker:Nick())
+				elseif serverguard then
+					serverguard.command.Run("slay", false, attacker:Nick())
+				end
 			else
 				Derma_Message("The reported player isn't valid! (disconnected?)", "Error", "OK")
 			end
@@ -228,16 +242,32 @@ local function TakeAction()
 		menuPanel:AddPanel(slaynr_pnl)
 		slaynr:AddOption("The reported player", function()
 			if IsValid(attacker) then
-				RunConsoleCommand("ulx", "aslay", attacker:Nick(), "0")
+				if ulx then
+					RunConsoleCommand("ulx", "aslay", attacker:Nick(), "0")
+				elseif serverguard then
+					serverguard.command.Run("raslay", false, attacker:Nick(), attacker.sg_autoslays)
+				end
 			else
-				RunConsoleCommand("ulx", "aslayid", report.attacker, "0")
+				if ulx then
+					RunConsoleCommand("ulx", "aslayid", report.attacker, "0")
+				elseif serverguard then
+					serverguard.command.Run("raslay", false, report.attacker, util.FindPlayer(report.attacker).sg_autoslays)
+				end
 			end
 		end):SetImage("icon16/user_delete.png")
 		slaynr:AddOption("The victim", function()
 			if IsValid(victim) then
-				RunConsoleCommand("ulx", "aslay", victim:Nick(), "0")
+				if ulx then
+					RunConsoleCommand("ulx", "aslay", victim:Nick(), "0")
+				elseif serverguard then
+					serverguard.command.Run("raslay", false, victim:Nick(), tostring(victim.sg_autoslays))
+				end
 			else
-				RunConsoleCommand("ulx", "aslayid", report.victim, "0")
+				if ulx then
+					RunConsoleCommand("ulx", "aslayid", report.victim, "0")
+				elseif serverguard then
+					serverguard.command.Run("raslay", false, report.victim, tostring(util.FindPlayer(report.victim).sg_autoslays))
+				end
 			end
 		end):SetImage("icon16/user.png")
 	end
@@ -732,4 +762,3 @@ function Damagelog:DrawRDMManager(x,y)
 		self.PreviousReports:UpdateAllReports()
 	end
 end
-
