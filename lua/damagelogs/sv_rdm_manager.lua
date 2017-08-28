@@ -357,9 +357,12 @@ net.Receive("DL_GetForgive", function(_, ply)
 end)
 
 net.Receive("DL_Answering", function(_len, ply)
-	net.Start("DL_Answering_global")
-	net.WriteString(ply:Nick())
-	net.Broadcast()
+	if not ply.LastTime or ply.LastTime + 1 > CurTime() then
+		net.Start("DL_Answering_global")
+		net.WriteString(ply:Nick())
+		net.Broadcast()
+		ply.LastTime = CurTime()
+	end
 end)
 
 net.Receive("DL_ForceRespond", function(_len, ply)
