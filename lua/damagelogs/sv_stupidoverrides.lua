@@ -69,5 +69,31 @@ hook.Add("Initialize", "Damagelog_C4Stuff", function()
 		end
 	end
 	concommand.Add("ttt_c4_pickup", ReceiveC4Pickup)
-   
+
+	local function ReceiveC4Config(ply, cmd, args)
+		if (not IsValid(ply)) or (not ply:IsTerror()) or (not ply:Alive()) or #args != 2 then return end
+		local idx = tonumber(args[1])
+		local time = tonumber(args[2])
+
+		if not idx or not time then return end
+
+		local bomb = ents.GetByIndex(idx)
+		if IsValid(bomb) and (not bomb:GetArmed()) then
+
+			if bomb:GetPos():Distance(ply:GetPos()) > 256 then
+				-- These cases should never arise in normal play, so no messages
+				return
+			elseif time < C4_MINIMUM_TIME or time > C4_MAXIMUM_TIME then
+				return
+			elseif IsValid(bomb:GetPhysicsObject()) and bomb:GetPhysicsObject():HasGameFlag(FVPHYSICS_PLAYER_HELD) then
+				return
+			else
+				LANG.Msg(ply, "c4_armed")
+				bomb:Arm(ply, time)
+				hook.Call("TTTC4Arm", GAMEMODE, ply, bomb)
+			end
+		end
+
+	end
+	concommand.Add("ttt_c4_config", ReceiveC4Config)
 end)
