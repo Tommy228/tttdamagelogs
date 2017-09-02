@@ -290,7 +290,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	tbl.status = RDM_MANAGER_WAITING_FOR_VICTIM
 	for k,v in pairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
-			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, (v:IsActive() and "The reported player " or ply:Nick()).." has answered to the report #"..index.."!", 5, "ui/vote_yes.wav")
+			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, (v:IsActive() and "The reported player" or ply:Nick()).." has answered to the report #"..index.."!", 5, "ui/vote_yes.wav")
 			v:UpdateReport(previous, index)
 		end
 	end
