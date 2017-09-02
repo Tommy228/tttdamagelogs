@@ -357,6 +357,8 @@ net.Receive("DL_GetForgive", function(_, ply)
 end)
 
 net.Receive("DL_Answering", function(_len, ply)
+	if ply.DmgLog_AnswerDelay and (CurTime() - ply.DmgLog_AnswerDelay) <= 30 then return end
+	ply.DmgLog_AnswerDelay = CurTime()
 	net.Start("DL_Answering_global")
 	net.WriteString(ply:Nick())
 	net.Broadcast()
