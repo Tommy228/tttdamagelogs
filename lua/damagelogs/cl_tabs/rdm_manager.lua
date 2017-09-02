@@ -305,7 +305,7 @@ function PANEL:UpdateReport(index)
 		self:GetStatus(report)
 	}
 	if not self.Reports[index] then
-		if report.status != RDM_MANAGER_FINISHED or show_finished:GetBool() then
+		if (report.status != RDM_MANAGER_FINISHED and report.status != RDM_MANAGER_CANCELED) or show_finished:GetBool() then
 			self.Reports[index] = self:AddLine(unpack(tbl))
 			self.Reports[index].status = report.status
 			self.Reports[index].index = report.index
@@ -343,7 +343,7 @@ function PANEL:UpdateReport(index)
 	else
 		self.Reports[index].status = report.status
 		self.Reports[index].index = report.index
-		if report.status == RDM_MANAGER_FINISHED and not show_finished:GetBool() then
+		if (report.status == RDM_MANAGER_FINISHED or report.status == RDM_MANAGER_CANCELED) and not show_finished:GetBool() then
 			return self:UpdateAllReports()
 		else
 			for k,v in ipairs(self.Reports[index].Columns) do
@@ -374,7 +374,7 @@ function PANEL:UpdateAllReports()
 	if Damagelog.SelectedReport then
 		local selected_current = not Damagelog.SelectedReport.Previous
 		local current = not self.Previous
-		if Damagelog.SelectedReport.status == RDM_MANAGER_FINISHED and not show_finished:GetBool() then
+		if (Damagelog.SelectedReport.status == RDM_MANAGER_FINISHED or Damagelog.SelectedReport.status == RDM_MANAGER_CANCELED) and not show_finished:GetBool() then
 			for k,v in pairs(self.Lines) do
 				v:SetSelected(false)
 			end
