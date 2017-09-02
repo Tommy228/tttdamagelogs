@@ -214,6 +214,9 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 					if not IsValid(ply) then return end
 					ply:SetCleanRound(false)
 					ply:SetNWBool("body_found", true)
+					if (ply:GetRole() == ROLE_TRAITOR) then
+						SendConfirmedTraitors(GetInnocentFilter(false))
+					end
 					CORPSE.SetFound(v.server_ragdoll, true)
 					v.server_ragdoll:Remove()
 				end
