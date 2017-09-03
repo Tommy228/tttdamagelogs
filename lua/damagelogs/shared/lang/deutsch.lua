@@ -223,6 +223,7 @@ DamagelogLang.deutsch = {
   Automatic = "Automatisch",
   ViewPreviousReports = "Zeige früher erstelle Meldungen an",
   YourMessage = "Deine Nachricht",
+  UpdateNotifications = "Update-Benachrichtigungen aktivieren",
 
   -- Months
   January = "Januar",
