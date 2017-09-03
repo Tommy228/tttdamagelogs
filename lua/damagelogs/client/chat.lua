@@ -21,8 +21,11 @@ function AAText(text, font, x, y, color, align)
 	draw.SimpleText(text, font, x, y, color, align)
 end
 
-
 local PANEL = {}
+
+function PANEL:Init()
+	self.LockedIcon = Material("icon16/lock.png")
+end
 
 function PANEL:SetPlayer(ply, playertype)
 	self.Player = ply
@@ -34,6 +37,10 @@ function PANEL:SetPlayer(ply, playertype)
 	self.Avatar:CenterVertical()
 	self.Avatar:SetPlayer(self.Player, 32)
 	self.PlayerType = playertype
+end
+
+function PANEL:SetRID(RID)
+	self.RID = RID
 end
 
 function PANEL:Think()
@@ -48,15 +55,23 @@ function PANEL:Paint(w, h)
 	surface.SetFont("DL_ChatPlayer")
 	surface.SetTextPos(40, 16)
 	if self.PlayerValid then
+		local txt
 		if self.PlayerType == DAMAGELOG_REPORTED then
 			surface.SetTextColor(Color(190, 18, 29))
-			surface.DrawText("Reported")
+			txt = "Reported"
 		elseif self.PlayerType == DAMAGELOG_VICTIM then
 			surface.SetTextColor(Color(18, 190, 29))
-			surface.DrawText("Victim")
+			txt = "Victim"
 		elseif self.PlayerType == DAMAGELOG_ADMIN then
 			surface.SetTextColor(Color(160, 160, 0))
-			surface.DrawText("Admin")
+			txt = "Admin"
+		end
+		surface.DrawText(txt)
+		if self.Player:GetNWInt("DL_ForcedStay", -1) == self.RID then
+			local textWidth = select(1, surface.GetTextSize(txt))
+			surface.SetDrawColor(color_white)
+			surface.SetMaterial(self.LockedIcon)
+			surface.DrawTexturedRect(45 + textWidth, 15, 12, 12)
 		end
 	else
 		surface.SetTextColor(color_black)
@@ -73,6 +88,12 @@ function PANEL:Init()
 	self.List:SetSpacing(2)
 	self.List:SetPos(0, 25)
 	self.List:SetSize(self:GetWide(), self:GetTall() - 20)
+	self.Players = {}
+	self.PlayerTypes = {}
+end
+
+function PANEL:SetRID(RID)
+	self.RID = RID
 end
 
 function PANEL:SetCategoryName(name)
@@ -80,14 +101,14 @@ function PANEL:SetCategoryName(name)
 end
 
 function PANEL:AddPlayer(ply, playertype)
-	local panel = vgui.Create("DL_ChatPlayer", self)
-	panel:SetHeight(30)
-	panel:SetPlayer(ply, playertype)
-	self.List:AddItem(panel)
-	if not self.Players then 
-		self.Players = { ply }
-	elseif not table.HasValue(self.Players, ply) then
+	if not table.HasValue(self.Players, ply) then
+		local panel = vgui.Create("DL_ChatPlayer", self)
+		panel:SetHeight(30)
+		panel:SetPlayer(ply, playertype)
+		panel:SetRID(self.RID)
+		self.List:AddItem(panel)
 		table.insert(self.Players, ply)
+		self.PlayerTypes[ply] = playertype
 	end
 end
 
@@ -111,6 +132,11 @@ function PANEL:Init()
 	self.Admins:SetCategoryName("Administrators")
 end
 
+function PANEL:SetRID(RID)
+	self.Normal:SetRID(RID)
+	self.Admins:SetRID(RID)
+end
+
 function PANEL:AddPlayer(ply, playertype)
 	if playertype == DAMAGELOG_ADMIN then
 		self.Admins:AddPlayer(ply, playertype)
@@ -124,7 +150,13 @@ function PANEL:AddPlayer(ply, playertype)
 	self.Admins.List:SetSize(self:GetWide(), self.Admins:GetTall() - 25)
 end
 
-function PANEL:RemovePlayer(ply)
+function PANEL:RemoveAdmin(ply)
+	for key, admin in pairs(self.Admins.Players) do
+		if admin == ply then
+			table.remove(self.Admins.Players, key)
+			break
+		end
+	end
 end
 
 function PANEL:GetPlayers()
@@ -175,6 +207,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	end
 	
 	local List = vgui.Create("DL_ChatList", Chat)
+	List:SetRID(Chat.RID)
 	List:SetPos(2, 26)
 	List:SetSize(152, Chat:GetTall() - 57)
 	for k,v in ipairs(admins) do
@@ -194,7 +227,9 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		Actions:SetDisabled(true)
 	end
 	Actions.DoClick = function(self)
+
 		local menu = DermaMenu()
+
 		menu:AddOption("Add Player", function()
 			local selection = vgui.Create("DFrame")
 			selection:SetTitle("Select player")
@@ -276,16 +311,115 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 				selection:Close()
 			end			
 		end):SetImage("icon16/user_add.png")
+
+		local forceStayPnl = vgui.Create("DMenuOption", menu)
+		local forceStayList = DermaMenu(menu)
+		forceStayList:SetVisible(false)
+		forceStayPnl:SetSubMenu(forceStayList)
+		forceStayPnl:SetText("Force to stay...")
+		forceStayPnl:SetImage("icon16/lock_add.png")
+		menu:AddPanel(forceStayPnl)
+		forceStayList:AddOption("All players", function()
+			net.Start("DL_ForceStay")
+			net.WriteUInt(Chat.RID, 32)
+			net.WriteUInt(1, 1)
+			net.SendToServer()
+		end):SetImage("icon16/group_link.png")
+
+		forceStayList:AddSpacer()
+
+		for k,v in pairs(List.Normal.Players) do
+			local playerPanel = forceStayList:AddOption(IsValid(v) and v:Nick() or "<Disconnected>", function()
+				if not IsValid(v) then 
+					
+					return
+				end
+				net.Start("DL_ForceStay")
+				net.WriteUInt(Chat.RID, 32)
+				net.WriteUInt(0, 1)
+				net.WriteEntity(v)
+				net.SendToServer()
+			end)
+			local playerType = List.Normal.PlayerTypes[v]
+			if playerType == DAMAGELOG_VICTIM then
+				playerPanel:SetImage("icon16/user_green.png")
+			elseif playerType == DAMAGELOG_REPORTED then
+				playerPanel:SetImage("icon16/user_red.png")
+			else
+				playerPanel:SetImage("icon16/user.png")
+			end
+		end
+
+		local releasePnl = vgui.Create("DMenuOption", menu)
+		local releaseList = DermaMenu(menu)
+		releaseList:SetVisible(false)
+		releasePnl:SetSubMenu(releaseList)
+		releasePnl:SetText("Release...")
+		releasePnl:SetImage("icon16/lock_open.png")
+		menu:AddPanel(releasePnl)
+		releaseList:AddOption("All players", function()
+			net.Start("DL_Release")
+			net.WriteUInt(Chat.RID, 32)
+			net.WriteUInt(1, 1)
+			net.SendToServer()
+		end):SetImage("icon16/group_go.png")
+
+		releaseList:AddSpacer()
+
+		for k,v in pairs(List.Normal.Players) do
+			local playerPanel = releaseList:AddOption(IsValid(v) and v:Nick() or "<Disconnected>", function()
+				if not IsValid(v) then 
+					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "Invalid player !", 2, "buttons/weapon_cant_buy.wav")
+					return
+				end
+				net.Start("DL_Release")
+				net.WriteUInt(Chat.RID, 32)
+				net.WriteUInt(0, 1)
+				net.WriteEntity(v)
+				net.SendToServer()
+			end)
+			local playerType = List.Normal.PlayerTypes[v]
+			if playerType == DAMAGELOG_VICTIM then
+				playerPanel:SetImage("icon16/user_green.png")
+			elseif playerType == DAMAGELOG_REPORTED then
+				playerPanel:SetImage("icon16/user_red.png")
+			else
+				playerPanel:SetImage("icon16/user.png")
+			end
+		end		
+
 		menu:AddOption("Close chat", function()
 			net.Start("DL_CloseChat")
 			net.WriteUInt(Chat.RID, 32)
 			net.SendToServer()
 		end):SetImage("icon16/disconnect.png")
+
+		menu:AddOption("Leave chat", function()
+			if #List.Admins.Players <= 1 then
+				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "You cannot leave as the only admin !", 4, "buttons/weapon_cant_buy.wav")
+			else
+				Chat:Close()
+				net.Start("DL_LeaveChat")
+				net.WriteUInt(Chat.RID, 32)
+				net.SendToServer()
+				for k,v in pairs(Damagelog.CurrentChats) do
+					if v == Chat then
+						table.remove(Damagelog.CurrentChats, k)
+						break
+					end
+				end
+				Chat:Stop()
+			end
+		end):SetImage("icon16/door_out.png")
 		menu:Open()
 	end
 	
 	Chat.AddPlayer = function(self, ply, category)
 		List:AddPlayer(ply, category)
+	end
+
+	Chat.RemoveAdmin = function(self, admin)
+		List:RemoveAdmin(admin)
 	end
 		
 	local Sheet = vgui.Create("DPropertySheet", Chat)
@@ -324,6 +458,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	
 	Chat.Stop = function(self)
 		TextEntry:SetDisabled(true)
+		Actions:SetDisabled(true)
 		self:SetDeleteOnClose(true)
 	end
 	
@@ -366,15 +501,17 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		TextEntry:RequestFocus()
 	end)
 	
-	
 end
 
 net.Receive("DL_BroadcastMessage", function()
+
 	local id = net.ReadUInt(32)
 	local ply = net.ReadEntity()
 	local color = net.ReadColor()
 	local message = net.ReadString()
+
 	if not id or not IsValid(ply) or not color or not message then return end
+
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
 			if not v:IsVisible() then
@@ -388,6 +525,7 @@ net.Receive("DL_BroadcastMessage", function()
 			break
 		end
 	end
+
 end)
 
 net.Receive("DL_OpenChat", function()
@@ -396,6 +534,7 @@ net.Receive("DL_OpenChat", function()
 	local admin = net.ReadEntity()
 	local victim = net.ReadEntity()
 	local attacker = net.ReadEntity()
+	local players = net.ReadTable()
 	
 	local loadhistory = net.ReadUInt(1) == 1
 		
@@ -412,7 +551,7 @@ net.Receive("DL_OpenChat", function()
 	
 	if not report or not IsValid(admin) or not IsValid(victim) or not IsValid(attacker) then return end
 	
-	Damagelog:StartChat(report, { admin }, victim, attacker, {}, history)
+	Damagelog:StartChat(report, { admin }, victim, attacker, players, history)
 
 end)
 
@@ -528,7 +667,123 @@ net.Receive("DL_StopChat", function()
 	end	
 	
 end)
-	
+
+net.Receive("DL_LeaveChatCL", function()
+
+	local id = net.ReadUInt(32)
+	local leaver = net.ReadEntity()
+
+	for k,v in pairs(Damagelog.CurrentChats) do
+		if v.RID == id then
+			v:RemoveAdmin(leaver)
+			v:AddMessage(leaver:Nick().." has left the chat.")
+		end
+	end
+
+end)
+
+net.Receive("DL_ForcePlayerStay", function()
+
+	local id = net.ReadUInt(32)
+
+	for k,v in pairs(Damagelog.CurrentChats) do
+		if v.RID == id then
+			if not v:IsVisible() then
+				v:SetVisible(true)
+			end
+			v:Center()
+			v:MakePopup()
+			v:ShowCloseButton(false)
+		else
+			v:ShowCloseButton(true)
+			v:SetVisible(false)
+		end
+	end
+
+end)
+
+net.Receive("DL_ReleaseCL", function()
+
+	local id = net.ReadUInt(32)
+	for k,v in pairs(Damagelog.CurrentChats) do
+		v:ShowCloseButton(true)
+	end
+
+end)
+
+net.Receive("DL_ForceStayNotification", function()
+
+	local id = net.ReadUInt(32)
+	local allPlayers = net.ReadUInt(1) == 1
+	local ply
+	if not allPlayers then
+		ply = net.ReadEntity()
+	end
+	local forced = net.ReadUInt(1) == 1
+	local admin = net.ReadEntity()
+
+	for k,v in pairs(Damagelog.CurrentChats) do
+		if v.RID == id then
+			local players = allPlayers and "all players" or ply:Nick()
+			if forced then
+				v:AddMessage(admin:Nick().." has forced "..players.." to stay on the chat.")
+			else
+				v:AddMessage(admin:Nick().. " has released "..players.." from the chat.")
+			end
+			break
+		end
+	end	
+
+end)
+
+net.Receive("DL_ViewChatCL", function()
+
+	local id = net.ReadUInt(32)
+	local length = net.ReadUInt(32)
+	local compressed = net.ReadData(length)
+	local json = util.Decompress(compressed)
+	local history = util.JSONToTable(json)
+
+	local Frame = vgui.Create("DFrame")
+	Frame:SetSize(400, 300)
+	Frame:SetTitle("Report #"..id.." history")
+	Frame:Center()
+	Frame:MakePopup()
+
+	local RichText = vgui.Create("RichText", Frame)
+	RichText:SetPos(5, 25)
+	RichText:SetSize(Frame:GetWide() - 10, Frame:GetTall() - 60)
+	RichText.AddText = function(self, nick, color, text)
+		self.m_FontName = "DL_ChatFont"
+		self:SetFontInternal("DL_ChatFont")	
+		self:InsertColorChange(color.r, color.g, color.b, color.a or 255)
+		self:AppendText(nick.. ": ")
+		self:InsertColorChange(255, 255, 255, 255)
+		self:AppendText(text.."\n")
+	end
+	RichText.Paint = function(RichText, w, h)
+		surface.SetDrawColor(Color(52, 73, 94))
+		surface.DrawRect(0, 0, w, h)
+	end
+
+	timer.Simple(0.1, function()
+		for k,v in ipairs(history) do
+			RichText:AddText(v.nick, v.color, v.msg)
+		end
+	end)
+
+	local Reopen = vgui.Create("DButton", Frame)
+	Reopen:SetSize(Frame:GetWide() - 10, 30)
+	Reopen:SetPos(5, Frame:GetTall() - 35)
+	Reopen:SetText("Reopen this chat")
+	Reopen.DoClick = function()
+		net.Start("DL_StartChat")
+		net.WriteUInt(id, 32)
+		net.SendToServer()
+		Frame:Close()
+	end
+
+end)
 
 hook.Add("HUDPaint", "Damagelog_Chat", function()
 
