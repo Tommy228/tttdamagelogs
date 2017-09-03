@@ -45,28 +45,22 @@ local outdated = false
 
 hook.Add("InitPostEntity", "Damagelog_InitPostHTTP", function()
 	if (LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin()) then
-		http.Fetch("https://api.github.com/repos/Tommy228/TTTDamagelogs/contents/version.md?ref=master", function(body)
-			local content = util.JSONToTable(body)
-			if not content then return end
-			local version = content.content
+		http.Fetch("https://raw.githubusercontent.com/Tommy228/TTTDamagelogs/experimental/version.md", function(version)
 
-			if version then
-				version = Damagelog.Base64Decode(version)
-				local cur_version = string.Explode(".", Damagelog.VERSION)
-				local tbl = string.Explode(".", version)
+			local cur_version = string.Explode(".", Damagelog.VERSION)
+			local tbl = string.Explode(".", version)
 
-				for i = 1, 3 do
-					tbl[i] = tonumber(tbl[i])
-					cur_version[i] = tonumber(cur_version[i])
-				end
+			for i = 1, 3 do
+				tbl[i] = tonumber(tbl[i])
+				cur_version[i] = tonumber(cur_version[i])
+			end
 
-				if tbl[1] > cur_version[1] then
-					outdated = true
-				elseif tbl[1] == cur_version[1] and tbl[2] > cur_version[2] then
-					outdated = true
-				elseif tbl[1] == cur_version[1] and tbl[2] == cur_version[2] and tbl[3] > cur_version[3] then
-					outdated = true
-				end
+			if tbl[1] > cur_version[1] then
+				outdated = true
+			elseif tbl[1] == cur_version[1] and tbl[2] > cur_version[2] then
+				outdated = true
+			elseif tbl[1] == cur_version[1] and tbl[2] == cur_version[2] and tbl[3] > cur_version[3] then
+				outdated = true
 			end
 		end)
 	end
@@ -78,7 +72,9 @@ end)
 function Damagelog:OpenMenu()
 	local x, y = 665, 680
 
-	if outdated then
+	local show_outdated = outdated and GetConVar("ttt_dmglogs_updatenotifications"):GetBool() 
+
+	if show_outdated then
 		y = y + 30
 	end
 
@@ -116,7 +112,7 @@ function Damagelog:OpenMenu()
 	end
 
 	self.Menu.PaintOver = function(self, w, h)
-		local _x, _y, _w, _h = x - 200, outdated and 80 or 50, 195, self.AboutPos
+		local _x, _y, _w, _h = x - 200, show_outdated and 80 or 50, 195, self.AboutPos
 		surface.SetDrawColor(color_black)
 		surface.DrawRect(_x, _y, _w, _h)
 		surface.SetDrawColor(color_lightyellow)
@@ -132,7 +128,7 @@ function Damagelog:OpenMenu()
 		end
 	end
 
-	if outdated then
+	if show_outdated then
 		local info = vgui.Create("Damagelog_InfoLabel", self.Menu)
 		info:SetText(TTTLogTranslate(GetDMGLogLang, "UpdateNotify"))
 		info:SetInfoColor("blue")
@@ -141,14 +137,14 @@ function Damagelog:OpenMenu()
 	end
 
 	self.Tabs = vgui.Create("DPropertySheet", self.Menu)
-	self.Tabs:SetPos(5, outdated and 60 or 30)
-	self.Tabs:SetSize(x - 10, outdated and y - 65 or y - 35)
+	self.Tabs:SetPos(5, show_outdated and 60 or 30)
+	self.Tabs:SetSize(x - 10, show_outdated and y - 65 or y - 35)
 	self:DrawDamageTab(x, y)
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
 	self:DrawRDMManager(x, y)
 	self.About = vgui.Create("DButton", self.Menu)
-	self.About:SetPos(x - 60, outdated and 57 or 27)
+	self.About:SetPos(x - 60, show_outdated and 57 or 27)
 	self.About:SetSize(55, 19)
 	self.About:SetText("▼" .. TTTLogTranslate(GetDMGLogLang, "About"))
 

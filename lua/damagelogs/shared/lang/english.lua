@@ -232,6 +232,7 @@ DamagelogLang.english = {
   ResponseStatus = "Response status",
   Canceled = "Canceled",
   ViewChat = "View chat",
+  UpdateNotifications = "Enable update notifications",
 
   -- Months
   January = "January",
