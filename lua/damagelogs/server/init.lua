@@ -291,7 +291,7 @@ hook.Add("PlayerDeath", "Damagelog_PlayerDeathLastLogs", function(ply)
 	local count = #Damagelog.DamageTable
 	for i = count, 1, -1 do
 		local line = Damagelog.DamageTable[i]
-		if line.time < Damagelog.Time - 10 then break end
+		if !Damagelog.Time or line.time < Damagelog.Time - 10 then break end
 		table.insert(found_dmg, line)
 	end
 		
