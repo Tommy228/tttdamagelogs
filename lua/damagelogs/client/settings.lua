@@ -2,6 +2,7 @@ CreateClientConVar("ttt_dmglogs_rdmpopups", "1", FCVAR_ARCHIVE)
 CreateClientConVar("ttt_dmglogs_currentround", "0", FCVAR_ARCHIVE)
 CreateClientConVar("ttt_dmglogs_outsidenotification", "1", FCVAR_ARCHIVE)
 CreateClientConVar("ttt_dmglogs_updatenotifications", "1", FCVAR_ARCHIVE)
+CreateClientConVar("ttt_dmglogs_showpending", "1", FCVAR_ARCHIVE)
 
 local color_lightgreen = Color(50, 255, 50)
 
@@ -39,6 +40,7 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	dgui:CheckBox(TTTLogTranslate(GetDMGLogLang, "RDMuponRDM"), "ttt_dmglogs_rdmpopups")
 	dgui:CheckBox(TTTLogTranslate(GetDMGLogLang, "CurrentRoundLogs"), "ttt_dmglogs_currentround")
 	dgui:CheckBox(TTTLogTranslate(GetDMGLogLang, "OutsideNotification"), "ttt_dmglogs_outsidenotification")
+	dgui:CheckBox(TTTLogTranslate(GetDMGLogLang, "ShowPendingReports"), "ttt_dmglogs_showpending")
 	dsettings:AddItem(dgui)
 
 	local colorSettings = vgui.Create("DForm")

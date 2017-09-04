@@ -274,6 +274,9 @@ DamagelogLang.english = {
   AnAdministrator = "An administrator",
   AdminReportID = "Admin report #%u",
   ChatOpenNoMessage = "(This admin-report has been opened directly with a chat)",
+  PendingTop = "Pending",
+  ReportsBottom = "reports",
+  ShowPendingReports = "Show the number of pending reports on the HUD",
 
   -- Months
   January = "January",

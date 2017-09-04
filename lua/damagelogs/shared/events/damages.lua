@@ -85,7 +85,7 @@ function event:ToString(tbl, roles)
 	if karma_reduced then
 		str = str .. string.format(" (%s)", tbl[5])
 	end
-	return str .. string.format(TTTLogTranslate(GetDMGLogLang, "HPWeapon"), TTTLogTranslate(GetDMGLogLang, weapon) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")) 
+	return str .. string.format(TTTLogTranslate(GetDMGLogLang, "HPWeapon"), weapon or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")) 
 
 end
 

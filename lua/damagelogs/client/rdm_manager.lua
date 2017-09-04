@@ -341,7 +341,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 
 	DNAMessage = vgui.Create("DLabel", DNAPanel)
 	DNAMessage:SetFont("RDM_Manager_DNA")
-	if IsValid(cur_selected.ply) then
+	if cur_selected and IsValid(cur_selected.ply) then
 		UpdateDNAMessage(cur_selected.ply)
 	end
 
@@ -799,4 +799,70 @@ net.Receive("DL_Answering_global", function(_len)
 	if not LocalPlayer():IsActive() then
 		chat.AddText(Color(255, 62, 62), net.ReadString(), color_white, " " .. TTTLogTranslate(GetDMGLogLang, "IsAnswering"))
 	end
+end)
+
+surface.CreateFont("DL_PendingNumber", {
+	font = "DermaLarge",
+	size = 25
+})
+
+surface.CreateFont("DL_PendingText", {
+	font = "DermaLarge",
+	size = 16
+})
+
+local m = 5
+local additionalWidth = 10
+local showPending = GetConVar("ttt_dmglogs_showpending")
+local syncEnt
+hook.Add("HUDPaint", "DamagelogPendingReports", function()
+
+	if not showPending:GetBool() then return end
+
+	local alpha = #Damagelog.Notifications > 0 and 30 or 255
+
+	if not IsValid(syncEnt) then
+		syncEnt = Damagelog:GetSyncEnt()
+		if not IsValid(syncEnt) then return end
+	end
+
+	local pendingReports = syncEnt:GetPendingReports()
+	if pendingReports < 1 then return end
+	pendingReports = tostring(pendingReports)
+
+	local textTop = TTTLogTranslate(GetDMGLogLang, "PendingTop")
+	local textBottom = TTTLogTranslate(GetDMGLogLang, "ReportsBottom")
+
+	surface.SetFont("DL_PendingText")
+
+	local topWidth, topHeight = surface.GetTextSize(textTop)
+	local bottomWidth, bottomHeight = surface.GetTextSize(textBottom)
+	local maxWidth = math.max(topWidth, bottomWidth)
+
+	surface.SetFont("DL_PendingNumber")
+	local numberWidth, numberHeight = surface.GetTextSize(pendingReports)
+
+	local w, h = numberWidth + maxWidth + 3*m + additionalWidth, numberHeight + 2*m
+
+	local screenWidth, screenHeight = ScrW(), ScrH()
+	local x, y = screenWidth - w, ScrH()*0.2 + h/2
+
+	surface.SetDrawColor(Color(32, 32, 32, alpha))
+	surface.DrawRect(x, y, w, h)
+
+	surface.SetDrawColor(Color(51, 102, 153, alpha))
+	surface.DrawRect(x + 1, y + 1, w, h - 2)
+
+	surface.SetTextColor(Color(255, 255, 255, alpha))
+	surface.SetTextPos(x + m, y + h/2 - numberHeight/2)
+	surface.DrawText(pendingReports)
+
+	surface.SetFont("DL_PendingText")
+
+	surface.SetTextPos(screenWidth - (numberWidth + 2*m) - topWidth/2 - additionalWidth, y + h/3 - topHeight/2)
+	surface.DrawText(textTop)
+
+	surface.SetTextPos(screenWidth - (numberWidth + 2*m) - bottomWidth/2 - additionalWidth, y + 2*h/3 - bottomHeight/2)
+	surface.DrawText(textBottom)
+
 end)
