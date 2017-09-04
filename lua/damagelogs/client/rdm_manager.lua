@@ -13,10 +13,16 @@ surface.CreateFont("RDM_Manager_Player", {
 	size = 17
 })
 
+surface.CreateFont("RDM_Manager_DNA", {
+	font = "DermaLarge",
+	size = 14
+})
+
 Damagelog.ReportsQueue = Damagelog.ReportsQueue or {}
 local ReportFrame
 
 local function BuildReportFrame(report)
+
 	if ReportFrame and ReportFrame:IsValid() and report then
 		ReportFrame:AddReport(report)
 	else
@@ -43,6 +49,7 @@ local function BuildReportFrame(report)
 		ColumnSheet.Navigation:SetWidth(150)
 
 		ReportFrame.AddReport = function(ReportFrame, report)
+
 			local current = not report.previous
 			local PanelList = vgui.Create("DPanelList")
 			PanelList:SetPadding(3)
@@ -54,10 +61,11 @@ local function BuildReportFrame(report)
 
 			local Info = vgui.Create("Damagelog_InfoLabel")
 			local txt = ""
+			local nick = report.adminReport and TTTLogTranslate(GetDMGLogLang, "AnAdministrator") or report.victim_nick
 			if current then
-				txt = string.format(TTTLogTranslate(GetDMGLogLang, "HasReportedCurrentRound"), report.victim_nick, (report.round or "?"))
+				txt = string.format(TTTLogTranslate(GetDMGLogLang, "HasReportedCurrentRound"), nick, (report.round or "?"))
 			else
-				txt = string.format(TTTLogTranslate(GetDMGLogLang, "HasReportedPreviousMap"), report.victim_nick)
+				txt = string.format(TTTLogTranslate(GetDMGLogLang, "HasReportedPreviousMap"), nick)
 			end
 			Info:SetText(txt)
 			Info:SetInfoColor("blue")
@@ -116,7 +124,8 @@ local function BuildReportFrame(report)
 			end
 
 			PanelList:AddItem(Button)
-			ColumnSheet:AddSheet(report.victim_nick, PanelList, "icon16/report_user.png")
+			local title = report.adminReport and string.format(TTTLogTranslate(GetDMGLogLang, "AdminReportID"), report.index) or report.victim_nick
+			ColumnSheet:AddSheet(title, PanelList, "icon16/report_user.png")
 			PanelList:SetSize(430, 310)
 		end
 
@@ -211,7 +220,10 @@ end
 
 vgui.Register("Damagelog_Player", PANEL, "DPanel")
 
-function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
+function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas)
+
+	local isAdmin = LocalPlayer():CanUseRDMManager()
+
 	local w, h = 610, 290
 	local Frame = vgui.Create("DFrame")
 	Frame:SetTitle("RDM Manager - " .. TTTLogTranslate(GetDMGLogLang, "ReportPlayer"))
@@ -237,6 +249,33 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 
 	UserList:EnableVerticalScrollbar(true)
 	local cur_selected
+	local DNAMessage
+
+	local function UpdateDNAMessage(ply)
+
+		if not IsValid(ply) then return end
+
+		local msg, colour
+		if dnas[ply] == true then
+			msg = string.format(TTTLogTranslate(GetDMGLogLang, "ReportHadDNA"), ply:Nick())
+			colour = Color(20, 130, 20)
+		elseif dnas[ply] == false then
+			msg = string.format(TTTLogTranslate(GetDMGLogLang, "ReportNoDNA"), ply:Nick())
+			colour = color_black
+		else
+			msg = string.format(TTTLogTranslate(GetDMGLogLang, "ReportNoDNAInfo"), ply:Nick())
+			colour = color_black
+		end			
+
+		DNAMessage:SetTextColor(colour)
+		DNAMessage:SetText(msg)
+		DNAMessage:SizeToContents()
+		surface.SetFont("RDM_Manager_DNA")
+		local h = select(2, surface.GetTextSize(msg))
+		DNAMessage:SetPos(35, DNAMessage:GetParent():GetTall()/2 - h/2)
+
+		print(msg)
+	end
 
 	UserList.AddPlayer = function(pnl, pl, is_killer, killer_valid)
 		if not IsValid(pl) then return end
@@ -252,6 +291,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 				end
 			end
 			cur_selected = ply
+			UpdateDNAMessage(cur_selected.ply)
 		end
 		pnl:AddItem(ply)
 
@@ -268,7 +308,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 	end
 
 	for k, v in pairs(player.GetAll()) do
-		if v == killer or v == LocalPlayer() then continue end
+		if v == killer or  v == LocalPlayer() then continue end
 		UserList:AddPlayer(v, false)
 	end
 
@@ -277,10 +317,56 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 	Label:SetText(TTTLogTranslate(GetDMGLogLang, "ExplainSituation"))
 	Label:SizeToContents()
 	Label:SetPos(210, 30)
+
 	local Entry = vgui.Create("DTextEntry", ReportPanel)
 	Entry:SetPos(210, 47)
-	Entry:SetSize(370, 145)
+	Entry:SetSize(370, 85)
 	Entry:SetMultiline(true)
+
+	local DNAPanel = vgui.Create("DPanel", ReportPanel)
+	DNAPanel:SetPos(210, 138)
+	DNAPanel:SetSize(370, 25)
+	DNAPanel.Paint = function(DNAPanel, w, h)
+		surface.SetDrawColor(color_black)
+		surface.DrawRect(0, 0, w, h)
+		surface.SetDrawColor(Color(225, 225, 225))
+		surface.DrawRect(1, 1, w-2, h-2)
+	end
+
+	local DNAIcon = vgui.Create("DImage", DNAPanel)
+	DNAIcon:SetImage("icon16/chart_line.png")
+	DNAIcon:SetSize(16, 16)
+	DNAIcon:SetPos(10, 0)
+	DNAIcon:CenterVertical()
+
+	DNAMessage = vgui.Create("DLabel", DNAPanel)
+	DNAMessage:SetFont("RDM_Manager_DNA")
+	if IsValid(cur_selected.ply) then
+		UpdateDNAMessage(cur_selected.ply)
+	end
+
+	local Type = vgui.Create("DComboBox", ReportPanel)
+	Type:SetPos(210, 168)
+	Type:SetSize(370, 20)
+
+	Type:AddChoice("Standard report (as a player)", DAMAGELOG_REPORT_STANDARD, true)
+	Type:AddChoice("Standard admin report", DAMAGELOG_REPORT_ADMIN)
+	Type:AddChoice("Advanced admin report : directly force the reported player to respond", DAMAGELOG_REPORT_FORCE)
+	Type:AddChoice("Advanced admin report : directly open a chat with the reported player", DAMAGELOG_REPORT_CHAT)
+
+	Type.OnSelect = function(Type, data, text)
+		if data == DAMAGELOG_REPORT_CHAT then
+			Entry:SetText("")
+			Entry:SetDisabled(true)
+		elseif Entry:GetDisabled() then
+			Entry:SetDisabled(false)
+		end
+	end
+
+	if not isAdmin then
+		Type:SetDisabled(true)
+	end
+
 	local Submit = vgui.Create("DButton", ReportPanel)
 	Submit:SetText(TTTLogTranslate(GetDMGLogLang, "Submit"))
 	Submit:SetPos(210, 195)
@@ -290,7 +376,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 		local characters = string.len(string.Trim(Entry:GetText()))
 		local disable = characters < 10 or not cur_selected
 
-		if disable then
+		if disable and select(2, Type:GetSelected()) != DAMAGELOG_REPORT_CHAT then
 			Submit:SetEnabled(false)
 			Submit:SetText(TTTLogTranslate(GetDMGLogLang, "NotEnoughCharacters"))
 		else
@@ -305,6 +391,12 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 		net.Start("DL_ReportPlayer")
 		net.WriteEntity(ply)
 		net.WriteString(Entry:GetText())
+		if not isAdmin then
+			net.WriteUInt(DAMAGELOG_REPORT_STANDARD, 3)
+		else
+			local reportType = select(2, Type:GetSelected())
+			net.WriteUInt(reportType, 3)
+		end
 		net.SendToServer()
 		Frame:Close()
 		Frame:Remove()
@@ -530,7 +622,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
 			table.insert(order, k)
 		end
 		table.sort(order, function(a, b)
-			return a < b
+			return a > b
 		end)
 
 		for _, key in ipairs(order) do
@@ -608,11 +700,20 @@ net.Receive("DL_SendOwnReportInfo", function()
 end)
 
 net.Receive("DL_AllowReport", function()
+
 	local got_deathLogs = net.ReadUInt(1) == 1
 	local deathLogs = got_deathLogs and net.ReadTable() or false
 	local previousReports = net.ReadTable()
 	local currentReports = net.ReadTable()
-	Damagelog:ReportWindow(deathLogs, previousReports, currentReports)
+
+	local dnas = {}
+	local playerCount = net.ReadUInt(8)
+	for i=1, playerCount do
+		local ply = net.ReadEntity()
+		dnas[ply] = net.ReadUInt(1) == 1
+	end
+
+	Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas)
 end)
 
 net.Receive("DL_SendReport", function()
@@ -623,8 +724,6 @@ net.Receive("DL_SendReport", function()
 		BuildReportFrame(report)
 	end
 end)
-
-
 
 net.Receive("DL_Death", function()
 	BuildReportFrame()

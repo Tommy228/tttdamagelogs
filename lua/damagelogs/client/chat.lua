@@ -58,13 +58,13 @@ function PANEL:Paint(w, h)
 		local txt
 		if self.PlayerType == DAMAGELOG_REPORTED then
 			surface.SetTextColor(Color(190, 18, 29))
-			txt = "Reported"
+			txt = TTTLogTranslate(GetDMGLogLang, "Reported")
 		elseif self.PlayerType == DAMAGELOG_VICTIM then
 			surface.SetTextColor(Color(18, 190, 29))
-			txt = "Victim"
+			txt = TTTLogTranslate(GetDMGLogLang, "Victim")
 		elseif self.PlayerType == DAMAGELOG_ADMIN then
 			surface.SetTextColor(Color(160, 160, 0))
-			txt = "Admin"
+			txt = TTTLogTranslate(GetDMGLogLang, "Admin")
 		end
 		surface.DrawText(txt)
 		if self.Player:GetNWInt("DL_ForcedStay", -1) == self.RID then
@@ -75,7 +75,7 @@ function PANEL:Paint(w, h)
 		end
 	else
 		surface.SetTextColor(color_black)
-		surface.DrawText("DISCONNECTED")
+		surface.DrawText(TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"))
 	end
 end
 
@@ -186,11 +186,11 @@ vgui.Register("DL_ChatList", PANEL, "DPanelList")
 
 Damagelog.CurrentChats = Damagelog.CurrentChats or {}
 
-function Damagelog:StartChat(report, admins, victim, attacker, players, history)
+function Damagelog:StartChat(report, admins, victim, attacker, players, history, adminReport)
 	
 	local Chat = vgui.Create("DFrame")
 	Chat:SetSize(600, 350)
-	Chat:SetTitle("Damagelog's private chat system")
+	Chat:SetTitle(TTTLogTranslate(GetDMGLogLang, "ChatTitle"))
 	Chat:Center()
 	Chat.RID = report
 	table.insert(self.CurrentChats, Chat)
@@ -213,7 +213,9 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	for k,v in ipairs(admins) do
 		List:AddPlayer(v, DAMAGELOG_ADMIN)
 	end
-	List:AddPlayer(victim, DAMAGELOG_VICTIM)
+	if not adminReport then
+		List:AddPlayer(victim, DAMAGELOG_VICTIM)
+	end
 	List:AddPlayer(attacker, DAMAGELOG_REPORTED)
 	for k,v in ipairs(players) do
 		List:AddPlayer(v, DAMAGELOG_OTHER)
@@ -222,7 +224,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 	local Actions = vgui.Create("DButton", Chat)
 	Actions:SetPos(2, Chat:GetTall() - 30)
 	Actions:SetSize(152, 28)
-	Actions:SetText("Actions")
+	Actions:SetText(TTTLogTranslate(GetDMGLogLang, "Actions"))
 	if not LocalPlayer():CanUseRDMManager() then
 		Actions:SetDisabled(true)
 	end
@@ -230,9 +232,9 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 
 		local menu = DermaMenu()
 
-		menu:AddOption("Add Player", function()
+		menu:AddOption(TTTLogTranslate(GetDMGLogLang, "AddPlayer"), function()
 			local selection = vgui.Create("DFrame")
-			selection:SetTitle("Select player")
+			selection:SetTitle(TTTLogTranslate(GetDMGLogLang, "SelectPlayer"))
 			selection:SetSize(270, 400)
 			selection:SetDraggable(false)
 			selection:Center()
@@ -241,7 +243,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 				panel:MoveToFront()
 			end
 			local button = vgui.Create("DButton", selection)
-			button:SetText("Add selected player")
+			button:SetText(TTTLogTranslate(GetDMGLogLang, "AddSelected"))
 			button:SetSize(255, 25)
 			button:SetPos(0, 28)
 			button:CenterHorizontal()
@@ -316,10 +318,10 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		local forceStayList = DermaMenu(menu)
 		forceStayList:SetVisible(false)
 		forceStayPnl:SetSubMenu(forceStayList)
-		forceStayPnl:SetText("Force to stay...")
+		forceStayPnl:SetText(TTTLogTranslate(GetDMGLogLang, "ForceStay"))
 		forceStayPnl:SetImage("icon16/lock_add.png")
 		menu:AddPanel(forceStayPnl)
-		forceStayList:AddOption("All players", function()
+		forceStayList:AddOption(TTTLogTranslate(GetDMGLogLang, "AllPlayers"), function()
 			net.Start("DL_ForceStay")
 			net.WriteUInt(Chat.RID, 32)
 			net.WriteUInt(1, 1)
@@ -329,9 +331,9 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		forceStayList:AddSpacer()
 
 		for k,v in pairs(List.Normal.Players) do
-			local playerPanel = forceStayList:AddOption(IsValid(v) and v:Nick() or "<Disconnected>", function()
+			local playerPanel = forceStayList:AddOption(IsValid(v) and v:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"), function()
 				if not IsValid(v) then 
-					
+					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "InvalidPlayerChat"), 2, "buttons/weapon_cant_buy.wav")					
 					return
 				end
 				net.Start("DL_ForceStay")
@@ -354,10 +356,10 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		local releaseList = DermaMenu(menu)
 		releaseList:SetVisible(false)
 		releasePnl:SetSubMenu(releaseList)
-		releasePnl:SetText("Release...")
+		releasePnl:SetText(TTTLogTranslate(GetDMGLogLang, "ReleaseChat"))
 		releasePnl:SetImage("icon16/lock_open.png")
 		menu:AddPanel(releasePnl)
-		releaseList:AddOption("All players", function()
+		releaseList:AddOption(TTTLogTranslate(GetDMGLogLang, "AllPlayers"), function()
 			net.Start("DL_Release")
 			net.WriteUInt(Chat.RID, 32)
 			net.WriteUInt(1, 1)
@@ -369,7 +371,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		for k,v in pairs(List.Normal.Players) do
 			local playerPanel = releaseList:AddOption(IsValid(v) and v:Nick() or "<Disconnected>", function()
 				if not IsValid(v) then 
-					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "Invalid player !", 2, "buttons/weapon_cant_buy.wav")
+					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "InvalidPlayerChat"), 2, "buttons/weapon_cant_buy.wav")
 					return
 				end
 				net.Start("DL_Release")
@@ -396,7 +398,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 
 		menu:AddOption("Leave chat", function()
 			if #List.Admins.Players <= 1 then
-				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, "You cannot leave as the only admin !", 4, "buttons/weapon_cant_buy.wav")
+				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "CannotLeaveChat"), 4, "buttons/weapon_cant_buy.wav")
 			else
 				Chat:Close()
 				net.Start("DL_LeaveChat")
@@ -487,7 +489,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history)
 		
 	Send:SetPos(Sheet:GetWide() - 75, Sheet:GetTall() - 65)
 	Send:SetSize(55, 25)
-	Send:SetText("Send")
+	Send:SetText(TTTLogTranslate(GetDMGLogLang, "Send"))
 	Send.DoClick = function()
 		SendMessage(TextEntry:GetValue())
 	end
@@ -531,6 +533,7 @@ end)
 net.Receive("DL_OpenChat", function()
 
 	local report = net.ReadUInt(32)
+	local adminReport = net.ReadUInt(1) == 1
 	local admin = net.ReadEntity()
 	local victim = net.ReadEntity()
 	local attacker = net.ReadEntity()
@@ -551,7 +554,7 @@ net.Receive("DL_OpenChat", function()
 	
 	if not report or not IsValid(admin) or not IsValid(victim) or not IsValid(attacker) then return end
 	
-	Damagelog:StartChat(report, { admin }, victim, attacker, players, history)
+	Damagelog:StartChat(report, { admin }, victim, attacker, players, history, adminReport)
 
 end)
 
@@ -651,16 +654,18 @@ net.Receive("DL_StopChat", function()
 	local msg
 	
 	if not forced then
-		msg = "All admins disconnected! The chat has been closed."
+		msg = TTTLogTranslate(GetDMGLogLang, "AdminsDisconnectedChat")
 	else
 		local admin = net.ReadEntity()
-		msg = "This chat has been closed by "..admin:Nick().."."
+		msg = string.format(TTTLogTranslate(GetDMGLogLang, "ChatClosedBy"), admin:Nick())
 	end
 
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
 			v:AddMessage(msg)
 			v:Stop()
+			v:ShowCloseButton(true)
+			v:SetDeleteOnClose(true)
 			table.remove(Damagelog.CurrentChats, k)
 			break
 		end
@@ -676,7 +681,7 @@ net.Receive("DL_LeaveChatCL", function()
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
 			v:RemoveAdmin(leaver)
-			v:AddMessage(leaver:Nick().." has left the chat.")
+			v:AddMessage(string.format(TTTLogTranslate(GetDMGLogLang, "AdminLeaveChat"), leaver:Nick()))
 		end
 	end
 
@@ -724,11 +729,11 @@ net.Receive("DL_ForceStayNotification", function()
 
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
-			local players = allPlayers and "all players" or ply:Nick()
+			local players = allPlayers and TTTLogTranslate(GetDMGLogLang, "AllPlayersShort") or ply:Nick()
 			if forced then
-				v:AddMessage(admin:Nick().." has forced "..players.." to stay on the chat.")
+				v:AddMessage(string.format(TTTLogTranslate(GetDMGLogLang, "ForcedNotification"), admin:Nick(), players))
 			else
-				v:AddMessage(admin:Nick().. " has released "..players.." from the chat.")
+				v:AddMessage(string.format(TTTLogTranslate(GetDMGLogLang, "ReleasedNotification"), admin:Nick(), players))
 			end
 			break
 		end
@@ -746,7 +751,7 @@ net.Receive("DL_ViewChatCL", function()
 
 	local Frame = vgui.Create("DFrame")
 	Frame:SetSize(400, 300)
-	Frame:SetTitle("Report #"..id.." history")
+	Frame:SetTitle(string.format(TTTLogTranslate(GetDMGLogLang, "ReportHistory"), id))
 	Frame:Center()
 	Frame:MakePopup()
 
@@ -775,7 +780,7 @@ net.Receive("DL_ViewChatCL", function()
 	local Reopen = vgui.Create("DButton", Frame)
 	Reopen:SetSize(Frame:GetWide() - 10, 30)
 	Reopen:SetPos(5, Frame:GetTall() - 35)
-	Reopen:SetText("Reopen this chat")
+	Reopen:SetText(TTTLogTranslate(GetDMGLogLang, "ReopenChat"))
 	Reopen.DoClick = function()
 		net.Start("DL_StartChat")
 		net.WriteUInt(id, 32)
@@ -832,7 +837,7 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 			
 			surface.SetTextColor(color_black)
 			surface.SetFont("DL_ChatCategory")
-			local text = tostring(#Damagelog.CurrentChats).." active chat(s)"
+			local text = string.format(TTTLogTranslate(GetDMGLogLang, "ActiveChats"), #Damagelog.CurrentChats)
 			local wt, ht = surface.GetTextSize(text)
 			surface.SetTextPos(w - wr/2 + 10, h - ht/2)
 			surface.DrawText(text)
@@ -860,13 +865,15 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 			
 			if show_chats then
 			
+				local andStr = TTTLogTranslate(GetDMGLogLang, "And")
+
 				local i = h - hr
 				
 				surface.SetFont("DL_ChatPlayer")
 				
 				local max_w = 0
 				for k,v in pairs(Damagelog.CurrentChats) do
-					local w = surface.GetTextSize(v.VictimName.." and "..v.AttackerName)
+					local w = surface.GetTextSize(v.VictimName.." "..andStr.." "..v.AttackerName)
 					if w > max_w then
 						max_w = w
 					end
@@ -916,10 +923,10 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 					
 					w_victim = w_victim + _x + 5
 					
-					local w_and, y_and = surface.GetTextSize("and")
+					local w_and, y_and = surface.GetTextSize(andStr)
 					surface.SetTextColor(color_black)
 					surface.SetTextPos(w_victim + 3, ytext)
-					surface.DrawText("and")
+					surface.DrawText(andStr)
 					
 					w_victim = w_victim + w_and + 2
 					

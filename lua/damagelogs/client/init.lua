@@ -13,8 +13,7 @@ include("damagelogs/shared/lang.lua")
 include("damagelogs/client/settings.lua")
 include("damagelogs/shared/sync.lua")
 include("damagelogs/shared/weapontable.lua")
-include("damagelogs/not_my_code/base64decode.lua")
-include("damagelogs/not_my_code/drawcircle.lua")
+include("damagelogs/client/drawcircle.lua")
 include("damagelogs/client/tabs/damagetab.lua")
 include("damagelogs/client/tabs/shoots.lua")
 include("damagelogs/client/tabs/old_logs.lua")
@@ -40,12 +39,11 @@ local color_lightyellow = Color(255, 245, 148)
 local color_red = Color(255, 62, 62)
 local color_lightblue = Color(98, 176, 255)
 
--- include("damagelogs/ulx/sh_autoslay.lua")
 local outdated = false
 
 hook.Add("InitPostEntity", "Damagelog_InitPostHTTP", function()
-	if (LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin()) then
-		http.Fetch("https://raw.githubusercontent.com/Tommy228/TTTDamagelogs/experimental/version.md", function(version)
+	if LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin() then
+		http.Fetch("https://raw.githubusercontent.com/Tommy228/TTTDamagelogs/master/version.md", function(version)
 
 			local cur_version = string.Explode(".", Damagelog.VERSION)
 			local tbl = string.Explode(".", version)
@@ -73,7 +71,7 @@ function Damagelog:OpenMenu()
 	local x, y = 665, 680
 
 	local show_outdated = outdated and GetConVar("ttt_dmglogs_updatenotifications"):GetBool() 
-
+		
 	if show_outdated then
 		y = y + 30
 	end

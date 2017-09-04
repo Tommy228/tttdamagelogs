@@ -19,7 +19,6 @@ surface.CreateFont("DL_ResponseDisabled", {
 	size = 16
 })
 
-local color_green = Color(190, 0, 0)
 local color_trablack = Color(0, 0, 0, 240)
 local mode = Damagelog.AutoslayMode
 
@@ -329,6 +328,10 @@ end
 function PANEL:GetStatus(report)
 	local str = status[report.status]
 
+	if report.status == RDM_MANAGER_FINISHED and report.autoStatus then
+		str = TTTLogTranslate(GetDMGLogLang, "RDMManagerAuto").." "..str
+	end	
+
 	if (report.status == RDM_MANAGER_FINISHED or report.status == RDM_MANAGER_PROGRESS) and report.admin then
 		str = str .. " " .. TTTLogTranslate(GetDMGLogLang, "By") .. " " .. report.admin
 	end
@@ -349,11 +352,11 @@ function PANEL:UpdateReport(index)
 	end
 	local tbl = { 
 		report.index, 
-		report.victim_nick, 
+		report.adminReport and "N/A (Admin Report)" or report.victim_nick, 
 		report.attacker_nick, 
 		report.round or "?", 
 		str, 
-		"";
+		report.adminReport and "N/A" or "";
 		self:GetStatus(report)
 	}
 
@@ -369,6 +372,10 @@ function PANEL:UpdateReport(index)
 			self.Reports[index].CanceledIcon:SetImage(report.canceled and "icon16/tick.png" or "icon16/cross.png")
 			self.Reports[index].CanceledIcon:SetPos(self.CanceledPos + self.CanceledWidth / 2 - 10)
 
+			if report.adminReport then
+				self.Reports[index].CanceledIcon:SetVisible(false)
+			end
+
 			for k, v in ipairs(self.Sorted) do
 				if k == #self.Sorted then continue end
 				table.insert(tbl, v)
@@ -382,9 +389,11 @@ function PANEL:UpdateReport(index)
 					self.Columns[2]:SetTextColor(color_white)
 					self.Columns[3]:SetTextColor(color_white)
 					self.Columns[5]:SetTextColor(color_white)
+					self.Columns[7]:SetTextColor(color_white)
 				else
-					self.Columns[2]:SetTextColor(colors[RDM_MANAGER_FINISHED])
-					self.Columns[3]:SetTextColor(color_green)
+					self.Columns[2]:SetTextColor(report.adminReport and Color(190, 190, 0) or Color(0, 190, 0))
+					self.Columns[3]:SetTextColor(Color(190, 0, 0))
+					self.Columns[7]:SetTextColor(colors[report.status])
 
 					if report.chat_open then
 						self.Columns[5]:SetTextColor(Color(100 + math.abs(math.sin(CurTime()) * 155), 0, 0))
@@ -499,8 +508,10 @@ function PANEL:OnRowSelected(index, line)
 		self.Conclusion:SetText(TTTLogTranslate(GetDMGLogLang, "NoConclusion"))
 	end
 
-	if Damagelog.SelectedReport.previous and Damagelog.CurrentReports:GetSelected()[1] then
-		Damagelog.CurrentReports:GetSelected()[1]:SetSelected(false)
+	if Damagelog.SelectedReport.previous then
+		if Damagelog.CurrentReports:GetSelected()[1] then
+			Damagelog.CurrentReports:GetSelected()[1]:SetSelected(false)
+		end
 	else
 		if Damagelog.PreviousReports:GetSelected()[1] then
 			Damagelog.PreviousReports:GetSelected()[1]:SetSelected(false)
@@ -639,12 +650,21 @@ function Damagelog:DrawRDMManager(x, y)
 		Manager:AddItem(Background)
 		local VictimInfos = vgui.Create("DPanel")
 		VictimInfos:SetHeight(110)
+		VictimInfos.isAdmin = false
 
 		VictimInfos.Paint = function(panel, w, h)
 			local bar_height = 27
-			surface.SetDrawColor(30, 200, 30)
+			if panel.isAdmin then 
+				surface.SetDrawColor(200, 200, 30)
+			else
+				surface.SetDrawColor(30, 200, 30)
+			end
 			surface.DrawRect(0, 0, (w / 2), bar_height)
-			draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "VictimsReport"), "DL_RDM_Manager", w / 4, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			if panel.isAdmin then
+				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "AdminsMessage"), "DL_RDM_Manager", w / 4, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)				
+			else
+				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "VictimsReport"), "DL_RDM_Manager", w / 4, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			end
 			surface.SetDrawColor(220, 30, 30)
 			surface.DrawRect((w / 2) + 1, 0, (w / 2), bar_height)
 			draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "ReportedPlayerResponse"), "DL_RDM_Manager", (w / 2) + 1 + (w / 4), bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -782,10 +802,16 @@ function Damagelog:DrawRDMManager(x, y)
 			local selected = Damagelog.SelectedReport
 
 			if not selected then
+				VictimInfos.isAdmin = false
 				VictimMessage:SetText("")
 				KillerMessage:SetText("")
 			else
-				VictimMessage:SetText(selected.message)
+				VictimInfos.isAdmin = selected.adminReport
+				if selected.chatReport then
+					VictimMessage:SetText(TTTLogTranslate(GetDMGLogLang, "ChatOpenNoMessage"))
+				else
+					VictimMessage:SetText(selected.message)
+				end
 				KillerMessage:SetText(selected.response or TTTLogTranslate(GetDMGLogLang, "NoResponseYet"))
 			end
 
