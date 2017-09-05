@@ -825,7 +825,7 @@ local showPending = GetConVar("ttt_dmglogs_showpending")
 local syncEnt
 hook.Add("HUDPaint", "DamagelogPendingReports", function()
 
-	if LocalPlayer():IsActive() or not showPending:GetBool() then return end
+	if not LocalPlayer():CanUseRDMManager() or LocalPlayer():IsActive() or not showPending:GetBool() then return end
 
 	local alpha = #Damagelog.Notifications > 0 and 30 or 255
 
