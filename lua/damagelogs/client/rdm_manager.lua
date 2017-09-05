@@ -113,8 +113,16 @@ local function BuildReportFrame(report)
 					net.WriteUInt(report.index, 16)
 					net.SendToServer()
 
-					for k, v in pairs(Damagelog.ReportsQueue) do
-						if not v.finished then return end
+					for k,v in pairs(Damagelog.ReportsQueue) do
+						if not v.finished then 
+							for _, sheet in pairs(ColumnSheet.Items) do
+								if sheet.Button != ColumnSheet:GetActiveButton() then
+									ColumnSheet:SetActiveButton(sheet.Button)
+									break
+								end
+							end
+							return 
+						end
 					end
 
 					ReportFrame:Close()
