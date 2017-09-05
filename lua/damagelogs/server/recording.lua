@@ -11,7 +11,7 @@ local magneto_ents = {}
 hook.Add("TTTBeginRound", "TTTBeginRound_SpecDMRecord", function()
 	table.Empty(magneto_ents)
 	table.Empty(Damagelog.Records)
-	for k,ply in pairs(player.GetAll()) do
+	for k,ply in ipairs(player.GetHumans()) do
 		ply.SpectatingLog = false
 	end
 end)
@@ -32,7 +32,7 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 		end
 	end
 
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if not v:IsActive() then 
 			local rag = v.server_ragdoll
 			if IsValid(rag) then

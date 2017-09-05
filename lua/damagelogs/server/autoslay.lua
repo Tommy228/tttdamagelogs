@@ -10,7 +10,7 @@ local aslay = mode == 1
 
 if not sql.TableExists("damagelog_autoslay") then
 	sql.Query([[CREATE TABLE damagelog_autoslay (
-		ply varchar(255) NOT NULL,
+		ply varchar(32) NOT NULL,
 		admins tinytext NOT NULL,
 		slays SMALLINT UNSIGNED NOT NULL,
 		reason tinytext NOT NULL,
@@ -19,13 +19,13 @@ if not sql.TableExists("damagelog_autoslay") then
 end
 if not sql.TableExists("damagelog_names") then
 	sql.Query([[CREATE TABLE damagelog_names (
-		steamid varchar(255),
+		steamid varchar(32),
 		name varchar(255))
 	]])
 end
 
-hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
-	for k,v in pairs(player.GetAll()) do
+hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid)
+	for k,v in ipairs(player.GetHumans()) do
 		if v == ply then continue end
 		net.Start("DL_AutoslaysLeft")
 		net.WriteEntity(v)
@@ -49,7 +49,7 @@ hook.Add("PlayerAuthed", "DamagelogNames", function(ply, steamid, uniqueid)
 end)
 
 function Damagelog:GetName(steamid)
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:SteamID() == steamid then
 			return v:Nick()
 		end
@@ -102,7 +102,7 @@ function Damagelog:FormatTime(t)
 end
 
 local function NetworkSlays(steamid, number)
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:SteamID() == steamid then
 			v.AutoslaysLeft = number
 			net.Start("DL_AutoslaysLeft")
@@ -211,7 +211,7 @@ local jail = {
 }
 
 hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:IsActive() then
 			timer.Simple(1, function()
 				v:SetNWBool("PlayedSRound", true)
@@ -252,11 +252,11 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 					end)
 					local function unjail()
 						for _, ent in ipairs(walls) do
-							if ent:IsValid() then
+							if IsValid(ent) then
 								ent:Remove()
 							end
 						end
-						if not v:IsValid() then return end
+						if not IsValid(v) then return end
 						v.jail = nil
 					end
 					v.jail = { pos=pos, unjail=unjail }
@@ -285,10 +285,13 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
 				net.Broadcast()
 				if IsValid(v.server_ragdoll) then
-					local ply = player.GetByUniqueID(v.server_ragdoll.uqid)
+					local ply = player.GetBySteamID(v.server_ragdoll.qid)
 					if not IsValid(ply) then return end
 					ply:SetCleanRound(false)
 					ply:SetNWBool("body_found", true)
+					if (ply:GetRole() == ROLE_TRAITOR) then
+						SendConfirmedTraitors(GetInnocentFilter(false))
+					end
 					CORPSE.SetFound(v.server_ragdoll, true)
 					v.server_ragdoll:Remove()
 				end
@@ -332,9 +335,9 @@ if Damagelog.Autoslay_ForceRole then
 				[ROLE_DETECTIVE] = {}
 			};
 			if not GAMEMODE.LastRole then GAMEMODE.LastRole = {} end
-			for k,v in pairs(player.GetAll()) do
+			for k,v in ipairs(player.GetHumans()) do
 				if IsValid(v) and (not v:IsSpec()) and not (v.AutoslaysLeft and tonumber(v.AutoslaysLeft) > 0) then
-					local r = GAMEMODE.LastRole[v:UniqueID()] or v:GetRole() or ROLE_INNOCENT
+					local r = GAMEMODE.LastRole[v:SteamID()] or v:GetRole() or ROLE_INNOCENT
 					table.insert(prev_roles[r], v)
 					table.insert(choices, v)
 				end
@@ -376,9 +379,9 @@ if Damagelog.Autoslay_ForceRole then
 				end
 			end
 			GAMEMODE.LastRole = {}
-			for _, ply in pairs(player.GetAll()) do
+			for _, ply in ipairs(player.GetHumans()) do
 				ply:SetDefaultCredits()
-				GAMEMODE.LastRole[ply:UniqueID()] = ply:GetRole()
+				GAMEMODE.LastRole[ply:SteamID()] = ply:GetRole()
 			end
 		end
 

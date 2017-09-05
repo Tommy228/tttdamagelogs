@@ -436,7 +436,7 @@ hook.Add("Think", "Think_Record", function()
 	if current_scene and (not last_curtime or (last_curtime and (CurTime() - last_curtime) >= 0.01)) then
 		gui.EnableScreenClicker(input.IsKeyDown(KEY_C))
 
-		for k, v in pairs(player.GetAll()) do
+		for k, v in ipairs(player.GetHumans()) do
 			v:SetNoDraw(true)
 		end
 
@@ -657,7 +657,7 @@ function Damagelog:StopRecording()
 		hook.Add("Think", "Think_Ghost", ttt_specdm_hook)
 	end
 
-	for k, v in pairs(player.GetAll()) do
+	for k, v in ipairs(player.GetHumans()) do
 		v:SetNoDraw(false)
 	end
 

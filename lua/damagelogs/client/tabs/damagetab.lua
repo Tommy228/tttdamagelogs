@@ -389,7 +389,7 @@ net.Receive("DL_SendDamagelog", function()
 	end
 	Damagelog.RoleNicks = {}
 
-	for k, v in pairs(player.GetAll()) do
+	for k, v in ipairs(player.GetHumans()) do
 		Damagelog.RoleNicks[v:Nick()] = v
 	end
 	

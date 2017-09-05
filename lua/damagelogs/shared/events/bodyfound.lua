@@ -16,7 +16,7 @@ function event:TTTBodyFound(ply, deadply, rag)
 	if IsValid(deadply) then
 		table.insert(tbl, deadply:GetDamagelogID())
 	else
-		local nick = CORPSE.GetPlayerNick(rag, "<Disconnected Player>")
+		local nick = CORPSE.GetPlayerNick(rag, TTTLogTranslate(GetDMGLogLang, "DisconnectedPlayer"))
 		for k,v in pairs(Damagelog.Roles[#Damagelog.Roles]) do
 			if v.nick == nick then
 				table.insert(tbl, k)

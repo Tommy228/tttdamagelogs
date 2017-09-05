@@ -297,7 +297,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 				pnl:AddItem(ply) 
 			end
 			local list = List:GetPlayers()
-			for k,v in pairs(player.GetAll()) do
+			for k,v in ipairs(player.GetHumans()) do
 				if not table.HasValue(list, v) then
 					plist:AddPlayer(v)
 				end
@@ -369,7 +369,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 		releaseList:AddSpacer()
 
 		for k,v in pairs(List.Normal.Players) do
-			local playerPanel = releaseList:AddOption(IsValid(v) and v:Nick() or "<Disconnected>", function()
+			local playerPanel = releaseList:AddOption(IsValid(v) and v:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"), function()
 				if not IsValid(v) then 
 					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "InvalidPlayerChat"), 2, "buttons/weapon_cant_buy.wav")
 					return

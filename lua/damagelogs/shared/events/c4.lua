@@ -19,7 +19,7 @@ function event:TTTC4Arm(bomb, ply)
 		[2] = ply:Nick(),
 		[3] = ply:GetRole(),
 		[4] = ply:SteamID(),
-		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or "<Disconnected>"
+		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
 	})
 end
 
@@ -29,7 +29,7 @@ function event:TTTC4Disarm(bomb, result, ply)
 		[2] = ply:Nick(),
 		[3] = ply:GetRole(),
 		[4] = ply:SteamID(),
-		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or "<Disconnected>",
+		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"),
 		[6] = result
 	})
 end
@@ -40,7 +40,7 @@ function event:TTTC4Destroyed(bomb, ply)
 		[2] = ply:Nick(),
 		[3] = ply:GetRole(),
 		[4] = ply:SteamID(),
-		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or "<Disconnected>"
+		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
 	})
 end
 
@@ -50,7 +50,7 @@ function event:TTTC4Pickup(bomb, ply)
 		[2] = ply:Nick(),
 		[3] = ply:GetRole(),
 		[4] = ply:SteamID(),
-		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or "<Disconnected>"
+		[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
 	})
 end
 

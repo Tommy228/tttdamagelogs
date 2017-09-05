@@ -70,7 +70,7 @@ net.Receive("DL_StartChat", function(_len, ply)
 	local victim
 	local attacker
 	
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:SteamID() == report.victim then
 			victim = v
 		elseif v:SteamID() == report.attacker then
@@ -127,7 +127,7 @@ net.Receive("DL_StartChat", function(_len, ply)
 	end
 	net.Send(GetFilter(report.chat_open))
 	
-	for k,v in pairs(player.GetHumans()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then	
 			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(GetDMGLogLang, "OpenChatNotification"), ply:Nick(), report_index), 5, "")
 			v:UpdateReport(false, report_index)
@@ -176,7 +176,7 @@ local function AddToChat(id, report, ply)
 	net.WriteUInt(category, 32)
 	net.Send(GetFilter(report.chat_open, ply))
 	
-	for k,v in pairs(player.GetHumans()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then	
 			v:UpdateReport(false, id)
 		end
@@ -241,7 +241,7 @@ hook.Add("PlayerDisconnected", "Damagelog_Chat", function(ply)
 					net.WriteUInt(0, 1)
 					net.Send(GetFilter(v.chat_open))
 					v.chat_open = false
-					for k,v in pairs(player.GetHumans()) do
+					for k,v in ipairs(player.GetHumans()) do
 						if v:CanUseRDMManager() then	
 							v:UpdateReport(false, id)
 						end
@@ -292,7 +292,7 @@ net.Receive("DL_CloseChat", function(_len, ply)
 		report.chat_open = false
 	end
 	
-	for k,v in pairs(player.GetHumans()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then	
 			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(GetDMGLogLang, "ChatClosed"), ply:Nick(), id), 5, "")
 			v:UpdateReport(false, id)

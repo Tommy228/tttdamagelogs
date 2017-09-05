@@ -13,24 +13,24 @@ event.Type = "HEAL"
 
 function event:TTTPlayerUsedHealthStation(ply, ent, healed)
 	if not (ply.IsGhost and ply:IsGhost()) and ply:IsPlayer() then
-		if usages[ply:UniqueID()] == nil then
-			local timername = "HealTimer_"..tostring(ply:UniqueID())
+		if usages[ply:SteamID()] == nil then
+			local timername = "HealTimer_"..tostring(ply:SteamID())
 			timer.Create(timername, 5, 0, function()
 				if not IsValid(ply) then
 					timer.Remove(timername)
-				elseif usages[ply:UniqueID()] > 0 then
-					self:Store(ply, ent, usages[ply:UniqueID()])
-					usages[ply:UniqueID()] = 0
+				elseif usages[ply:SteamID()] > 0 then
+					self:Store(ply, ent, usages[ply:SteamID()])
+					usages[ply:SteamID()] = 0
 				else
-					usages[ply:UniqueID()] = nil
-					self:RemoveTimer(ply:UniqueID())
+					usages[ply:SteamID()] = nil
+					self:RemoveTimer(ply:SteamID())
 				end
 			end)
 			
 			self:Store(ply, ent, healed)
-			usages[ply:UniqueID()] = 0
+			usages[ply:SteamID()] = 0
 		else
-			usages[ply:UniqueID()] = usages[ply:UniqueID()] + healed
+			usages[ply:SteamID()] = usages[ply:SteamID()] + healed
 		end
 	end
 end
@@ -71,7 +71,7 @@ function event:ToString(tbl, roles)
 		local healer = Damagelog:InfoFromID(roles, tbl[4])
 		healerNick = healer.nick.." ["..Damagelog:StrRole(healer.role).."]"
 	else
-		healerNick = "a disconnected player"
+		healerNick = TTTLogTranslate(GetDMGLogLang, "healerNick")
 	end
 	return string.format(TTTLogTranslate(GetDMGLogLang, "HealthStationHeal"), ply.nick, Damagelog:StrRole(ply.role), tbl[2], healerNick) 
 end
