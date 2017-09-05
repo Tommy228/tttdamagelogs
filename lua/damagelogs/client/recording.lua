@@ -99,7 +99,6 @@ local function CreateShotsPanel()
 		Info:Clear()
 		table.Empty(Info.LinesInfo)
 		local showAll = GetConVar("ttt_dmglogs_ds_showothers"):GetBool()
-		print(showAll)
 		local size = #current_scene
 		local current_second = 1
 		for i=1, size do
@@ -107,7 +106,6 @@ local function CreateShotsPanel()
 			current_second = current_second + 0.2
 			for id, tbl in ipairs(moment) do
 				if not tbl.shot then continue end
-				print(showAll, id, victim, attacker)
 				if not showAll and id != victim and id != attacker then continue end
 				local nick = Damagelog:InfoFromID(roles, id).nick
 				local line = Info:AddLine(current_second.."s - "..nick.." has shot with a "..tostring(tbl.wep))
