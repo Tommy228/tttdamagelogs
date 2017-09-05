@@ -12,6 +12,7 @@
 ]]--
 
 Damagelog:AddUser("owner", 4, true)
+Damagelog:AddUser("founder", 4, true)
 Damagelog:AddUser("superadmin", 4, true)
 Damagelog:AddUser("admin", 4, true)
 Damagelog:AddUser("operator", 3, false)

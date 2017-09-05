@@ -429,12 +429,14 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 	local msg
 
 	if status == RDM_MANAGER_WAITING then
+	
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. TTTLogTranslate(ply.DMGLogLang, "To") .. TTTLogTranslate(ply.DMGLogLang, "RDMWating") .. "."
 		local syncEnt = Damagelog:GetSyncEnt()
 		if not adminReport and IsValid(syncEnt)then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() + 1)
 		end	
 	elseif status == RDM_MANAGER_PROGRESS then
+
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "DealingReport") .. " #" .. index .. "."
 
 		for k, v in pairs(player.GetAll()) do
@@ -442,6 +444,12 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HandlingYourReport"), 5, "ui/vote_yes.mp3")
 			end
 		end
+
+		local syncEnt = Damagelog:GetSyncEnt()
+		if not adminReport and IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
+			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
+		end	
+
 	elseif status == RDM_MANAGER_FINISHED then
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. TTTLogTranslate(ply.DMGLogLang, "To") .. TTTLogTranslate(ply.DMGLogLang, "Finished") .. "."
 		local syncEnt = Damagelog:GetSyncEnt()

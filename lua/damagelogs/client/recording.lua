@@ -1,5 +1,6 @@
 local mdl = Model("models/player/arctic.mdl")
-CreateClientConVar("ttt_death_scene_slowmo", "0", FCVAR_ARCHIVE)
+CreateClientConVar("ttt_dmglogs_slowmo", "0", FCVAR_ARCHIVE)
+CreateClientConVar("ttt_dmglogs_ds_showothers", "1", FCVAR_ARCHIVE)
 local i = 1
 local current_scene
 local roles
@@ -32,6 +33,126 @@ hook.Add("Initialize", "GetSpecDMHook", function()
 
 	if tbl then
 		ttt_specdm_hook = tbl.Think_Ghost
+	end
+end)
+
+surface.CreateFont("DL_Shots_Title", {
+	font = "DermaLarge",
+	size = 18
+})
+
+local function CreateShotsPanel()
+
+	local w, h = 400, 200
+
+	local Frame = vgui.Create("DPanel")
+	Frame:SetSize(w, h)
+	Frame.PaintOver = function(self, w, h)
+		surface.SetDrawColor(color_black)
+		surface.DrawLine(0, 0, w - 1, 0)
+		surface.DrawLine(w - 1, 0, w - 1, h - 1)
+		surface.DrawLine(w - 1, h - 1, 0, h - 1)
+		surface.DrawLine(0, h - 1, 0, 0)
+	end
+	Frame:SetPos(ScrW() - w)
+	Frame:CenterVertical()
+
+	local Close = vgui.Create("DButton", Frame)
+	Close:SetText("X")
+	Close:SetSize(20, 20)
+	Close:SetPos(w - 25, 5)
+	Close.DoClick = function()
+		Frame:SetVisible(false)
+	end
+
+	local Title = vgui.Create("DLabel", Frame)
+	Title:SetPos(0, 10)
+	Title:SetFont("DL_Shots_Title")
+	Title:SetTextColor(color_black)
+	Title:SetText("Death Scene shots information")
+	Title:SizeToContents()
+	Title:CenterHorizontal()
+
+	local ShowOthers = vgui.Create("DCheckBoxLabel", Frame)
+	ShowOthers:SetText("Show all players")
+	ShowOthers:SetConVar("ttt_dmglogs_ds_showothers")
+	ShowOthers:SetPos(10, 35)
+	ShowOthers:SetTextColor(color_black)
+	ShowOthers:SizeToContents()
+
+	local Info = vgui.Create("DListView", Frame)
+	Info:StretchToParent(10, 60, 10, 10)
+	Info:AddColumn("")
+	Info.UpdateProgress = function(Info, progress)
+		local current_second = math.Round(progress * 0.2, 1) + 1
+		for k,v in ipairs(Info:GetLines()) do
+			local second = Info.LinesInfo[k]
+			if not second then continue end
+			local diff = current_second - second
+			v:SetSelected(diff < 0.2 and diff > 0)
+		end
+	end  
+	Info.LinesInfo = {}
+	
+	Frame.SetInfo = function(Frame)
+		if not current_scene then return end
+		Info:Clear()
+		table.Empty(Info.LinesInfo)
+		local showAll = GetConVar("ttt_dmglogs_ds_showothers"):GetBool()
+		print(showAll)
+		local size = #current_scene
+		local current_second = 1
+		for i=1, size do
+			local moment = current_scene[i]
+			current_second = current_second + 0.2
+			for id, tbl in ipairs(moment) do
+				if not tbl.shot then continue end
+				print(showAll, id, victim, attacker)
+				if not showAll and id != victim and id != attacker then continue end
+				local nick = Damagelog:InfoFromID(roles, id).nick
+				local line = Info:AddLine(current_second.."s - "..nick.." has shot with a "..tostring(tbl.wep))
+				if id == victim then
+					line.col = Color(20, 150, 20)
+				elseif id == attacker then
+					line.col = Color(200, 20, 20)
+				else
+					line.col = color_black
+				end
+				line.PaintOver = function(line)
+					if line:IsLineSelected() then
+						line.Columns[1]:SetTextColor(color_white)
+					else
+						line.Columns[1]:SetTextColor(line.col)
+					end
+				end
+				table.insert(Info.LinesInfo, current_second)
+			end
+		end
+	end
+
+	Frame.UpdateProgress = function(Frame, progress)
+		Info:UpdateProgress(progress)
+	end
+
+	Frame:SetVisible(false)
+
+	return Frame
+
+end
+
+local Frame
+hook.Add("Initialize", "DeathSceneFrame", function()
+	Frame = CreateShotsPanel()
+	Damagelog.DeathSceneInitialized = true
+end)
+
+if Damagelog.DeathSceneInitialized then
+	Frame = CreateShotsPanel()
+end
+
+cvars.AddChangeCallback("ttt_dmglogs_ds_showothers", function()
+	if IsValid(Frame) then
+		Frame:SetInfo()
 	end
 end)
 
@@ -133,13 +254,28 @@ function Damagelog:CreateDSPanel()
 	replay.Icon:SetSize(16, 16)
 	replay.Icon:Center()
 	replay.Icon:SetImage("icon16/control_repeat_blue.png")
+
+	local showShots = vgui.Create("DButton", self.DSPanel)
+	showShots:SetPos(200, h - 35)
+	showShots:SetSize(25, 25)
+	showShots:SetText("")
+	showShots.Icon = vgui.Create("DImage", showShots)
+	showShots.Icon:SetSize(16, 16)
+	showShots.Icon:Center()
+	showShots.Icon:SetImage("icon16/gun.png")
+	showShots.DoClick = function()
+		Frame:SetVisible(not Frame:IsVisible())
+	end	
+
 	self.DS_Replay = replay
+
 	local slowmo = vgui.Create("DCheckBoxLabel", self.DSPanel)
 	slowmo:SetText(TTTLogTranslate(GetDMGLogLang, "EnableSlowMotion"))
-	slowmo:SetConVar("ttt_death_scene_slowmo")
+	slowmo:SetConVar("ttt_dmglogs_slowmo")
 	slowmo:SetPos(w - 125, h - 30)
 	slowmo:SetTextColor(color_black)
 	slowmo:SizeToContents()
+
 	local stop = vgui.Create("DButton", self.DSPanel)
 	stop:SetText("X")
 	stop:SetSize(20, 20)
@@ -148,6 +284,7 @@ function Damagelog:CreateDSPanel()
 	stop.DoClick = function()
 		self:StopRecording()
 	end
+
 end
 
 net.Receive("DL_SendDeathScene", function()
@@ -168,6 +305,8 @@ net.Receive("DL_SendDeathScene", function()
 	if IsValid(Damagelog.Menu) then
 		Damagelog.Menu:SetVisible(false)
 	end
+
+	Frame:SetInfo()
 
 	paused = false
 end)
@@ -303,7 +442,7 @@ hook.Add("Think", "Think_Record", function()
 			v:SetNoDraw(true)
 		end
 
-		local slowmo = GetConVar("ttt_death_scene_slowmo"):GetBool()
+		local slowmo = GetConVar("ttt_dmglogs_slowmo"):GetBool()
 
 		if not paused and not Damagelog.DS_Progress:IsEditing() then
 			if slowmo then
@@ -332,6 +471,8 @@ hook.Add("Think", "Think_Record", function()
 		if progress > #current_scene then
 			progress = #current_scene
 		end
+
+		Frame:UpdateProgress(i)
 
 		Damagelog.DS_Progress:SetSlideX(progress / #current_scene)
 		Damagelog.DS_Progress:SetSlideY(0.5)
@@ -462,7 +603,8 @@ hook.Add("Think", "Think_Record", function()
 		if scene and playedsounds ~= scene then
 			for k, v in pairs(scene) do
 				if v.shot then
-					models[k]:EmitSound(v.shot, 100, 100)
+					local playedSound = v.wep == "weapon_zm_improvised" and "Weapon_Crowbar.Single" or v.shot
+					models[k]:EmitSound(playedSound, 100, 100)
 				end
 
 				if v.trace then
@@ -526,6 +668,11 @@ function Damagelog:StopRecording()
 	if IsValid(self.Menu) then
 		self.Menu:SetVisible(true)
 	end
+
+	if IsValid(Frame) then
+		Frame:SetVisible(false)
+	end
+	
 end
 
 hook.Add("OnContextMenuOpen", "Recording", function()
