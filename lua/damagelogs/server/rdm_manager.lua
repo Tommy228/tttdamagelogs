@@ -45,7 +45,7 @@ if not Damagelog.Reports.Previous then
 end
 
 local function GetBySteamID(steamid)
-	for k, v in pairs(player.GetAll()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v:SteamID() == steamid then return v end
 	end
 end
@@ -121,7 +121,7 @@ hook.Add("PlayerSay", "Damagelog_RDMManager", function(ply, text, teamOnly)
 end)
 
 hook.Add("TTTBeginRound", "Damagelog_RDMManger", function()
-	for k, v in pairs(player.GetHumans()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if not v.CanReport then
 			v.CanReport = true
 		end
@@ -223,9 +223,9 @@ function Damagelog:StartReport(ply)
 	net.WriteTable(previousReports)
 	net.WriteTable(currentReports)
 
-	local tbl = player.GetAll()
+	local tbl = player.GetHumans()
 	net.WriteUInt(#tbl, 8)
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(tbl) do
 		net.WriteEntity(v)
 		if v.DmgLog_DNA and v.DmgLog_DNA[Damagelog.CurrentRound] and v.DmgLog_DNA[Damagelog.CurrentRound][ply] then
 			net.WriteUInt(1, 1)
@@ -260,7 +260,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	if not ply:CanUseRDMManager() then
 
-		for k, v in pairs(player.GetHumans()) do
+		for k, v in ipairs(player.GetHumans()) do
 			if v:CanUseRDMManager() then
 				found = true
 				break
@@ -335,7 +335,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		Damagelog.Reports.Current[index].admin = ply:Nick()
 	end
 
-	for k, v in pairs(player.GetHumans()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			if v:IsActive() then
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ReportCreated") .. " (#" .. index .. ") !", 5, "ui/vote_failure.mp3")
@@ -397,7 +397,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		net.WriteUInt(0, 1)
 		net.Send({ ply, attacker })
 		
-		for k,v in pairs(player.GetHumans()) do
+		for k,v in ipairs(player.GetHumans()) do
 			if v:CanUseRDMManager() then	
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(GetDMGLogLang, "OpenChatNotification"), ply:Nick(), index), 5, "")
 				v:UpdateReport(false, index)
@@ -439,7 +439,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "DealingReport") .. " #" .. index .. "."
 
-		for k, v in pairs(player.GetAll()) do
+		for k, v in ipairs(player.GetHumans()) do
 			if v:SteamID() == tbl.victim then
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HandlingYourReport"), 5, "ui/vote_yes.mp3")
 			end
@@ -460,7 +460,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 	tbl.autoStatus = false
 
-	for k, v in pairs(player.GetHumans()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, msg, 5, "")
 			v:UpdateReport(previous, index)
@@ -483,7 +483,7 @@ net.Receive("DL_Conclusion", function(_len, ply)
 
 	tbl.conclusion = conclusion
 
-	for k, v in pairs(player.GetHumans()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			if notify then
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetConclusion") .. " #" .. index .. ".", 5, "")
@@ -515,10 +515,8 @@ hook.Add("PlayerDeath", "RDM_Manager", function(ply)
 end)
 
 hook.Add("TTTEndRound", "RDM_Manager", function()
-	for k, v in pairs(player.GetAll()) do
-		net.Start("DL_Death")
-		net.Send(v)
-	end
+	net.Start("DL_Death")
+	net.Broadcast()
 end)
 
 net.Receive("DL_SendAnswer", function(_, ply)
@@ -530,7 +528,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	if ply:SteamID() != tbl.attacker then return end
 	tbl.response = text
 
-	for k, v in pairs(player.GetHumans()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, (v:IsActive() and TTTLogTranslate(ply.DMGLogLang, "TheReportedPlayer") or ply:Nick()) .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasAnsweredReport") .. " #" .. index .. "!", 5, "ui/vote_yes.mp3")
 			v:UpdateReport(previous, index)
@@ -571,7 +569,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 		end
 	end
 
-	for k, v in pairs(player.GetHumans()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			if forgive then
 				if v:IsActive() then
