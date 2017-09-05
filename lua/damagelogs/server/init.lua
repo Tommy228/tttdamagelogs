@@ -104,7 +104,7 @@ function Damagelog:TTTBeginRound()
 		self.ShootTables[rounds + 1] = {}
 		self.Roles[rounds + 1] = {}
 
-		for k,v in pairs(player.GetAll()) do
+		for k,v in ipairs(player.GetHumans()) do
 			v:AddToDamagelogRoles()
 		end
 
@@ -263,7 +263,7 @@ function Damagelog:TransferLogs(damage_send, ply, round, roles, current)
 			net.Send(player.GetHumans())
 		else
 			local superadmins = {}
-			for k,v in pairs(player.GetHumans()) do
+			for k,v in ipairs(player.GetHumans()) do
 				if v:IsSuperAdmin() then
 					table.insert(superadmins, v)
 				end

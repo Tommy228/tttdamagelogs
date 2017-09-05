@@ -12,7 +12,7 @@ event.Type = "DNA"
 function event:TTTFoundDNA(ply, dna_owner, ent)
 	local name = ent:GetClass()
 	if name == "prop_ragdoll" then
-		name = CORPSE.GetPlayerNick(ent, "<Player disconnected>") .. TTTLogTranslate(GetDMGLogLang, "sbody") -- Think of a better translation way since it's always english
+		name = CORPSE.GetPlayerNick(ent, TTTLogTranslate(GetDMGLogLang, "PlayerDisconnected")) .. TTTLogTranslate(GetDMGLogLang, "sbody") -- Think of a better translation way since it's always english
 	end
 	self.CallEvent({
 		[1] = ply:GetDamagelogID(),

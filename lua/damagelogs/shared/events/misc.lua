@@ -18,7 +18,7 @@ event.Type = "MISC"
 
 function event:TTTToggleDisguiser(ply, state)
 	if ply.NoDisguise then return end
-	local timername = "DisguiserTimer_"..tostring(ply:UniqueID())
+	local timername = "DisguiserTimer_"..tostring(ply:SteamID())
 	if not timer.Exists(timername) then
 		ply.DisguiseUses = 1
 		ply.DisguiseTimer = 10
@@ -55,7 +55,7 @@ end
 
 
 function event:TTTBeginRound()
-	for k,v in pairs(player.GetAll()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v.NoDisguise then
 			v.NoDisguise = false
 		end

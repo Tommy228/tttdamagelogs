@@ -26,7 +26,7 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 				name_role = msg_target:GetRole()
 				target_steamid = msg_target:SteamID()
 			elseif msg_target:GetClass() == "prop_ragdoll" then
-				name = TTTLogTranslate(GetDMGLogLang, "CorpseOf")..CORPSE.GetPlayerNick(msg_target, "<Disconnected Player>")
+				name = TTTLogTranslate(GetDMGLogLang, "CorpseOf")..CORPSE.GetPlayerNick(msg_target, TTTLogTranslate(GetDMGLogLang, "DisconnectedPlayer"))
 				name_role = "disconnected"
 			end
 		end

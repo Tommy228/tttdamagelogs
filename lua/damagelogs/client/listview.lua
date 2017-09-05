@@ -175,7 +175,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 			if IsValid(ent) then
 				panel:SetColumnText(3, ent:Alive() and not (ent.IsGhost and ent:IsGhost()) and not ent:IsSpec() and TTTLogTranslate(GetDMGLogLang, "Yes") or TTTLogTranslate(GetDMGLogLang, "No"))
 			else
-				panel:SetColumnText(3, "<Disconnected>")
+				panel:SetColumnText(3, TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"))
 			end
 		else
 			panel:SetColumnText(3, TTTLogTranslate(GetDMGLogLang, "RoundEnded"))

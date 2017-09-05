@@ -23,7 +23,7 @@ local ReportFrame
 
 local function BuildReportFrame(report)
 
-	if ReportFrame and ReportFrame:IsValid() and report then
+	if IsValid(ReportFrame) and report then
 		ReportFrame:AddReport(report)
 	else
 		local found = false
@@ -97,7 +97,7 @@ local function BuildReportFrame(report)
 					end
 
 					timer.Create("TimerRespond", 5, 1, function()
-						if Info and Info:IsValid() then
+						if IsValid(Info) then
 							Info:SetText(report.victim_nick .. " " .. TTTLogTranslate(GetDMGLogLang, "ReportedYou") .. (current and (" " .. TTTLogTranslate(GetDMGLogLang, "AfterRound") .. " " .. (report.round or "?")) or " " .. TTTLogTranslate(GetDMGLogLang, "PreviousMap")))
 							Info:SetInfoColor("blue")
 						end
@@ -307,7 +307,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 		UserList:AddPlayer(killer, true)
 	end
 
-	for k, v in pairs(player.GetAll()) do
+	for k, v in ipairs(player.GetHumans()) do
 		if v == killer or  v == LocalPlayer() then continue end
 		UserList:AddPlayer(v, false)
 	end
@@ -585,7 +585,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 			button.report = report
 			button:SetHeight(30)
 			button:SetNick(report.attackerName)
-			for k,v in pairs(player.GetAll()) do
+			for k,v in ipairs(player.GetHumans()) do
 				if v:SteamID() == report.attackerID then
 					button:SetAvatarPlayer(v)
 					break
@@ -638,7 +638,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 				button.report = report
 				button:SetHeight(30)
 				button:SetNick(report.attackerName)
-				for k,v in pairs(player.GetAll()) do
+				for k,v in ipairs(player.GetHumans()) do
 					if v:SteamID() == report.attackerID then
 						button:SetAvatarPlayer(v)
 						break

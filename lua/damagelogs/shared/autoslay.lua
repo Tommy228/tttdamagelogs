@@ -14,7 +14,7 @@ local function CreateCommand()
 
 	function ulx.autoslayid(calling_ply, target, rounds, reason)
 		if ULib.isValidSteamID(target) then
-			for k,v in pairs(player.GetAll()) do
+			for k,v in ipairs(player.GetHumans()) do
 				if v:SteamID() == target then
 					ulx.autoslay(calling_ply, v, rounds, reason)
 					return

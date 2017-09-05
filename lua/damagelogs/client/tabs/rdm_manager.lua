@@ -52,11 +52,11 @@ end
 local show_finished = CreateClientConVar("rdm_manager_show_finished", "1", FCVAR_ARCHIVE)
 
 cvars.AddChangeCallback("rdm_manager_show_finished", function(name, old, new)
-	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
+	if IsValid(Damagelog.CurrentReports) then
 		Damagelog.CurrentReports:UpdateAllReports()
 	end
 
-	if Damagelog.PreviousReports and Damagelog.PreviousReports:IsValid() then
+	if IsValid(Damagelog.PreviousReports) then
 		Damagelog.PreviousReports:UpdateAllReports()
 	end
 end)
@@ -526,7 +526,7 @@ net.Receive("DL_NewReport", function()
 	local index = table.insert(Damagelog.Reports.Current, tbl)
 	Damagelog.Reports.Current[index].index = index
 
-	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
+	if IsValid(Damagelog.CurrentReports) then
 		Damagelog.CurrentReports:AddReport(index)
 	end
 end)
@@ -540,13 +540,13 @@ net.Receive("DL_UpdateReport", function()
 	if previous then
 		Damagelog.Reports.Previous[index] = updated
 
-		if Damagelog.PreviousReports and Damagelog.PreviousReports:IsValid() then
+		if IsValid(Damagelog.PreviousReports) then
 			Damagelog.PreviousReports:UpdateReport(index)
 		end
 	else
 		Damagelog.Reports.Current[index] = updated
 
-		if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
+		if IsValid(Damagelog.CurrentReports) then
 			Damagelog.CurrentReports:UpdateReport(index)
 		end
 	end
@@ -555,7 +555,7 @@ net.Receive("DL_UpdateReport", function()
 		Damagelog.SelectedReport = updated
 	end
 
-	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
+	if IsValid(Damagelog.CurrentReports) then
 		Damagelog:UpdateReportTexts()
 	end
 end)
@@ -569,11 +569,11 @@ net.Receive("DL_UpdateReports", function()
 	if not json then return end
 	Damagelog.Reports = util.JSONToTable(json)
 
-	if Damagelog.CurrentReports and Damagelog.CurrentReports:IsValid() then
+	if IsValid(Damagelog.CurrentReports) then
 		Damagelog.CurrentReports:UpdateAllReports()
 	end
 
-	if Damagelog.PreviousReports and Damagelog.PreviousReports:IsValid() then
+	if IsValid(Damagelog.PreviousReports) then
 		Damagelog.PreviousReports:UpdateAllReports()
 	end
 end)
