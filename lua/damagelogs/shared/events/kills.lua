@@ -45,7 +45,7 @@ function event:ToString(v, roles)
 	local weapon = Damagelog.weapon_table[v[3]] or v[3]
 	local attackerInfo = Damagelog:InfoFromID(roles, v[1])
 	local victimInfo = Damagelog:InfoFromID(roles, v[2])
-	return string.format(TTTLogTranslate(GetDMGLogLang, "HasKilled"), attackerInfo.nick, Damagelog:StrRole(attackerInfo.role), victimInfo.nick, Damagelog:StrRole(victimInfo.role), TTTLogTranslate(GetDMGLogLang, weapon) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon"))
+	return string.format(TTTLogTranslate(GetDMGLogLang, "HasKilled"), attackerInfo.nick, Damagelog:StrRole(attackerInfo.role), victimInfo.nick, Damagelog:StrRole(victimInfo.role), weapon or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon"))
 
 end
 

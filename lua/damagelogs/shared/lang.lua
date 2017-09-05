@@ -13,5 +13,5 @@ function TTTLogTranslate(GetDMGLogLang, phrase)
 	if !DamagelogLang[f] then
 		f = "english"
 	end
-	return DamagelogLang[f][phrase] or "Missing: "..phrase
+	return DamagelogLang[f][phrase] or "Missing: "..tostring(phrase)
 end
