@@ -26,10 +26,7 @@ else
 	}
 
 	function Damagelog:Notify(msg_type, msg, _time, soundFile)
-		if GetConVar("ttt_dmglogs_outsidenotification"):GetBool() then
-			sound.PlayFile("sound/" .. soundFile, "play", function()
-			end)
-		else
+		if soundFile then
 			surface.PlaySound(soundFile)
 		end
 		table.insert(Damagelog.Notifications, {
