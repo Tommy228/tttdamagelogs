@@ -321,7 +321,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		attacker_nick = attacker:Nick(),
 		message = message,
 		response = false,
-		status = adminReport and RDM_MANAGER_PROGRESS or RDM_MANAGER_WAITING,
+		status = RDM_MANAGER_WAITING,
 		admin = false,
 		round = Damagelog.CurrentRound or 0,
 		chat_open = false,
@@ -573,6 +573,10 @@ net.Receive("DL_GetForgive", function(_, ply)
 			tbl.status = RDM_MANAGER_FINISHED
 			tbl.conclusion = "(Auto) Canceled by the victim"
 			tbl.autoStatus = true
+			local syncEnt = Damagelog:GetSyncEnt()
+			if IsValid(syncEnt) then
+				syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
+			end
 		end
 	end
 
