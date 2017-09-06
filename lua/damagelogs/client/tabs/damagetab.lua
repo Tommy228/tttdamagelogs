@@ -406,7 +406,7 @@ net.Receive("DL_SendDamagelog", function()
 	Damagelog:SetRolesListView(Damagelog.Roles, roles)
 	Damagelog.Damagelog:Clear()
 	if count == 0 then
-		Damagelog.Damagelog:AddLine("", "", TTTLogTranslate(GetDMGLogLang, "Nothinghere"))
+		Damagelog.Damagelog:AddLine("", "", TTTLogTranslate(GetDMGLogLang, "EmptyLogs"))
 	else
 		Damagelog:SetListViewTable(Damagelog.Damagelog, round)
 	end

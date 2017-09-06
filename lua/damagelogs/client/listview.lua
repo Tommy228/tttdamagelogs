@@ -234,7 +234,7 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 		listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "DamageInfosBetween"), victim, att, beg, t))
 	end
 	if not result or table.Count(result) <= 0 then
-		listview:AddLine(TTTLogTranslate(GetDMGLogLang, "Loading"))
+		listview:AddLine(TTTLogTranslate(GetDMGLogLang, "EmptyLogs"))
 	else
 		local nums = {}
 		local used_nicks = {}
