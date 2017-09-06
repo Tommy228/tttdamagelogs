@@ -285,7 +285,7 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				net.WriteString(Damagelog:FormatTime(tonumber(os.time()) - tonumber(_time)))
 				net.Broadcast()
 				if IsValid(v.server_ragdoll) then
-					local ply = player.GetBySteamID(v.server_ragdoll.qid)
+					local ply = player.GetBySteamID(v.server_ragdoll.sid)
 					if not IsValid(ply) then return end
 					ply:SetCleanRound(false)
 					ply:SetNWBool("body_found", true)
