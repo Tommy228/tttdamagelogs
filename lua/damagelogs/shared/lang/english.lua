@@ -278,6 +278,7 @@ DamagelogLang.english = {
 	ReportsBottom = "reports",
 	ShowPendingReports = "Show the number of pending reports on the HUD",
 	CreateReport = "Create report",
+	Donate = "Donate",
 
 	-- Months
 	January = "January",
@@ -359,7 +360,8 @@ DamagelogLang.english = {
 	filter_show_psroles = "Show role purchases",
 	filter_show_nades = "Show grenade throws",
 	filter_show_suicides = "Show suicides",
-	filter_show_radiocommands = "Show radio commands",
+	filter_show_radiocommands = "Show standard radio commands",
+	filter_show_radiokos = "Show KOS radio commands",
 	filter_show_purchases = "Show weapon purchases",
 	filter_show_c4 = "Show C4",
 

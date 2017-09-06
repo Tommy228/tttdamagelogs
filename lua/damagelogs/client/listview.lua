@@ -99,7 +99,7 @@ function Damagelog:AddLogsLine(listview, tbl, roles, nofilters, old)
 	if type(tbl) != "table" then return end
 	local infos = self.events[tbl.id]
 	if not infos then return end
-	if (not nofilters) and (not infos:IsAllowed(tbl.infos)) then return end
+	if (not nofilters) and (not infos:IsAllowed(tbl.infos, roles)) then return end
 	local text = infos:ToString(tbl.infos, roles)
 	local item = listview:AddLine(util.SimpleTime(tbl.time, "%02i:%02i"), infos.Type, text, "")
 	if tbl.infos.icon then

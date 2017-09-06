@@ -3,6 +3,7 @@ if SERVER then
 	Damagelog:EventHook("TTTPlayerRadioCommand")
 else
 	Damagelog:AddFilter("filter_show_radiocommands", DAMAGELOG_FILTER_BOOL, false)
+	Damagelog:AddFilter("filter_show_radiokos", DAMAGELOG_FILTER_BOOL, false)
 	Damagelog:AddColor("color_defaultradio", Color(182,182,182))
 	Damagelog:AddColor("color_kosradio", Color(255,0,0))
 end
@@ -73,8 +74,13 @@ function event:ToString(v, roles)
 	return string.format(TTTLogTranslate(GetDMGLogLang, "RadioUsed"), ply.nick, Damagelog:StrRole(ply.role), text, targetrole)
 end
 
-function event:IsAllowed(tbl)
-	return Damagelog.filter_settings["filter_show_radiocommands"]
+function event:IsAllowed(tbl, roles)
+	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	if tbl[2] != "quick_traitor" then
+		return Damagelog.filter_settings["filter_show_radiocommands"]
+	else
+		return Damagelog.filter_settings["filter_show_radiokos"]
+	end
 end
 
 function event:Highlight(line, tbl, text)
@@ -85,8 +91,8 @@ function event:Highlight(line, tbl, text)
 end
 
 function event:GetColor(tbl, roles)
-	local ply = Damagelog:InfoFromID(roles, v)
-	if tbl[4] and tbl[2] == "quick_traitor" and ply.role  == tbl[4] then
+	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	if tbl[2] != "quick_traitor" then
 		return Damagelog:GetColor("color_defaultradio")
 	else
 		return Damagelog:GetColor("color_kosradio")
