@@ -3,7 +3,7 @@ util.AddNetworkString("DL_AutoSlay")
 util.AddNetworkString("DL_AutoslaysLeft")
 util.AddNetworkString("DL_PlayerLeft")
 
-local mode = Damagelog.AutoslayMode
+local mode = Damagelog.ULX_AutoslayMode
 
 if mode != 1 and mode != 2 then return end
 local aslay = mode == 1
@@ -310,7 +310,7 @@ hook.Add("PlayerDisconnected", "Autoslay_Message", function(ply)
 	end
 end)
 
-if Damagelog.Autoslay_ForceRole then
+if Damagelog.ULX_Autoslay_ForceRole then
 
 	hook.Add("Initialize", "Autoslay_ForceRole", function()
 

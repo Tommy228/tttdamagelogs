@@ -3,7 +3,7 @@ local function CreateCommand()
 
 	if not ulx then return end
 
-	local mode = Damagelog.AutoslayMode
+	local mode = Damagelog.ULX_AutoslayMode
 
 	if mode != 1 and mode != 2 then return end
 	local aslay = mode == 1
@@ -95,7 +95,7 @@ end)
 
 if CLIENT then
 
-	local mode = Damagelog.AutoslayMode
+	local mode = Damagelog.ULX_AutoslayMode
 
 	if mode != 1 and mode != 2 then return end
 	local aslay = mode == 1

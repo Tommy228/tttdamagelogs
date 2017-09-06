@@ -20,7 +20,7 @@ surface.CreateFont("DL_ResponseDisabled", {
 })
 
 local color_trablack = Color(0, 0, 0, 240)
-local mode = Damagelog.AutoslayMode
+local mode = Damagelog.ULX_AutoslayMode
 
 local function AdjustText(str, font, w)
 	surface.SetFont(font)
@@ -185,14 +185,19 @@ local function TakeAction()
 		end
 	end):SetImage("icon16/television.png")
 
-	if ulx then
-		if mode == 1 or mode == 2 then
+	if serverguard or ulx then
+	
+		if serverguard or (ulx and (mode == 1 or mode == 2)) then
 
 			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
 			slaynr_pnl:SetSubMenu(slaynr)
-			slaynr_pnl:SetText(mode == 1 and "Slay next round" or "Jail next round")
+			local txt = "Slay next round"
+			if ulx and mode == 2 then
+				txt = "Jail next round"
+			end
+			slaynr_pnl:SetText(txt)
 			slaynr_pnl:SetImage("icon16/lightning_go.png")
 			menuPanel:AddPanel(slaynr_pnl)
 
@@ -227,11 +232,19 @@ local function TakeAction()
 						local ply = (reported and attacker) or (not reported and victim)
 
 						if IsValid(ply) then
-							RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", ply:Nick(), tostring(k))
+							if ulx then
+								RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", ply:Nick(), tostring(k))
+							else
+								serverguard.command.Run("aslay", false, ply:Nick(), k, Damagelog.Autoslay_DefaultReason)
+							end
 							SetConclusion(ply:Nick(), k, "the default reason")
 						else
-							RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", (reported and report.attacker) or (not reported and report.victim), tostring(k))
-							SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "the default reason")
+							if ulx then
+								RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", (reported and report.attacker) or (not reported and report.victim), tostring(k))
+								SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "the default reason")
+							else
+								Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
+							end
 						end
 					end):SetImage("icon16/mouse.png")
 
@@ -242,11 +255,19 @@ local function TakeAction()
 							local ply = (reported and attacker) or (not reported and victim)
 
 							if IsValid(ply) then
-								RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", ply:Nick(), tostring(k), txt)
+								if ulx then
+									RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", ply:Nick(), tostring(k), txt)
+								else
+									serverguard.command.Run("aslay", false, ply:Nick(), k, txt)
+								end
 								SetConclusion(ply:Nick(), k, "\"" .. txt .. "\"")
 							else
-								RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", (reported and report.attacker) or (not reported and report.victim), tostring(k), txt)
-								SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "\"" .. txt .. "\"")
+								if ulx then
+									RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", (reported and report.attacker) or (not reported and report.victim), tostring(k), txt)
+									SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), k, "\"" .. txt .. "\"")
+								else
+									Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
+								end
 							end
 						end)
 					end):SetImage("icon16/page_edit.png")
@@ -259,9 +280,13 @@ local function TakeAction()
 
 		menuPanel:AddOption("Slay the reported player now", function()
 			if IsValid(attacker) then
-				RunConsoleCommand("ulx", "slay", attacker:Nick())
+				if ulx then
+					RunConsoleCommand("ulx", "slay", attacker:Nick())
+				else
+					serverguard.command.Run("slay", false, ply:Nick())
+				end
 			else
-				Derma_Message(TTTLogTranslate(GetDMGLogLang, "RDMNotValid"), "Error", "OK")
+				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "RDMNotValid"), 2, "buttons/weapon_cant_buy.wav")
 			end
 		end):SetImage("icon16/lightning.png")
 
@@ -269,23 +294,45 @@ local function TakeAction()
 		local slaynr = DermaMenu(menuPanel)
 		slaynr:SetVisible(false)
 		slaynr_pnl:SetSubMenu(slaynr)
-		slaynr_pnl:SetText(mode == 1 and "Remove autoslays of" or "Remove autojails of")
+		local txt = "Remove autoslays of" 
+		if ulx and mode == 1 then
+			txt = "Remove autojails of"
+		elseif serverguard then
+			txt = "Remove 1 autoslay from"
+		end
+		slaynr_pnl:SetText(txt)
 		slaynr_pnl:SetImage("icon16/cancel.png")
 		menuPanel:AddPanel(slaynr_pnl)
 
 		slaynr:AddOption("The reported player", function()
 			if IsValid(attacker) then
-				RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", attacker:Nick(), "0")
+				if ulx then
+					RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", attacker:Nick(), "0")
+				else
+					serverguard.command.Run("raslay", false, attacker:Nick())
+				end
 			else
-				RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", report.attacker, "0")
+				if ulx then
+					RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", report.attacker, "0")
+				else
+					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
+				end
 			end
 		end):SetImage("icon16/user_delete.png")
 
 		slaynr:AddOption("The victim", function()
 			if IsValid(victim) then
-				RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", victim:Nick(), "0")
+				if ulx then
+					RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", victim:Nick(), "0")
+				else
+					serverguard.command.Run("raslay", false, victim:Nick())
+				end
 			else
-				RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", report.victim, "0")
+				if ulx then
+					RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", report.victim, "0")
+				else
+					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
+				end					
 			end
 		end):SetImage("icon16/user.png")
 	end

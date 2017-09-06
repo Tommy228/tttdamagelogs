@@ -51,7 +51,8 @@ Damagelog.Previous_Command = "!mreports"
 
 Damagelog.Use_MySQL = false
 
---[[ Autoslay Mode (requires ULX)
+--[[ Autoslay Mode 
+REQUIRES ULX ! If you are using ServerGuard, set this to 0 (it will use ServerGuard's autoslay automatically)
 - 0 : Disables autoslay
 - 1 : Enables the !aslay and !aslayid command for ULX, designed to work with the logs.
 	  Works like that : !aslay target number_of_slays reason
@@ -60,13 +61,14 @@ Damagelog.Use_MySQL = false
 - 2 : Enables the autojail system instead of autoslay. Replaces the !aslay and !aslay commands by !ajail and !ajailid
 ]]--
 
-Damagelog.AutoslayMode = 1
+Damagelog.ULX_AutoslayMode = 1
 
--- Force autoslain players to be innocents (overrides SelectRoles)
+-- Force autoslain players to be innocents (ULX only)
+-- Do not enable this if another addon interferes with roles (Pointshop roles for example)
 
-Damagelog.Autoslay_ForceRole = true
+Damagelog.ULX_Autoslay_ForceRole = true
 
--- Default autoslay reason
+-- Default autoslay reason (ULX and ServerGuard)
 
 Damagelog.Autoslay_DefaultReason = "No reason specified"
 

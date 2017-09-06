@@ -304,7 +304,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	end
 
-	if attacker == ply then return end
+	--if attacker == ply then return end
 
 	if not IsValid(attacker) then
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "InvalidAttacker"), 5, "buttons/weapon_cant_buy.wav")
