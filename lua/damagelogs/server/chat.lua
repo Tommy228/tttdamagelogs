@@ -350,7 +350,6 @@ net.Receive("DL_ForceStay", function(_len, ply)
 	end
 
 	for k,v in pairs(players) do
-		print(v, id)
 		v:SetNWInt("DL_ForcedStay", id)
 		net.Start("DL_ForcePlayerStay")
 		net.WriteUInt(id, 32)

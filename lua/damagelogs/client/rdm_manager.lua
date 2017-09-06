@@ -25,7 +25,6 @@ local function BuildReportFrame(report)
 
 	if IsValid(ReportFrame) and report then
 		for k,v in pairs(Damagelog.ReportsQueue) do
-			print(v.index, report.index, v.previous, report.previous)
 			if v.index == report.index and v.previous == report.previous then return end
 		end
 		ReportFrame:AddReport(report)
@@ -285,8 +284,6 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 		surface.SetFont("RDM_Manager_DNA")
 		local h = select(2, surface.GetTextSize(msg))
 		DNAMessage:SetPos(35, DNAMessage:GetParent():GetTall()/2 - h/2)
-
-		print(msg)
 	end
 
 	UserList.AddPlayer = function(pnl, pl, is_killer, killer_valid)

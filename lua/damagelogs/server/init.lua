@@ -220,7 +220,6 @@ function Damagelog:SendDamagelog(ply, round)
 			else
 		
 				local query = sql.QueryValue("SELECT damagelog FROM damagelog_oldlogs_v3 WHERE date = " .. self.last_round_map)
-				print(query)
 				if not query then return end
 				local decoded = util.JSONToTable(query)
 				if not decoded then
