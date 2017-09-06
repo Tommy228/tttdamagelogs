@@ -67,7 +67,14 @@ end)
 function Damagelog:SendDamageInfos(ply, t, att, victim, round)
 	local results = {}
 	local found = false	
-	for k,v in pairs(self.ShootTables[round] or {}) do
+	local data
+	if round == -1 then
+		data = Damagelog.PreviousMap.ShootTable
+	else
+		data = Damagelog.ShootTables[round]
+	end
+	if not data then return end
+	for k,v in pairs(data) do
 	    if k >= t - 10 and k <= t then
 		    for s,i in pairs(v) do
 		        if i[1] == victim or i[1] == att then
@@ -108,12 +115,19 @@ net.Receive("DL_AskDamageInfos", function(_, ply)
 end)
 
 net.Receive("DL_AskShootLogs", function(_, ply)
-	local round = net.ReadUInt(8)
+	local round = net.ReadInt(8)
 	if not ply:CanUseDamagelog() and round == Damagelog:GetSyncEnt():GetPlayedRounds() then return end
-	local data = Damagelog.ShootTables[round]
-	if not data then return end
+	local data, roles
+	if round == -1 then
+		data = Damagelog.PreviousMap.ShootTable
+		roles = Damagelog.PreviousMap.Roles
+	else
+		data = Damagelog.ShootTables[round]
+		roles = Damagelog.Roles[round]
+	end
+	if not roles or not data then return end
 	net.Start("DL_SendShootLogs")
-	net.WriteTable(Damagelog.Roles[Damagelog.CurrentRound])
+	net.WriteTable(roles)
 	net.WriteTable(data)
 	net.Send(ply)
 end)

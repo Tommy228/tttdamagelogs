@@ -11,7 +11,7 @@ function Damagelog:DrawShootsTab()
 		self.ShootsList:Clear()
 		self.ShootsList:AddLine(TTTLogTranslate(GetDMGLogLang, "Loading"))
 		net.Start("DL_AskShootLogs")
-		net.WriteUInt(self.SelectedRound, 8)
+		net.WriteInt(self.SelectedRound, 8)
 		net.SendToServer()
 	end
 
