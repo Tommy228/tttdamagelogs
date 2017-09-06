@@ -447,7 +447,7 @@ net.Receive("DL_RefreshDamagelog", function()
 		local rounds = Damagelog:GetSyncEnt():GetPlayedRounds()
 
 		if rounds == Damagelog.SelectedRound then
-			Damagelog:AddLogsLine(Damagelog.Damagelog, tbl, Damagelog.PlayersCombo.Players)
+			Damagelog:AddLogsLine(Damagelog.Damagelog, tbl, Damagelog.CurrentRoles)
 		end
 	end
 end)
