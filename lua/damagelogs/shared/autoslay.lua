@@ -26,6 +26,34 @@ local function CreateCommand()
 		end
 	end
 
+	function ulx.cslays(calling_ply, target)
+		local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..target:SteamID().."' LIMIT 1;")
+		local txt = aslay and "slays" or "jails"
+		local p = "has"
+		if calling_ply == target then
+			p = "have"
+		end
+		if data then
+			ulx.fancyLogAdmin(admin, "#T "..p.." "..data.slays.." "..txt.." left with the reason : #s", target, data.reason)
+		else
+			ulx.fancyLogAdmin(admin, "#T "..p.." no "..txt.." left.", target)
+		end
+	end
+
+	function ulx.cslaysid(calling_ply, steamid)
+		if not ULib.isValidSteamID(steamid) then
+			ULib.tsayError(calling_ply, "Invalid steamid.", true)
+			return
+		end
+		local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '"..steamid.."' LIMIT 1;")
+		local txt = aslay and "slays" or "jails"
+		if data then
+			ulx.fancyLogAdmin(admin, "#s has "..data.slays.." "..txt.." left with the reason : #s", steamid, data.reason)
+		else
+			ulx.fancyLogAdmin(admin, "#s has no "..txt.." left.", steamid)
+		end
+	end
+
 	local autoslay = ulx.command("TTT", aslay and "ulx aslay" or "ulx ajail", ulx.autoslay, aslay and "!aslay" or "!ajail")
 	autoslay:addParam({ type=ULib.cmds.PlayerArg })
 	autoslay:addParam({
@@ -79,6 +107,15 @@ local function CreateCommand()
 		help = "Jails the steamid for a specified number of rounds. Set the rounds to 0 to cancel the jails."
 	end
 	autoslayid:help(help)
+
+	local cslays = ulx.command("TTT", aslay and "ulx cslays" or "ulx cjails", ulx.cslays, aslay and "!cslays" or "!cjails")
+	cslays:addParam({ type=ULib.cmds.PlayerArg })
+
+	local cslaysid = ulx.command("TTT", aslay and "ulx cslaysid" or "ulx cjailsid", ulx.cslaysid, aslay and "!cslaysid" or "!cjailsid")
+	cslaysid:addParam({
+		type = ULib.cmds.StringArg,
+		hint ="steamid"
+	})
 end
 hook.Add("Initialize", "AutoSlay", CreateCommand)
 
