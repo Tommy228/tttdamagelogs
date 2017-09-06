@@ -826,7 +826,6 @@ surface.CreateFont("DL_PendingText", {
 })
 
 local m = 5
-local additionalWidth = 10
 local showPending = GetConVar("ttt_dmglogs_showpending")
 local syncEnt
 hook.Add("HUDPaint", "DamagelogPendingReports", function()
@@ -843,7 +842,7 @@ hook.Add("HUDPaint", "DamagelogPendingReports", function()
 	local pendingReports = syncEnt:GetPendingReports()
 	if pendingReports < 1 then return end
 	pendingReports = tostring(pendingReports)
-
+	
 	local textTop = TTTLogTranslate(GetDMGLogLang, "PendingTop")
 	local textBottom = TTTLogTranslate(GetDMGLogLang, "ReportsBottom")
 
@@ -856,7 +855,7 @@ hook.Add("HUDPaint", "DamagelogPendingReports", function()
 	surface.SetFont("DL_PendingNumber")
 	local numberWidth, numberHeight = surface.GetTextSize(pendingReports)
 
-	local w, h = numberWidth + maxWidth + 3*m + additionalWidth, numberHeight + 2*m
+	local w, h = numberWidth + maxWidth + 3*m, numberHeight + 2*m
 
 	local screenWidth, screenHeight = ScrW(), ScrH()
 	local x, y = screenWidth - w, ScrH()*0.2 + h/2
@@ -873,10 +872,10 @@ hook.Add("HUDPaint", "DamagelogPendingReports", function()
 
 	surface.SetFont("DL_PendingText")
 
-	surface.SetTextPos(screenWidth - (numberWidth + 2*m) - topWidth/2 - additionalWidth, y + h/3 - topHeight/2)
+	surface.SetTextPos(x  + numberWidth + m + (w - numberWidth) / 2  - topWidth/2, y + h/3 - topHeight/2)
 	surface.DrawText(textTop)
 
-	surface.SetTextPos(screenWidth - (numberWidth + 2*m) - bottomWidth/2 - additionalWidth, y + 2*h/3 - bottomHeight/2)
+	surface.SetTextPos(x  + numberWidth + m + (w - numberWidth) / 2  - bottomWidth/2, y + 2*h/3 - bottomHeight/2)
 	surface.DrawText(textBottom)
 
 end)
