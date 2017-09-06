@@ -398,6 +398,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 	end
 
 	Submit.DoClick = function(self)
+		if not IsValid(cur_selected) then return end
 		local ply = cur_selected.ply
 		if not IsValid(ply) then return end
 		net.Start("DL_ReportPlayer")
