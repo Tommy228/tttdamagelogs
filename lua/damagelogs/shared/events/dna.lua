@@ -24,7 +24,7 @@ end
 function event:ToString(v, roles)
 	local ply = Damagelog:InfoFromID(roles, v[1])
 	local dna_owner = Damagelog:InfoFromID(roles, v[2])
-	local ent = Damagelog.weapon_table[v[3]] or v[3]
+	local ent = Damagelog:GetWeaponName(v[3]) or v[3]
 	return string.format(TTTLogTranslate(GetDMGLogLang, "DNAretrieved"), ply.nick, Damagelog:StrRole(ply.role), dna_owner.nick, Damagelog:StrRole(dna_owner.role), ent)
 end
 

@@ -280,7 +280,9 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 				elseif i[2] == "crowbarpouss" then -- Currently unused
 					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasPushed"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles, i[1]).nick, self:InfoFromID(roles,i[3]).nick))
 				else
-					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles,i[1]).nick, TTTLogTranslate(GetDMGLogLang, self.weapon_table[i[2]] or i[2])))
+					wep = Damagelog:GetWeaponName(i[2])
+					wep = wep or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
+					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles,i[1]).nick, wep))
 				end
 				item.PaintOver = function()
 					if att and victim then
