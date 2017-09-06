@@ -53,15 +53,15 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	end
 	colorChoice:ChooseOptionID(1)
 
-	colorChoice.OnSelect = function(panel, index, value, data)
-		colorMixer:SetColor(Damagelog.colors[data].Custom)
-		selectedcolor = data
-	end
-
 	colorSettings:AddItem(colorChoice)
 	local colorMixer = vgui.Create("DColorMixer")
 	colorMixer:SetHeight(200)
 	local found = false
+
+	colorChoice.OnSelect = function(panel, index, value, data)
+		colorMixer:SetColor(Damagelog.colors[data].Custom)
+		selectedcolor = data
+	end
 
 	for k,v in pairs(Damagelog.colors) do
 		if not found then
@@ -154,7 +154,7 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	wepListview.Update = function(panel)
 		panel:Clear()
 
-		for k, v in pairs(Damagelog.weapon_table) do
+		for k, v in pairs(Damagelog.weapon_table or {}) do
 			local line = panel:AddLine(k, TTTLogTranslate(GetDMGLogLang, v))
 
 			if not Damagelog.weapon_table_default[k] then

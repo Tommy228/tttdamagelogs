@@ -440,7 +440,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 	
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. TTTLogTranslate(ply.DMGLogLang, "To") .. TTTLogTranslate(ply.DMGLogLang, "RDMWating") .. "."
 		local syncEnt = Damagelog:GetSyncEnt()
-		if not adminReport and IsValid(syncEnt)then
+		if IsValid(syncEnt)then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() + 1)
 		end	
 	elseif status == RDM_MANAGER_PROGRESS then
