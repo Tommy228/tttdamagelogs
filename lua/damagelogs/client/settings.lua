@@ -99,17 +99,3 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 
 	dtabs:AddSheet("Damagelogs", dsettings, "icon16/table_gear.png", false, false, TTTLogTranslate(GetDMGLogLang, "DamagelogMenuSettings"))
 end)
-
-net.Receive("DL_SendWeaponTable", function()
-	local full = net.ReadUInt(1) == 1
-
-	if full then
-		Damagelog.weapon_table = net.ReadTable()
-	else
-		Damagelog.weapon_table[net.ReadString()] = net.ReadString()
-	end
-
-	if IsValid(Damagelog.WepListview) then
-		Damagelog.WepListview:Update()
-	end
-end)

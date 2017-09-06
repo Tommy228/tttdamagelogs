@@ -393,9 +393,9 @@ hook.Add("HUDPaint", "Scene_Record", function()
 				local wep = model.wep
 
 				if wep then
-					local wepEntityName = Damagelog.weapon_table[wep]
+					local wepEntityName = Damagelog:GetWeaponName(wep) or wep
 					if wepEntityName then
-						wep = TTTLogTranslate(GetDMGLogLang, Damagelog.weapon_table[wep])
+						wep = wepEntityName
 					else
 						TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
 					end
