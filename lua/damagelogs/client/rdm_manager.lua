@@ -316,7 +316,7 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 	end
 
 	for k, v in ipairs(player.GetHumans()) do
-		--if v == killer or  v == LocalPlayer() then continue end
+		if v == killer or  v == LocalPlayer() then continue end
 		UserList:AddPlayer(v, false)
 	end
 

@@ -304,7 +304,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	end
 
-	--if attacker == ply then return end
+	if attacker == ply then return end
 
 	if not IsValid(attacker) then
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "InvalidAttacker"), 5, "buttons/weapon_cant_buy.wav")
@@ -457,14 +457,14 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 		end
 
 		local syncEnt = Damagelog:GetSyncEnt()
-		if not adminReport and IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
+		if previousStatus == RDM_MANAGER_WAITING then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
 		end	
 
 	elseif status == RDM_MANAGER_FINISHED then
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. TTTLogTranslate(ply.DMGLogLang, "To") .. TTTLogTranslate(ply.DMGLogLang, "Finished") .. "."
 		local syncEnt = Damagelog:GetSyncEnt()
-		if not adminReport and IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
+		if previousStatus == RDM_MANAGER_WAITING then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
 		end
 	end
