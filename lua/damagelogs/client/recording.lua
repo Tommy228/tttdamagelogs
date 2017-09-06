@@ -568,7 +568,7 @@ hook.Add("Think", "Think_Record", function()
 				local vector = v.pos
 				local angle = v.ang
 
-				if next_scene and next_scene[k] then
+				if next_scene and next_scene[k] and next_scene[k].pos and next_scene[k].ang then
 					local percent = math.ceil(i) - i
 					vector = LerpVector(percent, next_scene[k].pos, v.pos)
 					angle = LerpAngle(percent, next_scene[k].ang, v.ang)
