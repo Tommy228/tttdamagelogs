@@ -41,10 +41,6 @@ Damagelog.RDM_Manager_Command = "!report"
 
 Damagelog.Respond_Command = "!respond"
 
--- Command to open the previous report menu
-
-Damagelog.Previous_Command = "!mreports"
-
 --[[ Set to true if you want to enable MySQL (it needs to be configured on config/mysqloo.lua)
 	Setting it to false will make the logs use SQLite (garrysmod/sv.db)
 ]]--
@@ -75,3 +71,7 @@ Damagelog.Autoslay_DefaultReason = "No reason specified"
 -- The number of days the logs last on the database (to avoid lags when opening the menu)
 
 Damagelog.LogDays = 61
+
+-- Hide the Donate button on the top-right corner
+
+Damagelog.HideDonateButton = false

@@ -115,14 +115,10 @@ hook_Add("PlayerSay", "Damagelog_RDMManager", function(ply, text, teamOnly)
 	if Damagelog.RDM_Manager_Enabled then
 		if (string_Left(string_lower(text), #Damagelog.RDM_Manager_Command) == Damagelog.RDM_Manager_Command) then
 			Damagelog:StartReport(ply)
-
 			return false
 		elseif (Damagelog.Respond_Command and string_Left(string_lower(text), #Damagelog.Respond_Command) == Damagelog.Respond_Command) then
 			net.Start("DL_Death")
 			net.Send(ply)
-		elseif (Damagelog.Previous_Command and string_Left(string_lower(text), #Damagelog.Previous_Command) == Damagelog.Previous_Command) then
-			Damagelog:GetMReports(ply)
-
 			return false
 		end
 	end

@@ -120,9 +120,9 @@ function Damagelog:OpenMenu()
 			surface.SetFont("DermaDefault")
 			surface.SetTextColor(color_black)
 			surface.SetTextPos(_x + 5, _y + 5)
-			surface.DrawText("Created by Tommy228")
+			surface.DrawText("Created by Tommy228.")
 			surface.SetTextPos(_x + 5, _y + 25)
-			surface.DrawText("Rewritten by Min & My Dime Is Up")
+			surface.DrawText("Licensed under GPL-3.0.")
 		end
 	end
 
@@ -145,6 +145,16 @@ function Damagelog:OpenMenu()
 	self.About:SetPos(x - 60, show_outdated and 57 or 27)
 	self.About:SetSize(55, 19)
 	self.About:SetText("▼" .. TTTLogTranslate(GetDMGLogLang, "About"))
+
+	if not Damagelog.HideDonateButton then
+		self.Donate = vgui.Create("DButton", self.Menu)
+		self.Donate:SetPos(x - 120, show_outdated and 57 or 27)
+		self.Donate:SetSize(55, 19)
+		self.Donate:SetText(TTTLogTranslate(GetDMGLogLang, "Donate"))
+		self.Donate.DoClick = function()
+			gui.OpenURL("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSJDH4CJ4N3BQ")
+		end
+	end
 
 	self.About.DoClick = function()
 		self.Menu:About()
