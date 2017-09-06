@@ -25,9 +25,9 @@ function event:Initialize()
 end
 
 function event:ToString(v, roles)
-	local weapon = Damagelog:GetWeaponName(v[3]) or tostring(v[2])
+	local weapon = Damagelog:GetWeaponName(v[2]) or tostring(v[2])
 	local ply = Damagelog:InfoFromID(roles, v[1])
-	return string.format(TTTLogTranslate(GetDMGLogLang, "NadeThrown"), ply.nick, Damagelog:StrRole(ply.role), TTTLogTranslate(GetDMGLogLang, weapon))
+	return string.format(TTTLogTranslate(GetDMGLogLang, "NadeThrown"), ply.nick, Damagelog:StrRole(ply.role), weapon)
 end
 
 function event:IsAllowed(tbl)
