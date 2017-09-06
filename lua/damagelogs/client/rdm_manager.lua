@@ -24,6 +24,10 @@ local ReportFrame
 local function BuildReportFrame(report)
 
 	if IsValid(ReportFrame) and report then
+		for k,v in pairs(Damagelog.ReportsQueue) do
+			print(v.index, report.index, v.previous, report.previous)
+			if v.index == report.index and v.previous == report.previous then return end
+		end
 		ReportFrame:AddReport(report)
 	else
 		local found = false
@@ -447,10 +451,12 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 	local VictimMessage = vgui.Create("DTextEntry", VictimInfos)
 	VictimMessage:SetMultiline(true)
 	VictimMessage:SetKeyboardInputEnabled(false)
+	VictimMessage:SetVerticalScrollbarEnabled(true)
 		
 	local KillerMessage = vgui.Create("DTextEntry", VictimInfos)
 	KillerMessage:SetMultiline(true)
 	KillerMessage:SetKeyboardInputEnabled(false)
+	KillerMessage:SetVerticalScrollbarEnabled(true)
 
 	KillerMessage.PaintOver = function(self, w, h)
 		if self.DisableR then
@@ -734,7 +740,9 @@ net.Receive("DL_SendReport", function()
 end)
 
 net.Receive("DL_Death", function()
-	BuildReportFrame()
+	if not IsValid(ReportFrame) then
+		BuildReportFrame()
+	end
 end)
 
 net.Receive("DL_SendForgive", function()
