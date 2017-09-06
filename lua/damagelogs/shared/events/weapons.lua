@@ -28,7 +28,7 @@ if CLIENT then
 end
 
 function event:ToString(v, roles)
-	local weapon = Damagelog.weapon_table[v[3]] or tostring(v[3])
+	local weapon = tostring(v[3])
 	if tonumber(weapon) then
 		weapon = tonumber(weapon)
 		if event.Equips[weapon] then

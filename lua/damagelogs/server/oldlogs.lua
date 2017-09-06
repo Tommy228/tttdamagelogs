@@ -83,8 +83,6 @@ if Damagelog.Use_MySQL then
 			end
 		end
 		yearsQuery:start()
-			
-		Damagelog:GetWepTable()
 	end
 	Damagelog.database.onConnectionFailed = function(self, err)
 		file.Write("damagelog/mysql_error.txt", err)
@@ -136,7 +134,6 @@ else
 			end
 		end
 	end
-	Damagelog:GetWepTable()
 end
 
 if file.Exists("damagelog/damagelog_lastroundmap.txt", "DATA") then

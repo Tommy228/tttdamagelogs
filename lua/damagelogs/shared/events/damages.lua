@@ -77,7 +77,8 @@ end
 
 function event:ToString(tbl, roles)
 
-	local weapon = Damagelog.weapon_table[tbl[4]] or tbl[4]
+	local weapon = tbl[4]
+	weapon = Damagelog:GetWeaponName(weapon)
 	local karma_reduced = tbl[3] < tbl[5]
 	local ent = Damagelog:InfoFromID(roles, tbl[1])
 	local att = Damagelog:InfoFromID(roles, tbl[2])

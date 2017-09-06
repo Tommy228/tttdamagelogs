@@ -42,7 +42,8 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 end
 
 function event:ToString(v, roles)
-	local weapon = Damagelog.weapon_table[v[3]] or v[3]
+	local weapon = v[3]
+	weapon = Damagelog:GetWeaponName(weapon)
 	local attackerInfo = Damagelog:InfoFromID(roles, v[1])
 	local victimInfo = Damagelog:InfoFromID(roles, v[2])
 	return string.format(TTTLogTranslate(GetDMGLogLang, "HasKilled"), attackerInfo.nick, Damagelog:StrRole(attackerInfo.role), victimInfo.nick, Damagelog:StrRole(victimInfo.role), weapon or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon"))
