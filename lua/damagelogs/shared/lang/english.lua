@@ -277,6 +277,7 @@ DamagelogLang.english = {
 	PendingTop = "Pending",
 	ReportsBottom = "reports",
 	ShowPendingReports = "Show the number of pending reports on the HUD",
+	CreateReport = "Create report",
 
 	-- Months
 	January = "January",

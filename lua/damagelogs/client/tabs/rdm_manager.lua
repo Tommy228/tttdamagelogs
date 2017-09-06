@@ -643,9 +643,12 @@ function Damagelog:DrawRDMManager(x, y)
 		end
 
 		local CreateReport = vgui.Create("DButton", Background)
-		CreateReport:SetText("Create report")
+		CreateReport:SetText(TTTLogTranslate(GetDMGLogLang, "CreateReport"))
 		CreateReport:SetPos(385, 4)
 		CreateReport:SetSize(80, 18)
+		CreateReport.DoClick = function()
+			RunConsoleCommand("dmglogs_startreport")
+		end
 
 		Manager:AddItem(Background)
 		local VictimInfos = vgui.Create("DPanel")

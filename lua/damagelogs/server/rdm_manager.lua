@@ -244,6 +244,9 @@ function Damagelog:StartReport(ply)
 
 	net.Send(ply)
 end
+concommand.Add("dmglogs_startreport", function(ply, cmd, args)
+	Damagelog:StartReport(ply)
+end)
 
 local function OnDNAFound(ply, killer, corpse)
 	if not ply.DmgLog_DNA then
