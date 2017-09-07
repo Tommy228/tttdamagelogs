@@ -17,25 +17,24 @@ function event:TTTOrderedEquipment(ply, ent, is_item)
 	})
 end
 
-if CLIENT then
-	hook.Add("Initialize", "Damagelog_InitializeEventWeapon", function()
-		event.Equips = {
-			[EQUIP_RADAR] = TTTLogTranslate(GetDMGLogLang, "Radar"),
-			[EQUIP_ARMOR] = TTTLogTranslate(GetDMGLogLang, "Armor"),
-			[EQUIP_DISGUISE] = TTTLogTranslate(GetDMGLogLang, "Disguiser")
-		}
-	end)
-end
-
 function event:ToString(v, roles)
-	local weapon = tostring(v[3])
-	if tonumber(weapon) then
+	local weapon = v[3]
+	if isnumber(weapon) then
 		weapon = tonumber(weapon)
-		if event.Equips[weapon] then
-			weapon = event.Equips[weapon]
+		for _,role in pairs(EquipmentItems) do
+			local found = false
+			for k,v in pairs(role) do
+				if v.id == weapon then
+					local translated = LANG.TryTranslation(v.name)
+      				weapon = translated or v.name
+					found = true
+					break
+				end
+			end
+			if found then break end
 		end
-	elseif string.sub(weapon, 1, 6) == "Weapon" then
-		weapon = TTTLogTranslate(GetDMGLogLang, weapon)
+	else
+		weapon = Damagelog:GetWeaponName(weapon)
 	end
 	local ply = Damagelog:InfoFromID(roles, v[1])
 	return string.format(TTTLogTranslate(GetDMGLogLang, "HasBought"), ply.nick, Damagelog:StrRole(ply.role), weapon) 
