@@ -281,6 +281,7 @@ DamagelogLang.english = {
 	CreateReport = "Create report",
 	Donate = "Donate",
 	EnableSound = "Enable notification sound",
+	CurrentRound = "Current round",
 
 	-- Months
 	January = "January",

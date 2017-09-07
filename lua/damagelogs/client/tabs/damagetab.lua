@@ -326,7 +326,7 @@ function Damagelog:DrawDamageTab(x, y)
 
 		for i = i_count, PlayedRounds do
 			if i == PlayedRounds and LocalPlayer():CanUseDamagelog() then
-				self.Round:AddChoice(TTTLogTranslate(GetDMGLogLang, "Current") .. " " .. TTTLogTranslate(GetDMGLogLang, "Round"), i)
+				self.Round:AddChoice(TTTLogTranslate(GetDMGLogLang, "CurrentRound"), i)
 			else
 				self.Round:AddChoice(TTTLogTranslate(GetDMGLogLang, "Round") .. " " .. tostring(i), i)
 			end
