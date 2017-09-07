@@ -9,7 +9,7 @@ DamagelogLang.russian = {
 	DMG_SHOCK = "электрический разряд",
 	DMG_ENERGYBEAM = "лазер",
 	DMG_SONIC = "телепортация",
-	DMG_PHYSGUN = "a massive bulk",
+	DMG_PHYSGUN = "толчок огромной силы",
 	
 	Damagelog = "Логи",
 	SLogs = "Выстрелы",
@@ -56,7 +56,7 @@ DamagelogLang.russian = {
 	DisplayName = "Имя",
 	RDMWaiting = "Ожидание",
 	RDMWaitingAttacker= "Ожидание ответа",
-	RDMResponded = "Обвиняемый ответил",
+	RDMResponded = "Ответ получен",
 	RDMInProgress = "Рассматривается",
 	RDMFinished = "Завершена",
 	RDMCanceled = "Закрыта заявителем",
