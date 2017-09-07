@@ -136,12 +136,12 @@ DamagelogLang.deutsch = {
 	HandlingYourReport = "bearbeitet jetzt deine Meldung.",
 	Finished = "Fertig",
 	ReportIsntFinished = "Dieser Bericht ist noch nicht fertig!",
-	HasSetConclusion = "hat eine Schlussfolgerung zum bericht",
-	TheReportedPlayer = "Der gemeldete spieler",
+	HasSetConclusion = "hat eine Schlussfolgerung zum Bericht",
+	TheReportedPlayer = "Der gemeldete Spieler",
 	HasAnsweredReport = "hat auf den Bericht geantwortet",
-	HasCanceledReport = "hat den Bericht abgesagt.",
+	HasCanceledReport = "hat den Bericht storniert.",
 	TheReport = "Der Bericht",
-	HasCanceledByVictim = "wurde vom Opfer abgesagt!",
+	HasCanceledByVictim = "wurde vom Opfer storniert!",
 	NoMercy = "Das Opfer verzeiht dem Angreifer nicht",
 	DidNotForgive = "%s hat %s bei dem Bericht #%s nicht verziehen!",
 	YouCancelReport = "hat beschlossen dir zu verzeihen.",
@@ -280,6 +280,8 @@ DamagelogLang.deutsch = {
 	ShowPendingReports = "Zeige die Anzahl der ausstehenden Meldungen auf dem HUD",
 	CreateReport = "Erstelle Meldung",
 	Donate = "Spenden",
+	EnableSound = "Benachrichtigungston aktivieren",
+	CurrentRound = "Aktuelle Runde",
 
 	-- Months
 	January = "Januar",
@@ -353,5 +355,6 @@ DamagelogLang.deutsch = {
 	color_defaultradio = "Radio Kommando",
 	color_kosradio = "Radio Abschuss Kommando",
 	color_purchases = "Waffeneinkäufe",
-	color_c4 = "C4"
+	color_c4 = "C4",
+	color_team_kills = "Team Kills"
 }
