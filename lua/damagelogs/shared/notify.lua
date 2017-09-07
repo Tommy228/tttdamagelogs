@@ -12,7 +12,10 @@ if SERVER then
 		net.WriteUInt(msg_type, 4)
 		net.WriteString(msg)
 		net.WriteUInt(_time, 4)
-		net.WriteString(sound)
+		net.WriteUInt(sound and 1 or 0, 1)
+		if sound then
+			net.WriteString(sound)
+		end
 		net.Send(self)
 	end
 
@@ -26,8 +29,12 @@ else
 	}
 
 	function Damagelog:Notify(msg_type, msg, _time, soundFile)
-		if soundFile then
-			surface.PlaySound(soundFile)
+		if soundFile and GetConVar("ttt_dmglogs_enablesound"):GetBool() then
+			if GetConVar("ttt_dmglogs_enablesoundoutside"):GetBool() then
+				sound.PlayFile("sound/"..soundFile, "", function() end)
+			else
+				surface.PlaySound(soundFile)
+			end
 		end
 		table.insert(Damagelog.Notifications, {
 			text = msg,
@@ -38,7 +45,10 @@ else
 	end
 
 	net.Receive("DL_Notify", function()
-		Damagelog:Notify(net.ReadUInt(4), net.ReadString(), net.ReadUInt(4), net.ReadString())
+		Damagelog:Notify(net.ReadUInt(4), 
+				net.ReadString(), 
+				net.ReadUInt(4), 
+				(net.ReadUInt(1) == 1) and net.ReadString() or false)
 	end)
 
 	local function DrawNotif(x, y, w, h, text, icon)

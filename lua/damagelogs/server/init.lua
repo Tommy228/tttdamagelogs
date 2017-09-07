@@ -41,8 +41,13 @@ if Damagelog.RDM_Manager_Enabled then
 	AddCSLuaFile("damagelogs/client/chat.lua")
 	AddCSLuaFile("damagelogs/shared/rdm_manager.lua")
 	AddCSLuaFile("damagelogs/shared/chat.lua")
-	resource.AddFile("sound/ui/vote_failure.mp3")
-	resource.AddFile("sound/ui/vote_yes.mp3")
+	if Damagelog.UseWorkshop then
+		resource.AddWorkshop("1129792694")
+	else
+		resource.AddFile("sound/damagelogs/vote_failure.wav")
+		resource.AddFile("sound/damagelogs/vote_yes.wav")
+		resource.AddFile("sound/damagelogs/vote_no.wav")
+	end
 	include("damagelogs/server/rdm_manager.lua")
 	include("damagelogs/server/chat.lua")
 	include("damagelogs/shared/rdm_manager.lua")

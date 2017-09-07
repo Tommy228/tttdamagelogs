@@ -75,3 +75,7 @@ Damagelog.LogDays = 61
 -- Hide the Donate button on the top-right corner
 
 Damagelog.HideDonateButton = false
+
+-- Use the Workshop to download content files
+
+Damagelog.UseWorkshop = true
