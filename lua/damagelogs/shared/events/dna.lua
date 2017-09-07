@@ -2,7 +2,7 @@ if SERVER then
 	Damagelog:EventHook("TTTFoundDNA")
 else
 	Damagelog:AddFilter("filter_show_dna", DAMAGELOG_FILTER_BOOL, true)
-	Damagelog:AddColor("color_dna", Color(0,255,0))
+	Damagelog:AddColor("color_dna", Color(20,200,20))
 end
 
 local event = {}

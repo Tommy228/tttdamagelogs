@@ -2,6 +2,7 @@ if SERVER then
 	Damagelog:EventHook("DoPlayerDeath")
 else
 	Damagelog:AddFilter("filter_show_kills", DAMAGELOG_FILTER_BOOL, true)
+	Damagelog:AddColor("color_team_kills", Color(255, 40, 40))
 	Damagelog:AddColor("color_kills", Color(255, 128, 0, 255))
 end
 
@@ -66,7 +67,7 @@ function event:GetColor(tbl, roles)
 	local ent = Damagelog:InfoFromID(roles, tbl[1])
 	local att = Damagelog:InfoFromID(roles, tbl[2])
 	if Damagelog:IsTeamkill(ent.role, att.role) then
-		return Damagelog:GetColor("color_team_damages")
+		return Damagelog:GetColor("color_team_kills")
 	else
 		return Damagelog:GetColor("color_kills")
 	end

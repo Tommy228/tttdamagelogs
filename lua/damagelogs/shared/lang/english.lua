@@ -354,5 +354,6 @@ DamagelogLang.english = {
 	color_defaultradio = "Radio command",
 	color_kosradio = "Radio KOS command",
 	color_purchases = "Equipment purchases",
-	color_c4 = "C4"
+	color_c4 = "C4",
+	color_team_kills = "Team kills"
 }
