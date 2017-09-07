@@ -146,15 +146,20 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 				local list = self:CreateSlayList(old_steamids)
 				local nick = self:GetName(steamid)
 				local msg
-				if aslay then
-					msg = "#A was already autoslain "
-				else
-					msg = "#A was already autojailed "
-				end
 				if target then
-					ulx.fancyLogAdmin(admin, msg..slays.." time(s) by #s for #s.", target, list, reason)
+					if aslay then
+						msg = "#T was already autoslain "
+					else
+						msg = "#T was already autojailed "
+					end
+					ulx.fancyLogAdmin(admin, msg..slays.." time(s) by #A for #s.", target, list, reason)
 				else
-					ulx.fancyLogAdmin(admin, msg..slays.." time(s) by #s for #s.", steamid, list, reason)
+					if aslay then
+						msg = "#s was already autoslain "
+					else
+						msg = "#s was already autojailed "
+					end
+					ulx.fancyLogAdmin(admin, msg..slays.." time(s) by #A for #s.", steamid, list, reason)
 				end
 			else
 				local difference = slays - old_slays
@@ -162,14 +167,19 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 				local list = self:CreateSlayList(old_steamids)
 				local nick = self:GetName(steamid)
 				local msg
-				if aslay then
-					msg = " autoslays to #T for the reason : '#s'. He was previously autoslain "
-				else
-					msg = " autojails to #T for the reason : '#s'. He was previously autojailed "
-				end
 				if target then
+					if aslay then
+						msg = " autoslays to #T for the reason : '#s'. He was previously autoslain "
+					else
+						msg = " autojails to #T for the reason : '#s'. He was previously autojailed "
+					end
 					ulx.fancyLogAdmin(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference)..msg..old_slays.." time(s) by #s.", target, reason, list)
 				else
+					if aslay then
+						msg = " autoslays to #s for the reason : '#s'. He was previously autoslain "
+					else
+						msg = " autojails to #s for the reason : '#s'. He was previously autojailed "
+					end
 					ulx.fancyLogAdmin(admin, "#A "..(difference > 0 and "added " or "removed ")..math.abs(difference)..msg..old_slays.." time(s) by #s.", steamid, reason, list)
 				end
 				NetworkSlays(steamid, slays)
@@ -183,14 +193,19 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			end
 			sql.Query(string.format("INSERT INTO damagelog_autoslay (`admins`, `ply`, `slays`, `reason`, `time`) VALUES (%s, '%s', %i, %s, %s)", sql.SQLStr(admins), steamid, slays, sql.SQLStr(reason), tostring(os.time())))
 			local msg
-			if aslay then
-				msg = " autoslays to #T with the reason : '#s'"
-			else
-				msg = " autojails to #T with the reason : '#s'"
-			end
 			if target then
+				if aslay then
+					msg = " autoslays to #T with the reason : '#s'"
+				else
+					msg = " autojails to #T with the reason : '#s'"
+				end
 				ulx.fancyLogAdmin(admin, "#A added "..slays..msg, target, reason)
 			else
+				if aslay then
+					msg = " autoslays to #s with the reason : '#s'"
+				else
+					msg = " autojails to #s with the reason : '#s'"
+				end
 				ulx.fancyLogAdmin(admin, "#A added "..slays..msg, steamid, reason)
 			end
 			NetworkSlays(steamid, slays)
