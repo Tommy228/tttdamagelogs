@@ -215,7 +215,7 @@ function Damagelog:SendDamagelog(ply, round)
 								DamageTable = {}
 							}
 						end
-						self:TransferLogs(decoded.DamageTable, ply, round, decoded.roles)
+						self:TransferLogs(decoded.DamageTable, ply, round, decoded.Roles)
 						Damagelog.PreviousMap = decoded
 					end
 				end
