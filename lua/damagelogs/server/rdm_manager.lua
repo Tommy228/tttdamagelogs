@@ -601,16 +601,16 @@ net.Receive("DL_GetForgive", function(_, ply)
 	end
 
 	if forgive then
-		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), 5, "damagelogs/vote_yes.wav")
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. string_format( TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), tbl.attacker_nick ), 5, "damagelogs/vote_yes.wav")
 	else
-		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. TTTLogTranslate(ply.DMGLogLang, "YouKeepReport"), 5, "damagelogs/vote_no.wav")
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. string_format( TTTLogTranslate(ply.DMGLogLang, "YouKeepReport"), tbl.attacker_nick ), 5, "damagelogs/vote_no.wav")
 	end
 
 	local attacker = GetBySteamID(tbl.attacker)
 
 	if IsValid(attacker) then
 		if forgive then
-			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), 5, "damagelogs/vote_yes.wav")
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. string_format( TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), TTTLogTranslate( ply.DMGLogLang, "You" ) ), 5, "damagelogs/vote_yes.wav")
 		else
 			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "NoMercyForYou"), 5, "damagelogs/vote_no.wav")
 		end
