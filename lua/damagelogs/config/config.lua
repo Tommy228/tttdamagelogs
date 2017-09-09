@@ -79,3 +79,7 @@ Damagelog.HideDonateButton = false
 -- Use the Workshop to download content files
 
 Damagelog.UseWorkshop = true
+
+-- Force a language - When empty use user-defined language
+
+Damagelog.ForcedLanguage = ""

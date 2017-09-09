@@ -25,8 +25,13 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	for k,v in pairs(DamagelogLang) do
 		dmgLang:AddChoice(string.upper(string.sub(k,1,1))..string.sub(k,2,100))
 	end
-
-	dmgLang:ChooseOption(string.upper(string.sub(GetConVar("ttt_dmglog_language"):GetString(),1,1))..string.sub(GetConVar("ttt_dmglog_language"):GetString(),2,100))
+	if Damagelog.ForcedLanguage == "" then
+		dmgLang:SetDisabled(false)
+		dmgLang:ChooseOption(string.upper(string.sub(GetConVar("ttt_dmglog_language"):GetString(),1,1))..string.sub(GetConVar("ttt_dmglog_language"):GetString(),2,100))
+	else
+		dmgLang:SetDisabled(true)
+		dmgLang:ChooseOption(string.upper(string.sub(Damagelog.ForcedLanguage,1,1))..string.sub(Damagelog.ForcedLanguage,2,100))
+	end
 
 	dmgLang.OnSelect = function(panel, index, value, data, Damagelog)
 		local currentLanguage = GetConVar("ttt_dmglog_language"):GetString()
