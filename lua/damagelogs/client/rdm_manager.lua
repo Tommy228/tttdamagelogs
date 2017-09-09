@@ -358,10 +358,10 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 	Type:SetPos(210, 168)
 	Type:SetSize(370, 20)
 
-	Type:AddChoice("Standard report (as a player)", DAMAGELOG_REPORT_STANDARD, true)
-	Type:AddChoice("Standard admin report", DAMAGELOG_REPORT_ADMIN)
-	Type:AddChoice("Advanced admin report : directly force the reported player to respond", DAMAGELOG_REPORT_FORCE)
-	Type:AddChoice("Advanced admin report : directly open a chat with the reported player", DAMAGELOG_REPORT_CHAT)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "StandardReport"), DAMAGELOG_REPORT_STANDARD, true)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "StandardAdminReport"), DAMAGELOG_REPORT_ADMIN)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "AdvancedAdminReportForce"), DAMAGELOG_REPORT_FORCE)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "AdvancedAdminReportChat"), DAMAGELOG_REPORT_CHAT)
 
 	Type.OnSelect = function(Type, data, text)
 		if data == DAMAGELOG_REPORT_CHAT then

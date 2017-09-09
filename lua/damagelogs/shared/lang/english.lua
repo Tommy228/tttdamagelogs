@@ -282,6 +282,10 @@ DamagelogLang.english = {
 	Donate = "Donate",
 	EnableSound = "Enable notification sound",
 	CurrentRound = "Current round",
+	StandardReport = "Standard report (as a player)",
+	StandardAdminReport = "Standard admin report",
+	AdvancedAdminReportForce = "Advanced admin report : directly force the reported player to respond",
+	AdvancedAdminReportChat = "Advanced admin report : directly open a chat with the reported player",
 
 	-- Months
 	January = "January",
