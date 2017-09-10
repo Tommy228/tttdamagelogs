@@ -281,6 +281,10 @@ DamagelogLang.russian = {
 	Donate = "Помочь",
 	EnableSound = "Включить звук оповещения",
 	CurrentRound = "Текущий раунд",
+	StandardReport = "Обычная жалоба (как игрок)",
+ 	StandardAdminReport = "Жалоба от админа",
+ 	AdvancedAdminReportForce = "Жалоба от админа : Сразу заставить обвиняемого ответить",
+ 	AdvancedAdminReportChat = "Жалоба от админа : Сразу открыть чат с обвиняемым",
 
 	-- Months
 	January = "Январь",
