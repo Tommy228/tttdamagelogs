@@ -129,8 +129,8 @@ DamagelogLang.russian = {
 	GreatYou = "Вы",
 	YouHaveReported = "Вы пожаловались на %s",
 	YouHaveAdminReported = "Вы отправили админ-жалобу на %s",
-	HasSetReport = "установил статус жалобы",
-	To = "на ",
+	HasSetReport = "сменил статус жалобы",
+	To = "на",
 	DealingReport = "рассматривает жалобу",
 	HandlingYourReport = "рассматривает вашу жалобу.",
 	Finished = "Закрыта",
@@ -281,6 +281,10 @@ DamagelogLang.russian = {
 	Donate = "Помочь",
 	EnableSound = "Включить звук оповещения",
 	CurrentRound = "Текущий раунд",
+	StandardReport = "Обычная жалоба (как игрок)",
+ 	StandardAdminReport = "Жалоба от админа",
+ 	AdvancedAdminReportForce = "Жалоба от админа : Сразу заставить обвиняемого ответить",
+ 	AdvancedAdminReportChat = "Жалоба от админа : Сразу открыть чат с обвиняемым",
 
 	-- Months
 	January = "Январь",
