@@ -105,6 +105,7 @@ DamagelogLang.english = {
 	Killer = "killer",
 	ExplainSituation = "Explain the situation. At least 10 characters are required.",
 	Submit = "Submit",
+	SubmitEvenWithNoStaff = "Submit, even if there's no staff online",
 	NotEnoughCharacters = "Not enough characters to submit",
 	LogsBeforeDeath = "Logs before your death",
 	MessageFrom = "message from",

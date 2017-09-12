@@ -105,6 +105,7 @@ DamagelogLang.russian = {
 	Killer = "убийца",
 	ExplainSituation = "Объясните ситуацию.",
 	Submit = "Отправить",
+	SubmitEvenWithNoStaff = "Отправить, даже если весь персонал не онлайн",
 	NotEnoughCharacters = "Сообщение слишком короткое",
 	LogsBeforeDeath = "Логи до вашей смерти",
 	MessageFrom = "Сообщение от",
