@@ -98,6 +98,7 @@ DamagelogLang.french = {
 	Killer = "tueur",
 	ExplainSituation = "Expliquer la situation. 10 caractères sont requis.",
 	Submit = "Envoyer",
+	SubmitEvenWithNoStaff = "Envoyer, bien qu'aucun membre du personnel ne soit en ligne",
 	NotEnoughCharacters = "Pas assez de caractères",
 	LogsBeforeDeath = "Logs avant votre mort",
 	MessageFrom = "message de",

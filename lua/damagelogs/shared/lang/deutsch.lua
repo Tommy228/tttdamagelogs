@@ -105,6 +105,7 @@ DamagelogLang.deutsch = {
 	Killer = "Mörder",
 	ExplainSituation = "Erkläre die Situation. Mindestens 10 Zeichen sind erforderlich.",
 	Submit = "Absenden",
+	SubmitEvenWithNoStaff = "Absenden, obwohl kein Staffmitglied online ist",
 	NotEnoughCharacters = "Nicht genügend Zeichen zum Absenden",
 	LogsBeforeDeath = "Protokolle vor deinem Tod",
 	MessageFrom = "Nachricht von",

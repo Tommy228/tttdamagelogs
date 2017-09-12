@@ -215,7 +215,14 @@ function Damagelog:StartReport(ply)
 	if not IsValid(ply) then return end
 
 	net.Start("DL_AllowReport")
-
+	local found = false
+	for k,v in pairs(player.GetHumans()) do
+		if v:CanUseRDMManager() then
+			found = true
+			break
+		end
+	end
+	net.WriteBool(found)
 	if ply.DeathDmgLog then
 		net.WriteUInt(1, 1)
 		net.WriteTable(ply.DeathDmgLog)
@@ -273,25 +280,36 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 				break
 			end
 		end
-
-		if not found then
-			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
-			return
-		end
-
-		if not ply.CanReport then
-			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NeedToPlay"), 4, "buttons/weapon_cant_buy.wav")
-			return
-		else
-			local remaining_reports = ply:RemainingReports()
-
-			if remaining_reports <= 0 then
-				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "OnlyReportTwice"), 4, "buttons/weapon_cant_buy.wav")
+		
+		if not Damagelog.NoStaffReports then
+			if not found then
+				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
 				return
 			end
 		end
+		
+		if not ply.CanReport then
+			if not Damagelog.MoreReportsPerRound then
+				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NeedToPlay"), 4, "buttons/weapon_cant_buy.wav")
+				return
+			end
+		else
+			if not Damagelog.ReportsBeforePlaying then
+				local remaining_reports = ply:RemainingReports()
 
-		if ply:RemainingReports() <= 0 or not ply.CanReport then return end
+				if remaining_reports <= 0 then
+					ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "OnlyReportTwice"), 4, "buttons/weapon_cant_buy.wav")
+					return
+				end
+			end
+		end
+		
+		if not Damagelog.MoreReportsPerRound then
+			if ply:RemainingReports() <= 0 then return end
+		end
+		if not Damagelog.ReportsBeforePlaying then
+			if not ply.CanReport then return end
+		end
 
 		if not attacker:GetNWBool("PlayedSRound", true) then
 			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ReportSpectator"), 5, "buttons/weapon_cant_buy.wav")
