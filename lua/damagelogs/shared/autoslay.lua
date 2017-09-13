@@ -27,7 +27,7 @@ local function CreateCommand()
 					return
 				end
 			end
-			Damagelog.markedForSlay[ target:SteamID() ] = {
+			Damagelog.markedForSlay[ target ] = {
 				admin = calling_ply,
 				steamid = target,
 				rounds = rounds,
