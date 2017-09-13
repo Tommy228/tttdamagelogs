@@ -8,8 +8,15 @@ local function CreateCommand()
 	if mode != 1 and mode != 2 then return end
 	local aslay = mode == 1
 
+	Damagelog.markedForSlay = {}
 	function ulx.autoslay(calling_ply, target, rounds, reason)
-		Damagelog:SetSlays(calling_ply, target:SteamID(), rounds, reason, target)
+		Damagelog.markedForSlay[ target:SteamID() ] = {
+			admin = calling_ply,
+			steamid = target:SteamID(),
+			rounds = rounds,
+			reason = reason,
+			target = target
+		}
 	end
 
 	function ulx.autoslayid(calling_ply, target, rounds, reason)
@@ -20,7 +27,12 @@ local function CreateCommand()
 					return
 				end
 			end
-			Damagelog:SetSlays(calling_ply, target, rounds, reason, false)
+			Damagelog.markedForSlay[ target:SteamID() ] = {
+				admin = calling_ply,
+				steamid = target,
+				rounds = rounds,
+				reason = reason
+			}
 		else
 			ULib.tsayError(calling_ply, "Invalid steamid.", true)
 		end
