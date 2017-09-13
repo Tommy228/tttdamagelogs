@@ -13,9 +13,9 @@ local function CreateCommand()
 		Damagelog.markedForSlay[ target:SteamID() ] = {
 			admin = calling_ply,
 			steamid = target:SteamID(),
-			rounds = rounds,
-			reason = reason,
-			target = target
+			rounds = rounds or 1,
+			reason = reason or "",
+			target = target or false
 		}
 	end
 
@@ -30,8 +30,9 @@ local function CreateCommand()
 			Damagelog.markedForSlay[ target ] = {
 				admin = calling_ply,
 				steamid = target,
-				rounds = rounds,
-				reason = reason
+				rounds = rounds or 1,
+				reason = reason or "",
+				target = false
 			}
 		else
 			ULib.tsayError(calling_ply, "Invalid steamid.", true)
@@ -130,6 +131,16 @@ local function CreateCommand()
 	})
 end
 hook.Add("Initialize", "AutoSlay", CreateCommand)
+
+hook.Add( "TTTEndRound", "AutoSlay_CheckForMarked", function( res )
+		if not #Damagelog.markedForSlay > 0 then return end -- No need to do anything if no one is marked to be slain
+		for i = 1, #Damagelog.markedForSlay do
+			local data = Damagelog.markedForSlay[ i ]
+			Damagelog:AddSlays( data.admin, data.steamid, data.rounds, data.reason, data.target )
+		end
+		table.Empty( Damagelog.markedForSlay )
+		Damagelog.markedForSlay = Damagelog.markedForSlay or {} -- I've seen sometimes tables get deleted when emptying, so we reset it to be sure.
+end )
 
 hook.Add("ShouldCollide", "ShouldCollide_Ghost", function(ent1, ent2)
 	if IsValid(ent1) and IsValid(ent2) then
