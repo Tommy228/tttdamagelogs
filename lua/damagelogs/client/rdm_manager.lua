@@ -37,8 +37,10 @@ local function BuildReportFrame(report)
 				break
 			end
 		end
-
-		if not found then return end
+		
+		
+			if not found then return end
+		
 		net.Start("DL_Answering")
 		net.SendToServer()
 		ReportFrame = vgui.Create("DFrame")
@@ -86,7 +88,7 @@ local function BuildReportFrame(report)
 			PanelList:AddItem(TextEntry)
 			local Button = vgui.Create("DButton")
 			Button:SetText(TTTLogTranslate(GetDMGLogLang, "Send"))
-
+			
 			Button.DoClick = function()
 				local text = string.Trim(TextEntry:GetValue())
 				local size = #text
@@ -231,7 +233,7 @@ end
 
 vgui.Register("Damagelog_Player", PANEL, "DPanel")
 
-function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas)
+function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReports, dnas)
 
 	local isAdmin = LocalPlayer():CanUseRDMManager()
 
@@ -358,10 +360,10 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 	Type:SetPos(210, 168)
 	Type:SetSize(370, 20)
 
-	Type:AddChoice("Standard report (as a player)", DAMAGELOG_REPORT_STANDARD, true)
-	Type:AddChoice("Standard admin report", DAMAGELOG_REPORT_ADMIN)
-	Type:AddChoice("Advanced admin report : directly force the reported player to respond", DAMAGELOG_REPORT_FORCE)
-	Type:AddChoice("Advanced admin report : directly open a chat with the reported player", DAMAGELOG_REPORT_CHAT)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "StandardReport"), DAMAGELOG_REPORT_STANDARD, true)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "StandardAdminReport"), DAMAGELOG_REPORT_ADMIN)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "AdvancedAdminReportForce"), DAMAGELOG_REPORT_FORCE)
+	Type:AddChoice(TTTLogTranslate(GetDMGLogLang, "AdvancedAdminReportChat"), DAMAGELOG_REPORT_CHAT)
 
 	Type.OnSelect = function(Type, data, text)
 		if data == DAMAGELOG_REPORT_CHAT then
@@ -390,7 +392,11 @@ function Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas
 			Submit:SetText(TTTLogTranslate(GetDMGLogLang, "NotEnoughCharacters"))
 		else
 			Submit:SetEnabled(true)
-			Submit:SetText(TTTLogTranslate(GetDMGLogLang, "Submit"))
+			if found then
+				Submit:SetText(TTTLogTranslate(GetDMGLogLang, "Submit"))
+			elseif not found then
+				Submit:SetText(TTTLogTranslate(GetDMGLogLang, "SubmitEvenWithNoStaff"))
+			end
 		end
 	end
 
@@ -712,7 +718,7 @@ net.Receive("DL_SendOwnReportInfo", function()
 end)
 
 net.Receive("DL_AllowReport", function()
-
+	local found = net.ReadBool()
 	local got_deathLogs = net.ReadUInt(1) == 1
 	local deathLogs = got_deathLogs and net.ReadTable() or false
 	local previousReports = net.ReadTable()
@@ -725,7 +731,7 @@ net.Receive("DL_AllowReport", function()
 		dnas[ply] = net.ReadUInt(1) == 1
 	end
 
-	Damagelog:ReportWindow(deathLogs, previousReports, currentReports, dnas)
+	Damagelog:ReportWindow(found,deathLogs, previousReports, currentReports, dnas)
 end)
 
 net.Receive("DL_SendReport", function()

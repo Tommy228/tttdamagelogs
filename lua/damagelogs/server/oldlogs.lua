@@ -55,7 +55,6 @@ if Damagelog.Use_MySQL then
 		local yearsQuery = self:query("SELECT DISTINCT year FROM damagelog_oldlogs_v3;")
 		yearsQuery.onSuccess = function(yearsQuery)
 			local years = yearsQuery:getData()
-			PrintTable(years)
 			for k1, year in pairs(years) do
 				local y = tonumber(year.year)
 				if not y then continue end

@@ -3,6 +3,8 @@ TTT Damagelogs
 
 TTT Damagelogs is an administration tool designed for TTT to allow handling RDM situations using different tools.
 
+**Do not directly download the addon from the repo ! It may contain untested or experimental code. Download the addon from the releases tab : https://github.com/Tommy228/TTTDamagelogs/releases**
+
 
 ## Features
 - Damagelogs *with filter and highlight options*
@@ -24,7 +26,7 @@ TTT Damagelogs is an administration tool designed for TTT to allow handling RDM 
 
 ##### For *stable* releases look here: https://github.com/Tommy228/TTTDamagelogs/releases
 
-Just drop the TTTDamagelogs folder to addons/.
+Just drop the TTTDamagelogs folder to addons/. The addon can be configured on the *lua/damagelogs/config/config.lua* file.
 
 **On Linux servers, you need to make the foldername lowercase!**
 

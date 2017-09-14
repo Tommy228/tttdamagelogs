@@ -215,7 +215,14 @@ function Damagelog:StartReport(ply)
 	if not IsValid(ply) then return end
 
 	net.Start("DL_AllowReport")
-
+	local found = false
+	for k,v in pairs(player.GetHumans()) do
+		if v:CanUseRDMManager() then
+			found = true
+			break
+		end
+	end
+	net.WriteBool(found)
 	if ply.DeathDmgLog then
 		net.WriteUInt(1, 1)
 		net.WriteTable(ply.DeathDmgLog)
@@ -273,25 +280,36 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 				break
 			end
 		end
-
-		if not found then
-			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
-			return
-		end
-
-		if not ply.CanReport then
-			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NeedToPlay"), 4, "buttons/weapon_cant_buy.wav")
-			return
-		else
-			local remaining_reports = ply:RemainingReports()
-
-			if remaining_reports <= 0 then
-				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "OnlyReportTwice"), 4, "buttons/weapon_cant_buy.wav")
+		
+		if not Damagelog.NoStaffReports then
+			if not found then
+				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
 				return
 			end
 		end
+		
+		if not ply.CanReport then
+			if not Damagelog.MoreReportsPerRound then
+				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NeedToPlay"), 4, "buttons/weapon_cant_buy.wav")
+				return
+			end
+		else
+			if not Damagelog.ReportsBeforePlaying then
+				local remaining_reports = ply:RemainingReports()
 
-		if ply:RemainingReports() <= 0 or not ply.CanReport then return end
+				if remaining_reports <= 0 then
+					ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "OnlyReportTwice"), 4, "buttons/weapon_cant_buy.wav")
+					return
+				end
+			end
+		end
+		
+		if not Damagelog.MoreReportsPerRound then
+			if ply:RemainingReports() <= 0 then return end
+		end
+		if not Damagelog.ReportsBeforePlaying then
+			if not ply.CanReport then return end
+		end
 
 		if not attacker:GetNWBool("PlayedSRound", true) then
 			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ReportSpectator"), 5, "buttons/weapon_cant_buy.wav")
@@ -437,7 +455,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 	if status == RDM_MANAGER_WAITING then
 	
-		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. " " .. TTTLogTranslate(ply.DMGLogLang, "To") .. TTTLogTranslate(ply.DMGLogLang, "RDMWaiting") .. "."
+		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. " " .. TTTLogTranslate( ply.DMGLogLang, "To" ) .. " " .. TTTLogTranslate(ply.DMGLogLang, "RDMWaiting") .. "."
 		local syncEnt = Damagelog:GetSyncEnt()
 		if IsValid(syncEnt)then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() + 1)
@@ -458,7 +476,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 		end	
 
 	elseif status == RDM_MANAGER_FINISHED then
-		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. " " .. TTTLogTranslate(ply.DMGLogLang, "To") .. TTTLogTranslate(ply.DMGLogLang, "Finished") .. "."
+		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. " " .. TTTLogTranslate( ply.DMGLogLang, "To" ) .. " " .. TTTLogTranslate(ply.DMGLogLang, "Finished") .. "."
 		local syncEnt = Damagelog:GetSyncEnt()
 		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
@@ -601,16 +619,16 @@ net.Receive("DL_GetForgive", function(_, ply)
 	end
 
 	if forgive then
-		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), 5, "damagelogs/vote_yes.wav")
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. string_format( TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), tbl.attacker_nick ), 5, "damagelogs/vote_yes.wav")
 	else
-		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. TTTLogTranslate(ply.DMGLogLang, "YouKeepReport"), 5, "damagelogs/vote_no.wav")
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "GreatYou") .. " " .. string_format( TTTLogTranslate(ply.DMGLogLang, "YouKeepReport"), tbl.attacker_nick ), 5, "damagelogs/vote_no.wav")
 	end
 
 	local attacker = GetBySteamID(tbl.attacker)
 
 	if IsValid(attacker) then
 		if forgive then
-			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), 5, "damagelogs/vote_yes.wav")
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. string_format( TTTLogTranslate(ply.DMGLogLang, "YouCancelReport"), TTTLogTranslate( ply.DMGLogLang, "You" ) ), 5, "damagelogs/vote_yes.wav")
 		else
 			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "NoMercyForYou"), 5, "damagelogs/vote_no.wav")
 		end
