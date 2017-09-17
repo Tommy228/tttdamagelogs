@@ -289,7 +289,10 @@ net.Receive("DL_SendDeathScene", function()
 	victim = net.ReadUInt(32)
 	attacker = net.ReadUInt(32)
 	roles = net.ReadTable()
-	current_scene = net.ReadTable()
+	local sceneSize = net.ReadUInt(32)
+	local sceneString = net.ReadData(sceneSize)
+	sceneString = util.Decompress(sceneString)
+	current_scene = util.JSONToTable(sceneString)
 	
 	Damagelog:CreateDSPanel()
 	
