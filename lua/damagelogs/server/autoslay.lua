@@ -342,7 +342,7 @@ if Damagelog.ULX_Autoslay_ForceRole then
 			return det_count
 		end
 
-		function SelectRoles()
+		function Damagelog.SelectRoles()
 			local choices = {}
 			local prev_roles = {
 				[ROLE_INNOCENT] = {},
