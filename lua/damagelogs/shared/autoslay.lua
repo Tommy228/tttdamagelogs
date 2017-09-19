@@ -14,7 +14,7 @@ local function CreateCommand()
 			admin = calling_ply,
 			steamid = target:SteamID(),
 			rounds = rounds or 1,
-			reason = reason or "",
+			reason = reason or Damagelog.Autoslay_DefaultReason,
 			target = target or false
 		}
 	end
@@ -31,7 +31,7 @@ local function CreateCommand()
 				admin = calling_ply,
 				steamid = target,
 				rounds = rounds or 1,
-				reason = reason or "",
+				reason = reason or Damagelog.Autoslay_DefaultReason,
 				target = false
 			}
 		else
