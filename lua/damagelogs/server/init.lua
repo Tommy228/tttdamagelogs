@@ -115,7 +115,9 @@ function Damagelog:TTTBeginRound()
 	end
 
 	table.Empty(self.DamageTable)
-	
+	if Damagelog.ULX_Autoslay_ForceRole then
+		self.SelectRoles()
+	end
 end
 
 hook.Add("TTTBeginRound", "TTTBeginRound_Damagelog", function()
