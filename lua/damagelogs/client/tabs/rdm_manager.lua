@@ -268,7 +268,7 @@ local function TakeAction()
 			slaynr_pnl:SetText("Send message to")
 			slaynr_pnl:SetImage("icon16/user_edit.png")
 			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Reported player" .. " ("..report.victim_nick..")", function()
+			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
 				if IsValid(attacker) then
 					Derma_StringRequest("private message", "What would you like to say to "..attacker:Nick().."?", "", function(msg)
 						if ulx then
