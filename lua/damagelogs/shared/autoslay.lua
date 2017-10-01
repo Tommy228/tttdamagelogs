@@ -8,8 +8,15 @@ local function CreateCommand()
 	if mode != 1 and mode != 2 then return end
 	local aslay = mode == 1
 
+	Damagelog.markedForSlay = {}
 	function ulx.autoslay(calling_ply, target, rounds, reason)
-		Damagelog:SetSlays(calling_ply, target:SteamID(), rounds, reason, target)
+		Damagelog.markedForSlay[ target:SteamID() ] = {
+			admin = calling_ply,
+			steamid = target:SteamID(),
+			rounds = rounds or 1,
+			reason = reason or Damagelog.Autoslay_DefaultReason,
+			target = target or false
+		}
 	end
 
 	function ulx.autoslayid(calling_ply, target, rounds, reason)
@@ -20,7 +27,13 @@ local function CreateCommand()
 					return
 				end
 			end
-			Damagelog:SetSlays(calling_ply, target, rounds, reason, false)
+			Damagelog.markedForSlay[ target ] = {
+				admin = calling_ply,
+				steamid = target,
+				rounds = rounds or 1,
+				reason = reason or Damagelog.Autoslay_DefaultReason,
+				target = false
+			}
 		else
 			ULib.tsayError(calling_ply, "Invalid steamid.", true)
 		end
@@ -118,6 +131,18 @@ local function CreateCommand()
 	})
 end
 hook.Add("Initialize", "AutoSlay", CreateCommand)
+
+if SERVER then
+	hook.Add( "TTTEndRound", "AutoSlay_CheckForMarked", function( res )
+		if not #Damagelog.markedForSlay > 0 then return end -- No need to do anything if no one is marked to be slain
+		for i = 1, #Damagelog.markedForSlay do
+			local data = Damagelog.markedForSlay[ i ]
+			Damagelog:AddSlays( data.admin, data.steamid, data.rounds, data.reason, data.target )
+		end
+		table.Empty( Damagelog.markedForSlay )
+		Damagelog.markedForSlay = Damagelog.markedForSlay or {} -- I've seen sometimes tables get deleted when emptying, so we reset it to be sure.
+	end )
+end
 
 hook.Add("ShouldCollide", "ShouldCollide_Ghost", function(ent1, ent2)
 	if IsValid(ent1) and IsValid(ent2) then
