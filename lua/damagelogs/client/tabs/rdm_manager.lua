@@ -196,6 +196,15 @@ local function TakeAction()
 				net.WriteString("("..TTTLogTranslate(DMGLogLang, "Automatic")..") " .. ply .. (mode == 1 and " autoslain " or " autojailed ") .. num .. " times for " .. reason .. ".")
 				net.SendToServer()
 			end
+
+			local function SetConclusionBan(ply, num, reason)
+				net.Start("DL_Conclusion")
+				net.WriteUInt(1, 1)
+				net.WriteUInt(report.previous and 1 or 0, 1)
+				net.WriteUInt(report.index, 16)
+				net.WriteString("("..TTTLogTranslate(DMGLogLang, "Automatic")..") " .. ply .. " banned " .. num .. " " ..  reason .. ".")
+				net.SendToServer()
+			end
 			
 			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
 			local slaynr = DermaMenu(menuPanel)
@@ -208,16 +217,35 @@ local function TakeAction()
 			slaynr_pnl:SetText(txt)
 			slaynr_pnl:SetImage("icon16/lightning_go.png")
 			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Reported player", function()
-				local frame = vgui.Create("RDM_Manager_Slay_Reason")
+			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
+				local frame = vgui.Create("RDM_Manager_Slay_Reason", Damagelog.Menu)
 				frame.SetConclusion = SetConclusion
 				frame:SetPlayer(true, attacker, report.attacker, report)
 			end):SetImage("icon16/user_delete.png")
-			slaynr:AddOption("Victim", function()
-				local frame = vgui.Create("RDM_Manager_Slay_Reason")
+			slaynr:AddOption("Victim" .. " ("..report.victim_nick..")", function()
+				local frame = vgui.Create("RDM_Manager_Slay_Reason", Damagelog.Menu)
 				frame.SetConclusion = SetConclusion
 				frame:SetPlayer(false, victim, report.victim, report)
 			end):SetImage("icon16/user.png")
+
+			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
+			local slaynr = DermaMenu(menuPanel)
+			slaynr:SetVisible(false)
+			slaynr_pnl:SetSubMenu(slaynr)
+			slaynr_pnl:SetText("Ban")
+			slaynr_pnl:SetImage("icon16/bomb.png")
+			menuPanel:AddPanel(slaynr_pnl)
+			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
+				local frame = vgui.Create("RDM_Manager_Ban_Reason", Damagelog.Menu)
+				frame.SetConclusion = SetConclusionBan
+				frame:SetPlayer(true, attacker, report.attacker, report)
+			end):SetImage("icon16/user_delete.png")
+			slaynr:AddOption("Victim" .. " ("..report.victim_nick..")", function()
+				local frame = vgui.Create("RDM_Manager_Ban_Reason", Damagelog.Menu)
+				frame.SetConclusion = SetConclusionBan
+				frame:SetPlayer(false, victim, report.victim, report)
+			end):SetImage("icon16/user.png")
+			
 			
 		end
 		
@@ -240,34 +268,26 @@ local function TakeAction()
 			slaynr_pnl:SetText("Send message to")
 			slaynr_pnl:SetImage("icon16/user_edit.png")
 			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Reported player", function()
+			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
 				if IsValid(attacker) then
-					Derma_StringRequest("private message", "What would you like to say to "..attacker:Nick().."?", "", function(nachricht)
+					Derma_StringRequest("private message", "What would you like to say to "..attacker:Nick().."?", "", function(msg)
 						if ulx then
-							RunConsoleCommand("ulx", "psay", attacker:Nick(), Damagelog.PrivateMessagePrefix.." "..nachricht)
+							RunConsoleCommand("ulx", "psay", attacker:Nick(), Damagelog.PrivateMessagePrefix.." "..msg)
 						else
-							--[[add serverguard private message-command here
-							variables:
-							playername: attacker:Nick()
-							message: Damagelog.PrivateMessagePrefix.." "..nachricht
-							]]
+							serverguard.command.Run("pm", attacker:Nick(), Damagelog.PrivateMessagePrefix.. " "..msg)
 						end
 					end)
 				else
 					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
 				end
 			end):SetImage("icon16/user_delete.png")
-			slaynr:AddOption("Victim", function()
+			slaynr:AddOption("Victim" .. " ("..report.victim_nick..")", function()
 				if IsValid(victim) then
-					Derma_StringRequest("private message", "What would you like to say to "..victim:Nick().."?", "", function(nachricht)
+					Derma_StringRequest("private message", "What would you like to say to "..victim:Nick().."?", "", function(msg)
 						if ulx then
-							RunConsoleCommand("ulx", "psay", victim:Nick(), Damagelog.PrivateMessagePrefix.." "..nachricht)
+							RunConsoleCommand("ulx", "psay", victim:Nick(), Damagelog.PrivateMessagePrefix.." "..msg)
 						else
-							--[[add serverguard private message-command here
-							variables:
-							playername: victim:Nick()
-							message: Damagelog.PrivateMessagePrefix.." "..nachricht
-							]]
+							serverguard.command.Run("pm", attacker:Nick(), Damagelog.PrivateMessagePrefix.. " "..msg)
 						end
 					end)
 				else
@@ -289,7 +309,7 @@ local function TakeAction()
 			slaynr_pnl:SetImage("icon16/cancel.png")
 			menuPanel:AddPanel(slaynr_pnl)
 
-			slaynr:AddOption("The reported player", function()
+			slaynr:AddOption("The reported player" .. " ("..report.attacker_nick..")", function()
 				if IsValid(attacker) then
 					if ulx then
 						RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", attacker:Nick(), "0")
@@ -305,7 +325,7 @@ local function TakeAction()
 				end
 			end):SetImage("icon16/user_delete.png")
 
-			slaynr:AddOption("The victim", function()
+			slaynr:AddOption("The victim" .. " ("..report.victim_nick..")", function()
 				if IsValid(victim) then
 					if ulx then
 						RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", victim:Nick(), "0")
@@ -1002,6 +1022,11 @@ function PANEL:Init()
 end
 
 function PANEL:SetPlayer(reported, ply, steamid, report)
+	if ulx then
+		self:SetTitle((mode == 1 and "Autoslaying" or "Autojailing") .. (reported and report.attacker_nick or report.victim_nick))
+	else
+		self:SetTitle("Autoslaying "..(reported and report.attacker_nick or report.victim_nick))
+	end
 	self.NameLabel:SetText(reported and report.attacker_nick or report.victim_nick)
 	self.Button.DoClick = function(panel)
 		if IsValid(ply) then
@@ -1013,7 +1038,7 @@ function PANEL:SetPlayer(reported, ply, steamid, report)
 			self.SetConclusion(ply:Nick(), self.NumSlays, self.CurrentReason)
 		else
 			if ulx then
-				RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", (reported and report.attacker) or (not reported and report.victim), tostring(self.NumSlays))
+				RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", (reported and report.attacker) or (not reported and report.victim), tostring(self.NumSlays), self.CurrentReason)
 				self.SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), self.NumSlays, self.CurrentReason)
 			else
 				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
@@ -1030,13 +1055,17 @@ function PANEL:UpdateReason()
 		reason = reason .. self.CustomReason:GetText()
 		CRAdded = true
 	end
+	local first = true
 	for index, label in ipairs(self.Reasons) do
 		if label:GetChecked() then
-			if CRAdded or index != 1 then
+			if CRAdded or (not first) then
 				reason = reason .. " + "
 				CRAdded = false
 			end
 			reason = reason .. label:GetText()
+			if first then
+				first = false
+			end
 		end
 	end
 	self.CurrentReason = reason
@@ -1074,6 +1103,9 @@ function PANEL:AddReasonRow(x, y, w, h, reasons)
 		checkBox:SetValue(0)
 		checkBox:SizeToContents()
 		function checkBox.OnChange(panel)
+			if self.CustomReason:GetValue() == "No reason specified" then
+				self.CREnable:SetChecked(false)
+			end
 			self:UpdateReason()
 		end
 		table.insert(self.Reasons, checkBox)
@@ -1083,3 +1115,261 @@ function PANEL:AddReasonRow(x, y, w, h, reasons)
 end
 
 vgui.Register("RDM_Manager_Slay_Reason", PANEL, "DFrame")
+
+
+local PANEL = {}
+
+PANEL.MINUTES = 1
+PANEL.HOURS = 2
+PANEL.DAYS = 3
+
+function PANEL:Init()
+
+	self.Distance = 25
+	self.Dimension = 240
+
+	self:SetSize(500, 260)
+	self:SetDraggable(true)
+	self:Center()
+	self:MakePopup()
+
+	self.BanPanel = vgui.Create("DPanelList", self)
+	self.BanPanel:SetPos(self.Distance/2, self.Distance * 1.5)
+	self.BanPanel:SetSize(self.Dimension/3 + 20, self.Dimension/3)
+	self.BanPanel:SetSpacing(5)
+	self.BanPanel:EnableHorizontal(false)
+	self.BanPanel:EnableVerticalScrollbar(true)
+
+	self.BanTime = vgui.Create("DTextEntry", self.BanPanel)
+	self.BanTime:SetSize(40/3.5, 20)
+	self.BanTime:SetText("50")
+	self.BanPanel:AddItem(self.BanTime)
+
+	self.Minutes = vgui.Create("DCheckBoxLabel")
+	self.Minutes:SetText("Minutes")
+	self.Minutes:SetValue(1)
+	self.Minutes:SizeToContents()
+	self.CurrentBanType = self.MINUTES
+	self.Minutes.OnChange = function(panel)
+		if panel:GetChecked() then
+			self.CurrentBanType = self.MINUTES
+			self.Hours:SetValue(0)
+			self.Days:SetValue(0)
+			self:UpdateBanTime()
+		end
+	end
+	self.BanPanel:AddItem(self.Minutes)
+
+	self.Hours = vgui.Create("DCheckBoxLabel")
+	self.Hours:SetText("Hours")
+	self.Hours:SetValue(0)
+	self.Hours:SizeToContents()
+	self.Hours.OnChange = function(panel)
+		if panel:GetChecked() then
+			self.CurrentBanType = self.HOURS
+			self.Minutes:SetValue(0)
+			self.Days:SetValue(0)
+			self:UpdateBanTime()
+		end
+	end
+	self.BanPanel:AddItem(self.Hours)
+
+	self.Days = vgui.Create("DCheckBoxLabel")
+	self.Days:SetText("Days")
+	self.Days:SetValue(0)
+	self.Days:SizeToContents()
+	self.Days.OnChange = function(panel)
+		if panel:GetChecked() then
+			self.CurrentBanType = self.DAYS
+			self.Hours:SetValue(0)
+			self.Minutes:SetValue(0)
+			self:UpdateBanTime()
+		end
+	end
+	self.BanPanel:AddItem(self.Days)
+
+	self.Reasons = {}
+
+	local reasons1 = {
+		Damagelog.Ban_DefaultReason1,
+		Damagelog.Ban_DefaultReason2,
+		Damagelog.Ban_DefaultReason3,
+		Damagelog.Ban_DefaultReason4,
+		Damagelog.Ban_DefaultReason5,
+		Damagelog.Ban_DefaultReason6		
+	}
+
+	self:AddReasonRow(self.Distance/2 + self.Dimension/2, self.Distance*1.5,
+		self.Dimension, self.Dimension/2, reasons1)
+
+	local reasons2 = {
+		Damagelog.Ban_DefaultReason7,
+		Damagelog.Ban_DefaultReason8,
+		Damagelog.Ban_DefaultReason9,
+		Damagelog.Ban_DefaultReason10,
+		Damagelog.Ban_DefaultReason11,
+		Damagelog.Ban_DefaultReason12		
+	}
+
+	self:AddReasonRow(self.Distance + self.Dimension * 1.25, self.Distance*1.5,
+		self.Dimension, self.Dimension/2, reasons2)
+
+	local DLabel  = vgui.Create("DLabel", self)
+	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 35)
+	DLabel:SetText("You are going to ban")
+	DLabel:SizeToContents()
+				
+	self.NameLabel= vgui.Create("DLabel", self)
+	self.NameLabel:SetPos(self.Distance/2 + 5, self.Dimension/2.5 + 48)
+	self.NameLabel:SetSize(self.Distance * 4.65 , 25)
+	self.NameLabel:SetText("")
+
+	self.TimeLabel = vgui.Create("DLabel", self)
+	self.TimeLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 67)
+	self.TimeLabel:SetSize(self.Distance * 4.65 , 25)
+	self.TimeLabel:SetText("for ")
+				
+	self.Reason = vgui.Create("DLabel", self )
+	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)				
+	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)	
+	self.Reason:SetText("Reason: ")
+
+	self.CREnable = vgui.Create("DCheckBox", self)
+	self.CREnable:SetPos(self.Distance/2 + self.Dimension/2 ,self.Dimension*2/3 + 5)
+	self.CREnable:SetValue(1)
+	function self.CREnable.OnChange(panel, reasonTxt)
+		self:UpdateReason()
+	end
+
+	self.CustomReason = vgui.Create("DTextEntry", self)
+	self.CustomReason:SetPos(self.Distance/2 + self.Dimension/2 + 25, self.Dimension*2/3)
+	self.CustomReason:SetSize(self.Dimension*1.5 - 35, 25)
+	self.CustomReason:SetText("No reason specified")
+	self.CustomReason.OnChange = function(panel)
+		self:UpdateReason()
+	end
+	self.CustomReason.OnEnter = function(panel)
+		self.Button:DoClick()
+	end
+	self.CustomReason:RequestFocus()
+	self.CustomReason:SelectAll()
+
+	self.Button = vgui.Create("DButton", self)
+	self.Button:SetText("Ban")					 
+	self.Button:SetPos(self.Distance/4,self.Dimension*2/3 + 60)				
+	self.Button:SetSize(self:GetWide() - self.Distance/2 , 30)				 
+
+	self:UpdateBanTime()
+	self:UpdateReason()
+
+end
+
+function PANEL:UpdateBanTime()
+	local banTime = tonumber(self.BanTime:GetValue()) or 0
+	if banTime == 0 then
+		self.BanTimeNumber = 0
+		self.TimeLabel:SetText("permanently")
+	elseif self.CurrentBanType == self.MINUTES then
+		self.BanTimeNumber = banTime
+		self.TimeLabel:SetText("for "..banTime.." minutes")
+	elseif self.CurrentBanType == self.HOURS then
+		self.BanTimeNumber = 60 * banTime
+		self.TimeLabel:SetText("for "..banTime.." hours")
+	else
+		self.BanTimeNumber = 1440 * banTime
+		self.TimeLabel:SetText("for "..banTime.." days")
+	end
+end
+
+function PANEL:SetPlayer(reported, ply, steamid, report)
+	self:SetTitle("Banning "..(reported and report.attacker_nick or report.victim_nick))
+	self.NameLabel:SetText(reported and report.attacker_nick or report.victim_nick)
+	self.Button.DoClick = function(panel)
+		if IsValid(ply) then
+			if ulx then
+				RunConsoleCommand("ulx", "ban", ply:Nick(), tostring(self.BanTimeNumber), self.CurrentReason)
+			else
+				serverguard.command.Run("ban", false, ply:Nick(), self.BanTimeNumber, self.CurrentReason)
+			end
+			self.SetConclusion(ply:Nick(), self.TimeLabel:GetText(), self.CurrentReason)
+		else
+			if ulx then
+				RunConsoleCommand("ulx", "banid", (reported and report.attacker) or (not reported and report.victim), tostring(self.BanTimeNumber), self.CurrentReason)
+				self.SetConclusion((reported and report.attacker_nick) or (not reported and report.victim_nick), self.TimeLabel:GetText(), self.CurrentReason)
+			else
+				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
+			end
+		end
+		self:Close()
+	end	
+end
+
+function PANEL:UpdateReason()
+	local reason = ""
+	local CRAdded = false
+	if self.CREnable:GetChecked() then
+		reason = reason .. self.CustomReason:GetText()
+		CRAdded = true
+	end
+	local first = true
+	for index, label in ipairs(self.Reasons) do
+		if label:GetChecked() then
+			if CRAdded or (not first) then
+				reason = reason .. " + "
+				CRAdded = false
+			end
+			reason = reason .. label:GetText()
+			if first then
+				first = false
+			end
+		end
+	end
+	self.CurrentReason = reason
+	self.Reason:SetText("Reason : "..reason)
+end
+
+function PANEL:PaintOver(w, h)
+	surface.SetDrawColor(color_white)
+	surface.DrawLine(self.Distance/2 + self.Dimension/2 - 10, 
+		self.Distance * 1.5 - 1,
+		self.Distance/2 + self.Dimension/2 - 10,
+		self.Distance * 1.5 + self.Dimension * 2/3  - 6)
+	surface.DrawLine(self.Distance/2 - 5, 
+		self.Dimension/2 + 5,
+		self.Distance * 4.85,
+		self.Dimension/2 + 5)
+	surface.DrawLine(self.Distance/2 - 5, 
+		self.Dimension*2/3 + 31,
+		w * 23/24 + 5,
+		self.Dimension*2/3 + 31)
+end
+
+function PANEL:AddReasonRow(x, y, w, h, reasons)
+
+	local DermaList = vgui.Create("DPanelList", self)
+	DermaList:SetPos(x, y)
+	DermaList:SetSize(w, h)
+	DermaList:SetSpacing(5)
+	DermaList:EnableHorizontal(false)
+	DermaList:EnableVerticalScrollbar(true)
+
+	for _, reason in ipairs(reasons) do
+		local checkBox = vgui.Create("DCheckBoxLabel")
+		checkBox:SetText(reason)
+		checkBox:SetValue(0)
+		checkBox:SizeToContents()
+		function checkBox.OnChange(panel)
+			if self.CustomReason:GetValue() == "No reason specified" then
+				self.CREnable:SetChecked(false)
+			end
+			self:UpdateReason()
+		end
+		table.insert(self.Reasons, checkBox)
+		DermaList:AddItem(checkBox)
+	end
+
+end
+
+vgui.Register("RDM_Manager_Ban_Reason", PANEL, "DFrame")
+
+concommand.Add("testp", function() vgui.Create("RDM_Manager_Ban_Reason") end)

@@ -39,29 +39,12 @@ function Damagelog:shootCallback(weapon)
 	end
 end
 
-function Damagelog:DamagelogInfos()
-	for k,v in pairs(weapons.GetList()) do
-		if v.Base == "weapon_tttbase" then
-			if not v.PrimaryAttack then
-				v.PrimaryAttack = function(wep)
-					wep.BaseClass.PrimaryAttack(wep)
-					if wep.BaseClass.CanPrimaryAttack(wep) and IsValid(wep.Owner) then
-						self:shootCallback(wep)
-					end
-				end
-			else
-				local oldprimary = v.PrimaryAttack
-				v.PrimaryAttack = function(wep)
-					oldprimary(wep)
-					self:shootCallback(wep)
-				end
-			end
-		end
+hook.Add("EntityFireBullets", "BulletsCallback_DamagelogInfos", function(ent, data)
+	if not IsValid(ent) or not ent:IsPlayer() then return end
+	local wep = ent:GetActiveWeapon()
+	if IsValid(wep) and wep.Base == "weapon_tttbase" then
+		Damagelog:shootCallback(wep)
 	end
-end
-
-hook.Add("Initialize", "Initialize_DamagelogInfos", function()
-	Damagelog:DamagelogInfos()
 end)
 
 function Damagelog:SendDamageInfos(ply, t, att, victim, round)
