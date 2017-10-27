@@ -180,15 +180,18 @@ net.Receive("DL_AskLogsList", function(_,ply)
 end)
 
 local function SendLogs(ply, compressed, cancel)
-	net.Start("DL_SendOldLog")
-	if cancel then
-		net.WriteUInt(0,1)
-	else
-		net.WriteUInt(1,1)
-		net.WriteUInt(#compressed, 32)
-		net.WriteData(compressed, #compressed)
+	if IsValid(ply) and ply:IsPlayer() and (ply.lastLogs == nil or (CurTime() - ply.lastLogs) > 3) then
+		net.Start("DL_SendOldLog")
+		if cancel then
+			net.WriteUInt(0,1)
+		else
+			net.WriteUInt(1,1)
+			net.WriteUInt(#compressed, 32)
+			net.WriteData(compressed, #compressed)
+		end
+		net.Send(ply)
 	end
-	net.Send(ply)
+	ply.lastLogs = CurTime()
 end
 
 net.Receive("DL_AskOldLogRounds", function(_, ply)
