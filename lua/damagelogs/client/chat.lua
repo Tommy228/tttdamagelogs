@@ -68,12 +68,12 @@ function PANEL:Paint(w, h)
 		end
 		if txt then
 			surface.DrawText(txt)
-		end
-		if self.Player:GetNWInt("DL_ForcedStay", -1) == self.RID then
-			local textWidth = select(1, surface.GetTextSize(txt))
-			surface.SetDrawColor(color_white)
-			surface.SetMaterial(self.LockedIcon)
-			surface.DrawTexturedRect(45 + textWidth, 15, 12, 12)
+			if self.Player:GetNWInt("DL_ForcedStay", -1) == self.RID then
+				local textWidth = select(1, surface.GetTextSize(txt))
+				surface.SetDrawColor(color_white)
+				surface.SetMaterial(self.LockedIcon)
+				surface.DrawTexturedRect(45 + textWidth, 15, 12, 12)
+			end
 		end
 	else
 		surface.SetTextColor(color_black)
