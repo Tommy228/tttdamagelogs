@@ -224,7 +224,7 @@ net.Receive("DL_AskOldLogRounds", function(_, ply)
 end)
 
 net.Receive("DL_AskOldLog", function(_,ply)
-	if IsValid(ply) and ply:IsPlayer() and (ply.lastLogs == nil or (CurTime() - ply.lastLogs) > 3) then
+	if IsValid(ply) and ply:IsPlayer() and (ply.lastLogs == nil or (CurTime() - ply.lastLogs) > 2) then
 		local _time = net.ReadUInt(32)
 		if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
 			local query = Damagelog.database:query("SELECT UNCOMPRESS(damagelog) FROM damagelog_oldlogs_v3 WHERE date = ".._time..";")

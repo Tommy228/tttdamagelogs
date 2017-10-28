@@ -66,7 +66,9 @@ function PANEL:Paint(w, h)
 			surface.SetTextColor(Color(160, 160, 0))
 			txt = TTTLogTranslate(GetDMGLogLang, "Admin")
 		end
-		surface.DrawText(txt)
+		if txt then
+			surface.DrawText(txt)
+		end
 		if self.Player:GetNWInt("DL_ForcedStay", -1) == self.RID then
 			local textWidth = select(1, surface.GetTextSize(txt))
 			surface.SetDrawColor(color_white)
