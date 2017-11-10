@@ -551,6 +551,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end
 	if ply:SteamID() != tbl.attacker then return end
+	if tbl.response then return end
 	tbl.response = text
 
 	for k, v in ipairs(player_GetHumans()) do
