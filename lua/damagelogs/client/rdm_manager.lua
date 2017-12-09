@@ -737,11 +737,16 @@ end)
 net.Receive("DL_SendReport", function()
 	local report = net.ReadTable()
 
-	if not LocalPlayer().IsActive or not LocalPlayer():IsActive() then
+	local ReportFrameExists = IsValid(ReportFrame)
+	local newindex = #Damagelog.ReportsQueue + 1
+
+	Damagelog.ReportsQueue[newindex] = (not ReportFrameExists or nil) and report
+
+	if ReportFrameExists or not LocalPlayer().IsActive or not LocalPlayer():IsActive() then
 		BuildReportFrame(report)
 	end
-		
-	Damagelog.ReportsQueue[#Damagelog.ReportsQueue + 1] = report
+
+	Damagelog.ReportsQueue[newindex] = Damagelog.ReportsQueue[newindex] or report
 end)
 
 net.Receive("DL_Death", function()
