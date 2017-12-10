@@ -351,6 +351,7 @@ DamagelogLang.english = {
 	CurrentRoundLogs = "Open the current round by default if you're alive and allowed to open the logs",
 	OutsideNotification = "Enable notification sound outside of the game",
 	DamagelogMenuSettings = "Damagelog menu settings",
+	ForcedLanguage = "The server owner forced the use of this language",
 
 	-- Filters
 	filter_show_bodies = "Show body identifications",

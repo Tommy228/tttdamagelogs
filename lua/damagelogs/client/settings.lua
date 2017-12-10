@@ -30,6 +30,7 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 		dmgLang:ChooseOption(string.upper(string.sub(GetConVar("ttt_dmglog_language"):GetString(),1,1))..string.sub(GetConVar("ttt_dmglog_language"):GetString(),2,100))
 	else
 		dmgLang:SetDisabled(true)
+		dmgLang:SetTooltip(TTTLogTranslate(GetDMGLogLang, "ForcedLanguage"))
 		dmgLang:ChooseOption(string.upper(string.sub(Damagelog.ForcedLanguage,1,1))..string.sub(Damagelog.ForcedLanguage,2,100))
 	end
 

@@ -77,7 +77,7 @@ end
 
 function Player:AddToDamagelogRoles(spawned)
 	local id = table.insert(Damagelog.Roles[#Damagelog.Roles], {
-		role = spawned and 4 or self:GetRole(),
+		role = (spawned and 4) or (self:IsSpec() and 5) or self:GetRole(),
 		steamid64 = self:SteamID64(),
 		nick = self:Nick()
 	})

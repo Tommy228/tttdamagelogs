@@ -161,25 +161,27 @@ local role_colors = {
 }
 
 function Damagelog:AddRoleLine(listview, nick, role)
-	local item = listview:AddLine(nick, self:StrRole(role), "")
-	function item:PaintOver()
-		for k,v in pairs(item.Columns) do
-			v:SetTextColor(role_colors[role])
-		end
-	end
-	item.Nick = nick
-	item.Round = self.SelectedRound
-	local sync_ent = self:GetSyncEnt()
-	item.Think = function(panel)
-		if GetRoundState() == ROUND_ACTIVE and sync_ent:GetPlayedRounds() == panel.Round then
-			local ent = self.RoleNicks and self.RoleNicks[panel.Nick]
-			if IsValid(ent) then
-				panel:SetColumnText(3, ent:Alive() and not (ent.IsGhost and ent:IsGhost()) and not ent:IsSpec() and TTTLogTranslate(GetDMGLogLang, "Yes") or TTTLogTranslate(GetDMGLogLang, "No"))
-			else
-				panel:SetColumnText(3, TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"))
+	if (role != 5) then
+		local item = listview:AddLine(nick, self:StrRole(role), "")
+		function item:PaintOver()
+			for k,v in pairs(item.Columns) do
+				v:SetTextColor(role_colors[role])
 			end
-		else
-			panel:SetColumnText(3, TTTLogTranslate(GetDMGLogLang, "RoundEnded"))
+		end
+		item.Nick = nick
+		item.Round = self.SelectedRound
+		local sync_ent = self:GetSyncEnt()
+		item.Think = function(panel)
+			if GetRoundState() == ROUND_ACTIVE and sync_ent:GetPlayedRounds() == panel.Round then
+				local ent = self.RoleNicks and self.RoleNicks[panel.Nick]
+				if IsValid(ent) then
+					panel:SetColumnText(3, ent:Alive() and not (ent.IsGhost and ent:IsGhost()) and not ent:IsSpec() and TTTLogTranslate(GetDMGLogLang, "Yes") or TTTLogTranslate(GetDMGLogLang, "No"))
+				else
+					panel:SetColumnText(3, TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"))
+				end
+			else
+				panel:SetColumnText(3, TTTLogTranslate(GetDMGLogLang, "RoundEnded"))
+			end
 		end
 	end
 end

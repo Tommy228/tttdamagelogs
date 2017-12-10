@@ -351,6 +351,7 @@ DamagelogLang.deutsch = {
 	CurrentRoundLogs = "Öffnet standardmäßig die aktuelle Runde, wenn du lebst und die Protokolle öffnen darfst",
 	OutsideNotification = "Aktiviert den Benachrichtigungston außerhalb des Spiels",
 	DamagelogMenuSettings = "Damagelog Menüeinstellungen",
+	ForcedLanguage = "Der Serverbesitzer hat die Verwendung dieser Sprache erzwungen",
 
 	-- Filters
 	filter_show_bodies = "Zeige gefundene Körper",
