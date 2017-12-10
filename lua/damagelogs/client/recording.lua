@@ -69,12 +69,12 @@ local function CreateShotsPanel()
 	Title:SetPos(0, 10)
 	Title:SetFont("DL_Shots_Title")
 	Title:SetTextColor(color_black)
-	Title:SetText("Death Scene shots information")
+	Title:SetText(TTTLogTranslate(GetDMGLogLang, "DeathShotsInfo"))
 	Title:SizeToContents()
 	Title:CenterHorizontal()
 
 	local ShowOthers = vgui.Create("DCheckBoxLabel", Frame)
-	ShowOthers:SetText("Show all players")
+	ShowOthers:SetText(TTTLogTranslate(GetDMGLogLang, "ShowAllPlayers"))
 	ShowOthers:SetConVar("ttt_dmglogs_ds_showothers")
 	ShowOthers:SetPos(10, 35)
 	ShowOthers:SetTextColor(color_black)
@@ -108,7 +108,8 @@ local function CreateShotsPanel()
 				if not tbl.shot then continue end
 				if not showAll and id != victim and id != attacker then continue end
 				local nick = Damagelog:InfoFromID(roles, id).nick
-				local line = Info:AddLine(current_second.."s - "..nick.." has shot with a "..tostring(tbl.wep))
+				local wep = Damagelog:GetWeaponName(tbl.wep) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
+				local line = Info:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), current_second.."s", nick, wep))
 				if id == victim then
 					line.col = Color(20, 150, 20)
 				elseif id == attacker then

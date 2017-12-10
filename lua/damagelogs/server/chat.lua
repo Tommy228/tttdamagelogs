@@ -81,13 +81,13 @@ net.Receive("DL_StartChat", function(_len, ply)
 	end
 	
 	if not IsValid(victim) or not IsValid(attacker) then
-		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 5, "buttons/weapon_cant_buy.wav")
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "VictimReportedDisconnected"), 5, "buttons/weapon_cant_buy.wav")
 		return 		
 	end
 	
 	for k,v in pairs(Damagelog.Reports.Current) do
 		if v.chat_open and k == report_index then
-			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "ChatAlready"), 5, "buttons/weapon_cant_buy.wav")
+			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ChatAlready"), 5, "buttons/weapon_cant_buy.wav")
 			return
 		end
 	end
@@ -129,7 +129,7 @@ net.Receive("DL_StartChat", function(_len, ply)
 	
 	for k,v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then	
-			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(GetDMGLogLang, "OpenChatNotification"), ply:Nick(), report_index), 5, "")
+			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(ply.DMGLogLang, "OpenChatNotification"), ply:Nick(), report_index), 5, "")
 			v:UpdateReport(false, report_index)
 		end
 	end
@@ -268,7 +268,7 @@ net.Receive("DL_AddChatPlayer", function(_len, ply)
 	
 	AddToChat(id, report, to_add)
 	
-	to_add:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(GetDMGLogLang, "AddedChatAdmin"), 5, "")
+	to_add:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "AddedChatAdmin"), 5, "")
 
 end)
 
@@ -294,7 +294,7 @@ net.Receive("DL_CloseChat", function(_len, ply)
 	
 	for k,v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then	
-			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(GetDMGLogLang, "ChatClosed"), ply:Nick(), id), 5, "")
+			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(ply.DMGLogLang, "ChatClosed"), ply:Nick(), id), 5, "")
 			v:UpdateReport(false, id)
 		end
 	end

@@ -424,7 +424,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		
 		for k,v in ipairs(player_GetHumans()) do
 			if v:CanUseRDMManager() then	
-				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(GetDMGLogLang, "OpenChatNotification"), ply:Nick(), index), 5, "")
+				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "OpenChatNotification"), ply:Nick(), index), 5, "")
 				v:UpdateReport(false, index)
 			end
 		end

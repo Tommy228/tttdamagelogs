@@ -158,7 +158,7 @@ local function TakeAction()
 
 	end
 
-	menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "RDMDeathScene"), function()
+	menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "ShowDeathScene"), function()
 		local found = false
 		local roles = Damagelog.Roles[report.round]
 		local victimID = util.SteamIDTo64(report.victim)
@@ -193,7 +193,8 @@ local function TakeAction()
 				net.WriteUInt(1, 1)
 				net.WriteUInt(report.previous and 1 or 0, 1)
 				net.WriteUInt(report.index, 16)
-				net.WriteString("("..TTTLogTranslate(DMGLogLang, "Automatic")..") " .. ply .. (mode == 1 and " autoslain " or " autojailed ") .. num .. " times for " .. reason .. ".")
+				local typ = mode == 1 and "AutoReasonJail" or "AutoReasonSlay"
+				net.WriteString(string.format(TTTLogTranslate(GetDMGLogLang, typ), ply, num, reason))
 				net.SendToServer()
 			end
 
@@ -202,7 +203,7 @@ local function TakeAction()
 				net.WriteUInt(1, 1)
 				net.WriteUInt(report.previous and 1 or 0, 1)
 				net.WriteUInt(report.index, 16)
-				net.WriteString("("..TTTLogTranslate(DMGLogLang, "Automatic")..") " .. ply .. " banned " .. num .. " " ..  reason .. ".")
+				net.WriteString(string.format(TTTLogTranslate(GetDMGLogLang, "AutoReasonBan"), ply, num, reason))
 				net.SendToServer()
 			end
 			
@@ -210,19 +211,19 @@ local function TakeAction()
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
 			slaynr_pnl:SetSubMenu(slaynr)
-			local txt = "Slay next round"
+			local txt = TTTLogTranslate(GetDMGLogLang, "SlayNextRound")
 			if ulx and mode == 2 then
-				txt = "Jail next round"
+				txt = TTTLogTranslate(GetDMGLogLang, "JailNextRound")
 			end
 			slaynr_pnl:SetText(txt)
 			slaynr_pnl:SetImage("icon16/lightning_go.png")
 			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "ReportedPlayer") .. " ("..report.attacker_nick..")", function()
 				local frame = vgui.Create("RDM_Manager_Slay_Reason", Damagelog.Menu)
 				frame.SetConclusion = SetConclusion
 				frame:SetPlayer(true, attacker, report.attacker, report)
 			end):SetImage("icon16/user_delete.png")
-			slaynr:AddOption("Victim" .. " ("..report.victim_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "Victim") .. " ("..report.victim_nick..")", function()
 				local frame = vgui.Create("RDM_Manager_Slay_Reason", Damagelog.Menu)
 				frame.SetConclusion = SetConclusion
 				frame:SetPlayer(false, victim, report.victim, report)
@@ -235,12 +236,12 @@ local function TakeAction()
 			slaynr_pnl:SetText("Ban")
 			slaynr_pnl:SetImage("icon16/bomb.png")
 			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "ReportedPlayer") .. " ("..report.attacker_nick..")", function()
 				local frame = vgui.Create("RDM_Manager_Ban_Reason", Damagelog.Menu)
 				frame.SetConclusion = SetConclusionBan
 				frame:SetPlayer(true, attacker, report.attacker, report)
 			end):SetImage("icon16/user_delete.png")
-			slaynr:AddOption("Victim" .. " ("..report.victim_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "Victim") .. " ("..report.victim_nick..")", function()
 				local frame = vgui.Create("RDM_Manager_Ban_Reason", Damagelog.Menu)
 				frame.SetConclusion = SetConclusionBan
 				frame:SetPlayer(false, victim, report.victim, report)
@@ -249,7 +250,7 @@ local function TakeAction()
 			
 		end
 		
-		menuPanel:AddOption("Slay the reported player now", function()
+		menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "SlayReportedPlayerNow"), function()
 			if IsValid(attacker) then
 				if ulx then
 					RunConsoleCommand("ulx", "slay", attacker:Nick())
@@ -265,12 +266,12 @@ local function TakeAction()
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
 			slaynr_pnl:SetSubMenu(slaynr)
-			slaynr_pnl:SetText("Send message to")
+			slaynr_pnl:SetText(TTTLogTranslate(GetDMGLogLang, "SendMessage"))
 			slaynr_pnl:SetImage("icon16/user_edit.png")
 			menuPanel:AddPanel(slaynr_pnl)
-			slaynr:AddOption("Reported player" .. " ("..report.attacker_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "ReportedPlayer") .. " ("..report.attacker_nick..")", function()
 				if IsValid(attacker) then
-					Derma_StringRequest("private message", "What would you like to say to "..attacker:Nick().."?", "", function(msg)
+					Derma_StringRequest(TTTLogTranslate(GetDMGLogLang, "PrivateMessage"), string.format(TTTLogTranslate(GetDMGLogLang, "WhatToSay"), attacker:Nick()), "", function(msg)
 						if ulx then
 							RunConsoleCommand("ulx", "psay", attacker:Nick(), Damagelog.PrivateMessagePrefix.." "..msg)
 						else
@@ -281,9 +282,9 @@ local function TakeAction()
 					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
 				end
 			end):SetImage("icon16/user_delete.png")
-			slaynr:AddOption("Victim" .. " ("..report.victim_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "Victim") .. " ("..report.victim_nick..")", function()
 				if IsValid(victim) then
-					Derma_StringRequest("private message", "What would you like to say to "..victim:Nick().."?", "", function(msg)
+					Derma_StringRequest(TTTLogTranslate(GetDMGLogLang, "PrivateMessage"), string.format(TTTLogTranslate(GetDMGLogLang, "WhatToSay"), victim:Nick()), "", function(msg)
 						if ulx then
 							RunConsoleCommand("ulx", "psay", victim:Nick(), Damagelog.PrivateMessagePrefix.." "..msg)
 						else
@@ -299,17 +300,17 @@ local function TakeAction()
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
 			slaynr_pnl:SetSubMenu(slaynr)
-			local txt = "Remove autoslays of" 
+			local txt = TTTLogTranslate(GetDMGLogLang, "RemoveAutoSlays")
 			if ulx and mode == 2 then
-				txt = "Remove autojails of"
+				txt = TTTLogTranslate(GetDMGLogLang, "RemoveAutoJails")
 			elseif serverguard then
-				txt = "Remove 1 autoslay from"
+				txt = TTTLogTranslate(GetDMGLogLang, "RemoveOneAutoSlay")
 			end
 			slaynr_pnl:SetText(txt)
 			slaynr_pnl:SetImage("icon16/cancel.png")
 			menuPanel:AddPanel(slaynr_pnl)
 
-			slaynr:AddOption("The reported player" .. " ("..report.attacker_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "ReportedPlayer") .. " ("..report.attacker_nick..")", function()
 				if IsValid(attacker) then
 					if ulx then
 						RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", attacker:Nick(), "0")
@@ -325,7 +326,7 @@ local function TakeAction()
 				end
 			end):SetImage("icon16/user_delete.png")
 
-			slaynr:AddOption("The victim" .. " ("..report.victim_nick..")", function()
+			slaynr:AddOption(TTTLogTranslate(GetDMGLogLang, "TheVictim") .. " ("..report.victim_nick..")", function()
 				if IsValid(victim) then
 					if ulx then
 						RunConsoleCommand("ulx", mode == 1 and "aslay" or "ajail", victim:Nick(), "0")
@@ -394,9 +395,9 @@ function PANEL:UpdateReport(index)
 	if not report then return end
 	local str
 	if report.chat_open then
-		str = "Chat active"
+		str = TTTLogTranslate(GetDMGLogLang, "ChatActive")
 	elseif report.chat_opened then
-		str = "Chat opened"
+		str = TTTLogTranslate(GetDMGLogLang, "ChatOpenedShort")
 	else
 		str = report.response and TTTLogTranslate(GetDMGLogLang, "RDMResponded") or TTTLogTranslate(GetDMGLogLang, "RDMWaitingAttacker")
 	end
@@ -714,7 +715,7 @@ function Damagelog:DrawRDMManager(x, y)
 			end
 			surface.DrawRect(0, 0, (w / 2), bar_height)
 			if panel.isAdmin then
-				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "AdminsMessage"), "DL_RDM_Manager", w / 4, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)				
+				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "AdminsMessage"), "DL_RDM_Manager", w / 4, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			else
 				draw.SimpleText(TTTLogTranslate(GetDMGLogLang, "VictimsReport"), "DL_RDM_Manager", w / 4, bar_height / 2, Color(0, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
@@ -971,8 +972,8 @@ function PANEL:Init()
 	local DLabel = vgui.Create("DLabel", self)
 	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 5)
 	DLabel:SetSize(self.Distance * 4.65 , 25)
-	DLabel:SetText("You are going to slay")
 				
+	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "GoingToSlay"))
 	self.NameLabel = vgui.Create("DLabel", self)
 	self.NameLabel:SetPos(self.Distance/2 + 5, self.Dimension/2.5 + 25)
 	self.NameLabel:SetSize(self.Distance * 4.65 - 15, 25)
@@ -981,12 +982,12 @@ function PANEL:Init()
 	local DLabel = vgui.Create("DLabel", self)
 	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 45)
 	DLabel:SetSize(self.Distance * 4.65 , 25)
-	DLabel:SetText("this often:")
+	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "ThisOften"))
 				
 	self.Reason = vgui.Create("DLabel", self )
 	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)				
 	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)	
-	self.Reason:SetText("Reason: ")
+	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason"))
 
 	self.CREnable = vgui.Create("DCheckBox", self)
 	self.CREnable:SetPos(self.Distance/2 + self.Dimension/2 ,self.Dimension*2/3 + 5)
@@ -998,7 +999,7 @@ function PANEL:Init()
 	self.CustomReason = vgui.Create("DTextEntry", self)
 	self.CustomReason:SetPos(self.Distance/2 + self.Dimension/2 + 25, self.Dimension*2/3)
 	self.CustomReason:SetSize(self.Dimension*1.5 - 35, 25)
-	self.CustomReason:SetText("No reason specified")
+	self.CustomReason:SetText(TTTLogTranslate(GetDMGLogLang, "DefaultReason"))
 	self.CustomReason.OnChange = function(panel)
 		self:UpdateReason()
 	end
@@ -1023,9 +1024,9 @@ end
 
 function PANEL:SetPlayer(reported, ply, steamid, report)
 	if ulx then
-		self:SetTitle((mode == 1 and "Autoslaying" or "Autojailing") .. (reported and report.attacker_nick or report.victim_nick))
+		self:SetTitle(string.format(TTTLogTranslate(GetDMGLogLang, (mode == 1 and "Autoslaying" or "Autojailing")), (reported and report.attacker_nick or report.victim_nick)))
 	else
-		self:SetTitle("Autoslaying "..(reported and report.attacker_nick or report.victim_nick))
+		self:SetTitle(string.format(TTTLogTranslate(GetDMGLogLang, "Autoslaying"), (reported and report.attacker_nick or report.victim_nick)))
 	end
 	self.NameLabel:SetText(reported and report.attacker_nick or report.victim_nick)
 	self.Button.DoClick = function(panel)
@@ -1069,7 +1070,7 @@ function PANEL:UpdateReason()
 		end
 	end
 	self.CurrentReason = reason
-	self.Reason:SetText("Reason : "..reason)
+	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason")..reason)
 end
 
 function PANEL:PaintOver(w, h)
@@ -1103,7 +1104,7 @@ function PANEL:AddReasonRow(x, y, w, h, reasons)
 		checkBox:SetValue(0)
 		checkBox:SizeToContents()
 		function checkBox.OnChange(panel)
-			if self.CustomReason:GetValue() == "No reason specified" then
+			if self.CustomReason:GetValue() == TTTLogTranslate(GetDMGLogLang, "DefaultReason") then
 				self.CREnable:SetChecked(false)
 			end
 			self:UpdateReason()
@@ -1146,7 +1147,7 @@ function PANEL:Init()
 	self.BanPanel:AddItem(self.BanTime)
 
 	self.Minutes = vgui.Create("DCheckBoxLabel")
-	self.Minutes:SetText("Minutes")
+	self.Minutes:SetText(TTTLogTranslate(GetDMGLogLang, "Minutes"))
 	self.Minutes:SetValue(1)
 	self.Minutes:SizeToContents()
 	self.CurrentBanType = self.MINUTES
@@ -1161,7 +1162,7 @@ function PANEL:Init()
 	self.BanPanel:AddItem(self.Minutes)
 
 	self.Hours = vgui.Create("DCheckBoxLabel")
-	self.Hours:SetText("Hours")
+	self.Hours:SetText(TTTLogTranslate(GetDMGLogLang, "Hours"))
 	self.Hours:SetValue(0)
 	self.Hours:SizeToContents()
 	self.Hours.OnChange = function(panel)
@@ -1175,7 +1176,7 @@ function PANEL:Init()
 	self.BanPanel:AddItem(self.Hours)
 
 	self.Days = vgui.Create("DCheckBoxLabel")
-	self.Days:SetText("Days")
+	self.Days:SetText(TTTLogTranslate(GetDMGLogLang, "Days"))
 	self.Days:SetValue(0)
 	self.Days:SizeToContents()
 	self.Days.OnChange = function(panel)
@@ -1216,7 +1217,7 @@ function PANEL:Init()
 
 	local DLabel  = vgui.Create("DLabel", self)
 	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 35)
-	DLabel:SetText("You are going to ban")
+	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "GoingToBan"))
 	DLabel:SizeToContents()
 				
 	self.NameLabel= vgui.Create("DLabel", self)
@@ -1227,12 +1228,12 @@ function PANEL:Init()
 	self.TimeLabel = vgui.Create("DLabel", self)
 	self.TimeLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 67)
 	self.TimeLabel:SetSize(self.Distance * 4.65 , 25)
-	self.TimeLabel:SetText("for ")
+	self.TimeLabel:SetText(TTTLogTranslate(GetDMGLogLang, "forspace"))
 				
 	self.Reason = vgui.Create("DLabel", self )
 	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)				
 	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)	
-	self.Reason:SetText("Reason: ")
+	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason"))
 
 	self.CREnable = vgui.Create("DCheckBox", self)
 	self.CREnable:SetPos(self.Distance/2 + self.Dimension/2 ,self.Dimension*2/3 + 5)
@@ -1244,7 +1245,7 @@ function PANEL:Init()
 	self.CustomReason = vgui.Create("DTextEntry", self)
 	self.CustomReason:SetPos(self.Distance/2 + self.Dimension/2 + 25, self.Dimension*2/3)
 	self.CustomReason:SetSize(self.Dimension*1.5 - 35, 25)
-	self.CustomReason:SetText("No reason specified")
+	self.CustomReason:SetText(TTTLogTranslate(GetDMGLogLang, "DefaultReason"))
 	self.CustomReason.OnChange = function(panel)
 		self:UpdateReason()
 	end
@@ -1268,16 +1269,16 @@ function PANEL:UpdateBanTime()
 	local banTime = tonumber(self.BanTime:GetValue()) or 0
 	if banTime == 0 then
 		self.BanTimeNumber = 0
-		self.TimeLabel:SetText("permanently")
+		self.TimeLabel:SetText(TTTLogTranslate(GetDMGLogLang, "Permanently"))
 	elseif self.CurrentBanType == self.MINUTES then
 		self.BanTimeNumber = banTime
-		self.TimeLabel:SetText("for "..banTime.." minutes")
+		self.TimeLabel:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "ForMinutes"), banTime))
 	elseif self.CurrentBanType == self.HOURS then
 		self.BanTimeNumber = 60 * banTime
-		self.TimeLabel:SetText("for "..banTime.." hours")
+		self.TimeLabel:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "ForHours"), banTime))
 	else
 		self.BanTimeNumber = 1440 * banTime
-		self.TimeLabel:SetText("for "..banTime.." days")
+		self.TimeLabel:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "ForDays"), banTime))
 	end
 end
 
@@ -1325,7 +1326,7 @@ function PANEL:UpdateReason()
 		end
 	end
 	self.CurrentReason = reason
-	self.Reason:SetText("Reason : "..reason)
+	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason")..reason)
 end
 
 function PANEL:PaintOver(w, h)
@@ -1359,7 +1360,7 @@ function PANEL:AddReasonRow(x, y, w, h, reasons)
 		checkBox:SetValue(0)
 		checkBox:SizeToContents()
 		function checkBox.OnChange(panel)
-			if self.CustomReason:GetValue() == "No reason specified" then
+			if self.CustomReason:GetValue() == TTTLogTranslate(GetDMGLogLang, "DefaultReason") then
 				self.CREnable:SetChecked(false)
 			end
 			self:UpdateReason()
