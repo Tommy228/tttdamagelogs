@@ -270,7 +270,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		reportType = DAMAGELOG_REPORT_STANDARD
 	end
 
-	message = string_gsub(string_gsub(message, "%s+", " "), "[%G ]+", "")
+	message = string_gsub(message, "[%G ]+", "")
 
 	if not ply:CanUseRDMManager() then
 
@@ -546,7 +546,7 @@ end)
 
 net.Receive("DL_SendAnswer", function(_, ply)
 	local previous = net.ReadUInt(1) ~= 1
-	local text = string_gsub(string_gsub(net.ReadString(), "%s+", " "), "[%G ]+", "")
+	local text = string_gsub(net.ReadString(), "[%G ]+", "")
 	local index = net.ReadUInt(16)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end

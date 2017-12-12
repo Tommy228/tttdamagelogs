@@ -91,7 +91,7 @@ local function BuildReportFrame(report)
 			
 			Button.DoClick = function()
 				local text = string.Trim(TextEntry:GetValue())
-				local size = #string.gsub(string.gsub(text, "%s+", " "), "[%G ]+", "")
+				local size = #string.gsub(text, "[%G ]+", "")
 
 				if size < 10 then
 					Info:SetText(TTTLogTranslate(GetDMGLogLang, "MinCharacters"))
@@ -384,7 +384,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 	Submit:SetSize(370, 25)
 
 	Submit.Think = function(self)
-		local characters = #string.gsub(string.gsub(Entry:GetText(), "%s+", " "), "[%G ]+", "")
+		local characters = #string.gsub(Entry:GetText(), "[%G ]+", "")
 		local disable = characters < 10 or not cur_selected
 
 		if disable and select(2, Type:GetSelected()) != DAMAGELOG_REPORT_CHAT then
