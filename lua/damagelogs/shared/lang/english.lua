@@ -315,6 +315,7 @@ DamagelogLang.english = {
 	Autojailing = "Autojailing %s",
 	DeathShotsInfo = "Death Scene shots information",
 	ShowAllPlayers = "Show all players",
+	PlayerDrowned = "%s [%s] drowned.",
 
 	-- Months
 	January = "January",
@@ -372,6 +373,7 @@ DamagelogLang.english = {
 	filter_show_radiokos = "Show KOS radio commands",
 	filter_show_purchases = "Show weapon purchases",
 	filter_show_c4 = "Show C4",
+	filter_show_drownings = "Show drownings",
 
 	-- Colors
 	color_found_bodies = "Found bodies",
@@ -390,5 +392,6 @@ DamagelogLang.english = {
 	color_kosradio = "Radio KOS command",
 	color_purchases = "Equipment purchases",
 	color_c4 = "C4",
-	color_team_kills = "Team kills"
+	color_team_kills = "Team kills",
+	color_drownings = "Drownings"
 }
