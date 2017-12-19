@@ -29,7 +29,7 @@ else
 	}
 
 	function Damagelog:Notify(msg_type, msg, _time, soundFile)
-		if soundFile and GetConVar("ttt_dmglogs_enablesound"):GetBool() then
+		if soundFile ~= '' and GetConVar("ttt_dmglogs_enablesound"):GetBool() then
 			if GetConVar("ttt_dmglogs_enablesoundoutside"):GetBool() then
 				sound.PlayFile("sound/"..soundFile, "", function() end)
 			else

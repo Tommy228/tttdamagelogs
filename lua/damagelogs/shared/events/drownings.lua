@@ -1,16 +1,16 @@
 if SERVER then
 	Damagelog:EventHook("DoPlayerDeath")
 else
-	Damagelog:AddFilter("filter_show_suicides", DAMAGELOG_FILTER_BOOL, true)
-	Damagelog:AddColor("color_suicides", Color(25, 25, 220, 255))
+	Damagelog:AddFilter("filter_show_drownings", DAMAGELOG_FILTER_BOOL, true)
+	Damagelog:AddColor("color_drownings", Color(115, 161, 255, 255))
 end
 
 local event = {}
 
-event.Type = "KILL"
+event.Type = "DRN"
 
 function event:DoPlayerDeath(ply, attacker, dmginfo)
-	if ((IsValid(attacker) and attacker:IsPlayer() and attacker == ply) or (attacker == game.GetWorld())) and not (dmginfo:IsDamageType(DMG_DROWN) or (ply.IsGhost and ply:IsGhost())) then
+	if attacker == game.GetWorld() and dmginfo:IsDamageType(DMG_DROWN) and not (ply.IsGhost and ply:IsGhost()) then
 		Damagelog.SceneID = Damagelog.SceneID + 1
 		local scene = Damagelog.SceneID
 		Damagelog.SceneRounds[scene] = Damagelog.CurrentRound
@@ -34,11 +34,11 @@ end
 
 function event:ToString(v, roles)
 	local info = Damagelog:InfoFromID(roles, v[1])
-	return string.format(TTTLogTranslate(GetDMGLogLang, "SomethingKilled"), info.nick, Damagelog:StrRole(info.role)) 
+	return string.format(TTTLogTranslate(GetDMGLogLang, "PlayerDrowned"), info.nick, Damagelog:StrRole(info.role)) 
 end
 
 function event:IsAllowed(tbl)
-	return Damagelog.filter_settings["filter_show_suicides"]
+	return Damagelog.filter_settings["filter_show_drownings"]
 end
 
 function event:Highlight(line, tbl, text)
@@ -46,11 +46,11 @@ function event:Highlight(line, tbl, text)
 end
 
 function event:GetColor(tbl)
-	return Damagelog:GetColor("color_suicides")
+	return Damagelog:GetColor("color_drownings")
 end
 
 function event:RightClick(line, tbl, roles, text)
-	line:ShowTooLong(true)
+	line:ShowTooLong(false)
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
 	line:ShowCopy(true, { ply.nick, util.SteamIDFrom64(ply.steamid64) })
 	line:ShowDeathScene(tbl[1], tbl[1], tbl[2])

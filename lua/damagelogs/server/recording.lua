@@ -8,6 +8,8 @@ Damagelog.SceneID = Damagelog.SceneID or 0
 
 local magneto_ents = {}
 
+local table = table
+
 hook.Add("TTTBeginRound", "TTTBeginRound_SpecDMRecord", function()
 	table.Empty(magneto_ents)
 	table.Empty(Damagelog.Records)
@@ -27,7 +29,7 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 	local tbl = {}
 	
 	for k,v in pairs(magneto_ents) do
-		if CurTime() - v.last_saw > 15 then
+		if v.record and CurTime() - v.last_saw > 15 then
 			v.record = false
 		end
 	end
@@ -98,11 +100,14 @@ net.Receive("DL_AskDeathScene", function(_, ply)
 	local scene = Damagelog.Death_Scenes[ID]
 	local roles = Damagelog.Roles[Damagelog.SceneRounds[ID]]
 	if scene and roles then
+		local sceneString = util.TableToJSON(scene)
+		sceneString = util.Compress(sceneString)
 		net.Start("DL_SendDeathScene")
-		net.WriteUInt(ply1, 32)
-		net.WriteUInt(ply2, 32)
-		net.WriteTable(roles)
-		net.WriteTable(scene)
+			net.WriteUInt(ply1, 32)
+			net.WriteUInt(ply2, 32)
+			net.WriteTable(roles)
+			net.WriteUInt(#sceneString, 32)
+			net.WriteData(sceneString, #sceneString)
 		net.Send(ply)
 	end
 end)

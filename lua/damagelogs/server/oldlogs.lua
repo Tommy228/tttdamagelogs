@@ -55,7 +55,6 @@ if Damagelog.Use_MySQL then
 		local yearsQuery = self:query("SELECT DISTINCT year FROM damagelog_oldlogs_v3;")
 		yearsQuery.onSuccess = function(yearsQuery)
 			local years = yearsQuery:getData()
-			PrintTable(years)
 			for k1, year in pairs(years) do
 				local y = tonumber(year.year)
 				if not y then continue end
@@ -225,28 +224,31 @@ net.Receive("DL_AskOldLogRounds", function(_, ply)
 end)
 
 net.Receive("DL_AskOldLog", function(_,ply)
-	local _time = net.ReadUInt(32)
-	if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
-		local query = Damagelog.database:query("SELECT UNCOMPRESS(damagelog) FROM damagelog_oldlogs_v3 WHERE date = ".._time..";")
-		query.onSuccess = function(self)
-			local data = self:getData()
+	if IsValid(ply) and ply:IsPlayer() and (ply.lastLogs == nil or (CurTime() - ply.lastLogs) > 2) then
+		local _time = net.ReadUInt(32)
+		if Damagelog.Use_MySQL and Damagelog.MySQL_Connected then
+			local query = Damagelog.database:query("SELECT UNCOMPRESS(damagelog) FROM damagelog_oldlogs_v3 WHERE date = ".._time..";")
+			query.onSuccess = function(self)
+				local data = self:getData()
+				net.Start("DL_SendOldLog")
+				if data[1] and data[1]["UNCOMPRESS(damagelog)"] then
+					local compressed = util.Compress(data[1]["UNCOMPRESS(damagelog)"])
+					SendLogs(ply, compressed, false)
+				else
+					SendLogs(ply, nil, true)
+				end
+				net.Send(ply)
+			end
+			query:start()
+		elseif not Damagelog.Use_MySQL then
+			local query = sql.QueryValue("SELECT damagelog FROM damagelog_oldlogs_v3 WHERE date = ".._time..";")
 			net.Start("DL_SendOldLog")
-			if data[1] and data[1]["UNCOMPRESS(damagelog)"] then
-				local compressed = util.Compress(data[1]["UNCOMPRESS(damagelog)"])
-				SendLogs(ply, compressed, false)
+			if query then
+				SendLogs(ply, util.Compress(query), false)
 			else
 				SendLogs(ply, nil, true)
 			end
-			net.Send(ply)
-		end
-		query:start()
-	elseif not Damagelog.Use_MySQL then
-		local query = sql.QueryValue("SELECT damagelog FROM damagelog_oldlogs_v3 WHERE date = ".._time..";")
-		net.Start("DL_SendOldLog")
-		if query then
-			SendLogs(ply, util.Compress(query), false)
-		else
-			SendLogs(ply, nil, true)
 		end
 	end
+	ply.lastLogs = CurTime()
 end)

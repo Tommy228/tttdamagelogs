@@ -3,6 +3,8 @@ TTT Damagelogs
 
 TTT Damagelogs is an administration tool designed for TTT to allow handling RDM situations using different tools.
 
+**Do not directly download the addon from the repo ! It may contain untested or experimental code. Download the addon from the releases tab : https://github.com/Tommy228/TTTDamagelogs/releases**
+
 
 ## Features
 - Damagelogs *with filter and highlight options*
@@ -14,7 +16,7 @@ TTT Damagelogs is an administration tool designed for TTT to allow handling RDM 
 - Report and respond system
 - Punishment options: Autoslay and Autojail
 - Visual Deathscene
-- Translation support: English, German and French
+- Translation support: English, German, French, Russian and Polish
 - Storage support for MySQL and SQLite
 - Support for ULX and Serverguard: User groups and RDM punishments
 - Easy configuration via config file and F1 settings menu
@@ -24,14 +26,14 @@ TTT Damagelogs is an administration tool designed for TTT to allow handling RDM 
 
 ##### For *stable* releases look here: https://github.com/Tommy228/TTTDamagelogs/releases
 
-Just drop the TTTDamagelogs folder to addons/.
+Just drop the TTTDamagelogs folder to addons/. The addon can be configured on the *lua/damagelogs/config/config.lua* file.
 
 **On Linux servers, you need to make the foldername lowercase!**
 
 
 ## Support
-- [Facepunch Thread](https://facepunch.com/showthread.php?t=1416843)
-- [GitHub bug reports](https://github.com/Tommy228/TTTDamagelogs/issues)
+- [Facepunch Thread](https://gmod.facepunch.com/f/gmodaddon/jjah/TTT-Damagelogs-MySQL-Edition/1/)
+- [GitHub issues](https://github.com/Tommy228/TTTDamagelogs/issues)
 
 
 # License

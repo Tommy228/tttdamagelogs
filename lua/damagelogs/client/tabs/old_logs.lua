@@ -329,7 +329,6 @@ net.Receive("DL_SendOldLog", function()
 			if data then
 				data = util.JSONToTable(data)
 				if data then
-					PrintTable(data)
 					if ShotsOpen and IsValid(Damagelog.OldLogsShoots) then
 						Damagelog.OldLogsShoots:Close()
 						Damagelog.OldLogsShoots:Remove()
