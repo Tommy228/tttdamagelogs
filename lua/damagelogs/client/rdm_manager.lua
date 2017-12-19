@@ -697,16 +697,18 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 		buttons[1]:OnMousePressed()
 	end
 
-	local Logs = vgui.Create("DListView")
-	Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Time")):SetFixedWidth(40)
-	Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Type")):SetFixedWidth(40)
-	Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Event"))
+	if Damagelog.EnableLogsBeforeDeath then
+		local Logs = vgui.Create("DListView")
+		Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Time")):SetFixedWidth(40)
+		Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Type")):SetFixedWidth(40)
+		Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Event"))
 
-	if deathLogs then
-		self:SetListViewTable(Logs, deathLogs, false)
-	end 
+		if deathLogs then
+			self:SetListViewTable(Logs, deathLogs, false)
+		end
 
-	Tabs:AddSheet(TTTLogTranslate(GetDMGLogLang, "LogsBeforeDeath"), Logs, "icon16/application_view_list.png")
+		Tabs:AddSheet(TTTLogTranslate(GetDMGLogLang, "LogsBeforeDeath"), Logs, "icon16/application_view_list.png")
+	end
 end
 
 net.Receive("DL_SendOwnReportInfo", function()

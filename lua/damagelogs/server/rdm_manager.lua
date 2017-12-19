@@ -223,7 +223,7 @@ function Damagelog:StartReport(ply)
 		end
 	end
 	net.WriteBool(found)
-	if ply.DeathDmgLog then
+	if ply.DeathDmgLog and Damagelog.EnableLogsBeforeDeath then
 		net.WriteUInt(1, 1)
 		net.WriteTable(ply.DeathDmgLog)
 	else

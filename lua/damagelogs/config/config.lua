@@ -125,3 +125,7 @@ Damagelog.ReportsBeforePlaying = false
 -- Private message prefix from RDM Manager
 
 Damagelog.PrivateMessagePrefix = "[RDM Manager]"
+
+-- Enable the "Logs before death" tab in report frame
+
+Damagelog.EnableLogsBeforeDeath = true
