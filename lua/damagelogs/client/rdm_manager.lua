@@ -705,6 +705,8 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 
 		if deathLogs then
 			self:SetListViewTable(Logs, deathLogs, false)
+		else
+			self:AddLine(TTTLogTranslate(GetDMGLogLang, "Nothinghere"))
 		end
 
 		Tabs:AddSheet(TTTLogTranslate(GetDMGLogLang, "LogsBeforeDeath"), Logs, "icon16/application_view_list.png")
