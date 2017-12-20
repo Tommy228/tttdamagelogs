@@ -697,7 +697,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 		buttons[1]:OnMousePressed()
 	end
 
-	if Damagelog.EnableLogsBeforeDeath then
+	if (Damagelog.User_rights[LocalPlayer():GetUserGroup()] or 2) >= 2 then
 		local Logs = vgui.Create("DListView")
 		Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Time")):SetFixedWidth(40)
 		Logs:AddColumn(TTTLogTranslate(GetDMGLogLang, "Type")):SetFixedWidth(40)

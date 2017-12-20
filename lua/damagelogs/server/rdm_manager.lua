@@ -223,7 +223,7 @@ function Damagelog:StartReport(ply)
 		end
 	end
 	net.WriteBool(found)
-	if ply.DeathDmgLog and Damagelog.EnableLogsBeforeDeath then
+	if ply.DeathDmgLog and (Damagelog.User_rights[ply:GetUserGroup()] or 2) >= 2 then
 		net.WriteUInt(1, 1)
 		net.WriteTable(ply.DeathDmgLog)
 	else
