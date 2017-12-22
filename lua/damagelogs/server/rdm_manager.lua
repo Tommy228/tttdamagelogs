@@ -363,12 +363,12 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	for k, v in ipairs(player_GetHumans()) do
 		if v:CanUseRDMManager() then
 			if v:IsActive() then
-				v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ReportCreated") .. " (#" .. index .. ") !", 5, "damagelogs/vote_failure.wav")
+				v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(v.DMGLogLang, "ReportCreated") .. " (#" .. index .. ") !", 5, "damagelogs/vote_failure.wav")
 			else
 				if reportType != DAMAGELOG_REPORT_STANDARD then
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "HasAdminReported"), ply:Nick(), attacker:Nick(), index), 5, "damagelogs/vote_failure.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(v.DMGLogLang, "HasAdminReported"), ply:Nick(), attacker:Nick(), index), 5, "damagelogs/vote_failure.wav")
 				else
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "HasReported"), ply:Nick(), attacker:Nick(), index), 5, "damagelogs/vote_failure.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(v.DMGLogLang, "HasReported"), ply:Nick(), attacker:Nick(), index), 5, "damagelogs/vote_failure.wav")
 				end
 			end
 			v:NewReport(Damagelog.Reports.Current[index])
@@ -381,9 +381,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	if not attacker:CanUseRDMManager() then
 		if reportType != DAMAGELOG_REPORT_STANDARD then
-			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "HasAdminReportedYou"), ply:Nick()), 5, "damagelogs/vote_failure.wav")
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(attacker.DMGLogLang, "HasAdminReportedYou"), ply:Nick()), 5, "damagelogs/vote_failure.wav")
 		else
-			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "HasReportedYou"), ply:Nick()), 5, "damagelogs/vote_failure.wav")
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(attacker.DMGLogLang, "HasReportedYou"), ply:Nick()), 5, "damagelogs/vote_failure.wav")
 		end
 	end
 
@@ -424,7 +424,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		
 		for k,v in ipairs(player_GetHumans()) do
 			if v:CanUseRDMManager() then	
-				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "OpenChatNotification"), ply:Nick(), index), 5, "")
+				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "OpenChatNotification"), ply:Nick(), index), 5, "")
 				v:UpdateReport(false, index)
 			end
 		end
@@ -511,7 +511,7 @@ net.Receive("DL_Conclusion", function(_len, ply)
 	for k, v in ipairs(player_GetHumans()) do
 		if v:CanUseRDMManager() then
 			if notify then
-				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetConclusion") .. " #" .. index .. ".", 5, "")
+				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(v.DMGLogLang, "HasSetConclusion") .. " #" .. index .. ".", 5, "")
 			end
 			v:UpdateReport(previous, index)
 		end
@@ -558,7 +558,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 
 	for k, v in ipairs(player_GetHumans()) do
 		if v:CanUseRDMManager() then
-			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "HasAnsweredReport"), (v:IsActive() and TTTLogTranslate(ply.DMGLogLang, "TheReportedPlayer") or ply:Nick()), index), 5, "damagelogs/vote_yes.wav")
+			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "HasAnsweredReport"), (v:IsActive() and TTTLogTranslate(v.DMGLogLang, "TheReportedPlayer") or ply:Nick()), index), 5, "damagelogs/vote_yes.wav")
 			v:UpdateReport(previous, index)
 		end
 	end
@@ -594,6 +594,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 			tbl.status = RDM_MANAGER_FINISHED
 			tbl.conclusion = "(Auto) Canceled by the victim"
 			tbl.autoStatus = true
+			tbl.admin = nil
 			local syncEnt = Damagelog:GetSyncEnt()
 			if IsValid(syncEnt) then
 				syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
@@ -605,15 +606,15 @@ net.Receive("DL_GetForgive", function(_, ply)
 		if v:CanUseRDMManager() then
 			if forgive then
 				if v:IsActive() then
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "TheReport") .. " #" .. index .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasCanceledByVictim"), 5, "damagelogs/vote_yes.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(v.DMGLogLang, "TheReport") .. " #" .. index .. " " .. TTTLogTranslate(v.DMGLogLang, "HasCanceledByVictim"), 5, "damagelogs/vote_yes.wav")
 				else
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "HasCanceledReport"), ply:Nick(), index), 5, "damagelogs/vote_yes.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "HasCanceledReport"), ply:Nick(), index), 5, "damagelogs/vote_yes.wav")
 				end
 			else
 				if v:IsActive() then
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(ply.DMGLogLang, "NoMercy") .. " #" .. index .. " !", 5, "damagelogs/vote_yes.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, TTTLogTranslate(v.DMGLogLang, "NoMercy") .. " #" .. index .. " !", 5, "damagelogs/vote_yes.wav")
 				else
-					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "DidNotForgive"), ply:Nick(), tbl.attacker_nick, index), 5, "ui/vote_yes.wav")
+					v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "DidNotForgive"), ply:Nick(), tbl.attacker_nick, index), 5, "ui/vote_yes.wav")
 				end
 			end
 
@@ -631,9 +632,9 @@ net.Receive("DL_GetForgive", function(_, ply)
 
 	if IsValid(attacker) then
 		if forgive then
-			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "DecidedToForgiveYou"), ply:Nick()), 5, "damagelogs/vote_yes.wav")
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(attacker.DMGLogLang, "DecidedToForgiveYou"), ply:Nick()), 5, "damagelogs/vote_yes.wav")
 		else
-			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "DecidedNotToForgiveYou"), ply:Nick()), 5, "damagelogs/vote_no.wav")
+			attacker:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(attacker.DMGLogLang, "DecidedNotToForgiveYou"), ply:Nick()), 5, "damagelogs/vote_no.wav")
 		end
 	end
 
