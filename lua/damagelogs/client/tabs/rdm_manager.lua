@@ -435,25 +435,6 @@ function PANEL:UpdateReport(index)
 			self.Sorted = tbl
 			self:InvalidateLayout()
 
-			self.Reports[index].PaintOver = function(self)
-				if self:IsLineSelected() then
-					self.Columns[2]:SetTextColor(color_white)
-					self.Columns[3]:SetTextColor(color_white)
-					self.Columns[5]:SetTextColor(color_white)
-					self.Columns[7]:SetTextColor(color_white)
-				else
-					self.Columns[2]:SetTextColor(report.adminReport and Color(190, 190, 0) or Color(0, 190, 0))
-					self.Columns[3]:SetTextColor(Color(190, 0, 0))
-					self.Columns[7]:SetTextColor(colors[report.status])
-
-					if report.chat_open then
-						self.Columns[5]:SetTextColor(Color(100 + math.abs(math.sin(CurTime()) * 155), 0, 0))
-					else
-						self.Columns[5]:SetTextColor(color_black)
-					end
-				end
-			end
-
 			self.Reports[index].OnRightClick = function(self)
 				TakeAction()
 			end
@@ -481,7 +462,9 @@ function PANEL:UpdateReport(index)
 				self.Conclusion:SetText(report.conclusion)
 			end
 		end
-
+	end
+	
+	if self.Reports[index] then
 		self.Reports[index].PaintOver = function(self)
 			if self:IsLineSelected() then
 				self.Columns[2]:SetTextColor(color_white)
