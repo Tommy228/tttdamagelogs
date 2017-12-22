@@ -1,14 +1,16 @@
 --[[ User rights.
 
-	Everyone can open the logs to view the logs of the previous rounds.
+	First argument: name of usergroup (e. g. "user" or "admin").
 
-	The default level is 1 if your rank isn't here.
+	Second argument: access level. Default value is 2 (will be used if a usergroup isn't here).
+	1 : Can't view 'Logs before your death' tab in !report frame
+	2 : Can't view logs of active rounds
+	3 : Can view logs of active rounds as a spectator
+	4 : Can always view logs of active rounds
 
-	1 and 2 : Can't view logs of the active rounds
-	3 : Can view the logs of the active rounds as a spectator
-	4 : Can always view the logs of the active ranks
+	Everyone can view logs of previous rounds.
 
-	The third argument is the RDM Manager access. Set it to true or false.
+	Third argument: access to RDM Manager tab in Damagelogs (true/false).
 ]]--
 
 Damagelog:AddUser("owner", 4, true)
@@ -16,7 +18,7 @@ Damagelog:AddUser("founder", 4, true)
 Damagelog:AddUser("superadmin", 4, true)
 Damagelog:AddUser("admin", 4, true)
 Damagelog:AddUser("operator", 3, false)
-Damagelog:AddUser("user", 1, false)
+Damagelog:AddUser("user", 2, false)
 
 -- The F-key
 
