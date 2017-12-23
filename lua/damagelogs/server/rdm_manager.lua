@@ -592,7 +592,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 		tbl.canceled = true
 		if tbl.status == RDM_MANAGER_WAITING then
 			tbl.status = RDM_MANAGER_FINISHED
-			tbl.conclusion = "(Auto) Canceled by the victim"
+			tbl.conclusion = Damagelog.ForcedLanguage == "" and "(Auto) Canceled by the victim" or TTTLogTranslate(_, "RDMManagerAuto").." "..TTTLogTranslate(_, "RDMCanceled")
 			tbl.autoStatus = true
 			tbl.admin = nil
 			local syncEnt = Damagelog:GetSyncEnt()
