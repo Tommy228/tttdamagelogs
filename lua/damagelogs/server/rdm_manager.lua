@@ -487,7 +487,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 	for k, v in ipairs(player_GetHumans()) do
 		if v:CanUseRDMManager() then
-			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, msg, 5, false)
+			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, msg, 5, "")
 			v:UpdateReport(previous, index)
 		end
 	end
