@@ -1,7 +1,7 @@
 DamagelogLang = DamagelogLang or {}
 
 for k,v in pairs(file.Find("damagelogs/shared/lang/*.lua", "LUA")) do
-	f = "damagelogs/shared/lang/"..v
+	local f = "damagelogs/shared/lang/"..v
 	if SERVER then
 		AddCSLuaFile(f)
 	end
@@ -9,7 +9,7 @@ for k,v in pairs(file.Find("damagelogs/shared/lang/*.lua", "LUA")) do
 end
 
 function TTTLogTranslate(GetDMGLogLang, phrase)
-	f = GetDMGLogLang
+	local f = GetDMGLogLang
 	if Damagelog.ForcedLanguage == "" then
 		if !DamagelogLang[f] then
 			f = "english"
