@@ -826,7 +826,7 @@ net.Receive("DL_SendForgive", function()
 end)
 
 net.Receive("DL_Answering_global", function(_len)
-	if not LocalPlayer():IsActive() then
+	if LocalPlayer().IsActive and not LocalPlayer():IsActive() then
 		chat.AddText(Color(255, 62, 62), net.ReadString(), color_white, " " .. TTTLogTranslate(GetDMGLogLang, "IsAnswering"))
 	end
 end)
