@@ -129,9 +129,9 @@ local PANEL = {}
 function PANEL:Init()
 	self:EnableVerticalScrollbar(true)
 	self.Normal = vgui.Create("DL_ChatCategory", self)
-	self.Normal:SetCategoryName("Players")
+	self.Normal:SetCategoryName(TTTLogTranslate(GetDMGLogLang, "ChatPlayers"))
 	self.Admins = vgui.Create("DL_ChatCategory", self)
-	self.Admins:SetCategoryName("Administrators")
+	self.Admins:SetCategoryName(TTTLogTranslate(GetDMGLogLang, "ChatAdmins"))
 end
 
 function PANEL:SetRID(RID)
