@@ -130,7 +130,6 @@ DamagelogLang.russian = {
 	YouHaveReported = "Вы пожаловались на %s",
 	YouHaveAdminReported = "Вы отправили админ-жалобу на %s",
 	HasSetReport = "сменил статус жалобы",
-	To = "на",
 	DealingReport = "рассматривает жалобу",
 	HandlingYourReport = "рассматривает вашу жалобу.",
 	Finished = "Завершена",

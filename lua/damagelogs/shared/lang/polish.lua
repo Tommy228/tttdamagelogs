@@ -130,7 +130,6 @@ DamagelogLang.polish = {
 	YouHaveReported = "Zgłosiłeś %s",
 	YouHaveAdminReported = "Zgłosiłeś jako administrator gracza %s",
 	HasSetReport = "ustawił zgłoszenie jako",
-	To = "jako",
 	DealingReport = "zajmuje się teraz zgłoszeniem",
 	HandlingYourReport = "zajmuje się Twoim zgłoszeniem.",
 	Finished = "Zamknięte",

@@ -124,7 +124,6 @@ DamagelogLang.french = {
 	YouHaveReported = "Vous avez report %s",
 	YouHaveAdminReported = "Vous avez admin-report %s",
 	HasSetReport = "a mis le report",
-	To = "en",
 	DealingReport = "gère maintenant le report",
 	HandlingYourReport = "gère maintenant votre report.",
 	Finished = "Terminé",
