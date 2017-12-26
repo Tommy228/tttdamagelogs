@@ -455,7 +455,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 	if status == RDM_MANAGER_WAITING then
 	
-		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. " " .. TTTLogTranslate( ply.DMGLogLang, "To" ) .. " " .. TTTLogTranslate(ply.DMGLogLang, "RDMWaiting") .. "."
+		msg = string_format(TTTLogTranslate(ply.DMGLogLang, "HasSetReport"), ply:Nick(), index, TTTLogTranslate(ply.DMGLogLang, "RDMWaiting"))
 		local syncEnt = Damagelog:GetSyncEnt()
 		if IsValid(syncEnt)then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() + 1)
@@ -476,7 +476,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 		end	
 
 	elseif status == RDM_MANAGER_FINISHED then
-		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HasSetReport") .. " #" .. index .. " " .. TTTLogTranslate( ply.DMGLogLang, "To" ) .. " " .. TTTLogTranslate(ply.DMGLogLang, "Finished") .. "."
+		msg = string_format(TTTLogTranslate(ply.DMGLogLang, "HasSetReport"), ply:Nick(), index, TTTLogTranslate(ply.DMGLogLang, "Finished"))
 		local syncEnt = Damagelog:GetSyncEnt()
 		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
