@@ -57,9 +57,11 @@ end
 
 function event:TTTC4Explode(bomb)
 	local owner = bomb:GetOwner()
+	local ownervalid = IsValid(owner)
 	self.CallEvent({
 		[1] = 6,
-		[2] = IsValid(owner) and owner:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
+		[2] = ownervalid and owner:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"),
+		[3] = ownervalid and owner:GetRole() or -1
 	})
 end
 
@@ -100,7 +102,7 @@ function event:ToString(v)
 	elseif v[1] == 5 then
 		return string.format(TTTLogTranslate(GetDMGLogLang, "C4Destroyed"), v[2], Damagelog:StrRole(v[3]), v[5])
 	elseif v[1] == 6 then
-		return string.format(TTTLogTranslate(GetDMGLogLang, "C4Exploded"), v[2])
+		return string.format(TTTLogTranslate(GetDMGLogLang, "C4Exploded"), v[2], v[3] == -1 and "?" or Damagelog:StrRole(v[3]))
 	end
 end
 
