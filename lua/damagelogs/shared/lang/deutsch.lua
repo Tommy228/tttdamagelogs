@@ -147,6 +147,7 @@ DamagelogLang.deutsch = {
 	C4PickedUp = "%s [%s] hat das C4 von %s aufgehoben.",
 	C4Planted = "%s [%s] hat C4 platziert oder fallen gelassen.",
 	C4Destroyed = "%s [%s] hat das C4 von %s zerstört.",
+	C4Exploded = "Das C4 von %s [%s] ist explodiert.",
 	with = "mit",
 	without = "ohne",
 	enabled = "aktivierte",

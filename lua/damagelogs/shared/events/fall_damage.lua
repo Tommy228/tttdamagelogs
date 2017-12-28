@@ -11,7 +11,7 @@ event.Type = "FD"
 
 function event:EntityTakeDamage(ent, dmginfo)
 	local att = dmginfo:GetAttacker()
-	if not (ent.IsGhost and ent:IsGhost()) and ent:IsPlayer() and att == game.GetWorld() and dmginfo:GetDamageType() == DMG_FALL then
+	if not (ent.IsGhost and ent:IsGhost()) and ent:IsPlayer() and att:IsWorld() and dmginfo:GetDamageType() == DMG_FALL then
 		local damages = dmginfo:GetDamage()
 		if math.floor(damages) > 0 then
 			local tbl = { 
