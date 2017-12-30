@@ -10,7 +10,8 @@ local event = {}
 event.Type = "KILL"
 
 function event:DoPlayerDeath(ply, attacker, dmginfo)
-	if ((IsValid(attacker) and ((attacker:IsPlayer() and attacker == ply) or attacker:GetClass() == "prop_physics")) or attacker:IsWorld()) and not (dmginfo:IsDamageType(DMG_DROWN) or (ply.IsGhost and ply:IsGhost())) then
+	local class = attacker:GetClass()
+	if ((IsValid(attacker) and ((attacker:IsPlayer() and attacker == ply) or class == "prop_physics" or class == "func_physbox"))) or attacker:IsWorld() and not (dmginfo:IsDamageType(DMG_DROWN) or (ply.IsGhost and ply:IsGhost())) then
 		Damagelog.SceneID = Damagelog.SceneID + 1
 		local scene = Damagelog.SceneID
 		Damagelog.SceneRounds[scene] = Damagelog.CurrentRound
