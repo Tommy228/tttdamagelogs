@@ -37,7 +37,7 @@ function event:IsAllowed(tbl)
 end
 
 function event:Highlight(line, tbl, text)
-	return table.HasValue(Damagelog.Highlighted, tbl[1]) or table.HasValue(Damagelog.Highlighted, tbl[2]) 
+	return table.HasValue(Damagelog.Highlighted, tbl[1]) 
 end
 
 function event:GetColor(tbl)
