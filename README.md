@@ -39,7 +39,7 @@ Just drop the TTTDamagelogs folder to addons/. The addon can be configured on th
 # License
 
     TTT Damagelogs is an administration tool designed for TTT to allow handling RDM situations using different tools.
-    Copyright (C) 2012-2017 Ismail Ouazzany
+    Copyright (C) 2012-2018 Ismail Ouazzany
     
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
