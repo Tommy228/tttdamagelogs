@@ -193,7 +193,7 @@ local function TakeAction()
 				net.WriteUInt(1, 1)
 				net.WriteUInt(report.previous and 1 or 0, 1)
 				net.WriteUInt(report.index, 16)
-				local typ = mode == 1 and "AutoReasonJail" or "AutoReasonSlay"
+				local typ = mode == 1 and "AutoReasonSlay" or "AutoReasonJail"
 				net.WriteString(string.format(TTTLogTranslate(GetDMGLogLang, typ), ply, num, reason))
 				net.SendToServer()
 			end
