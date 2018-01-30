@@ -378,7 +378,7 @@ DamagelogLang.russian = {
 
 	-- Colors
 	color_found_bodies = "Найденные тела",
-	colors_aslays = "Auto Авто-слеи",
+	colors_aslays = "Авто-слеи",
 	color_credits = "Кредиты",
 	color_damages = "Урон",
 	color_team_damages = "Урон по товарищам",
