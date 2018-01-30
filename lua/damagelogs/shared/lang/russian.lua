@@ -1,6 +1,6 @@
 DamagelogLang.russian = {
 	DefaultReason = "Причина не указана",
-	-- Damage types
+	-- Типы урона
 	DMG_BLAST = "взрыв",
 	DMG_BURN = "огонь",
 	DMG_CRUSH = "пропы или падение",
@@ -319,7 +319,7 @@ DamagelogLang.russian = {
 	DecidedToForgiveYou = "%s решил простить вас.",
 	DecidedNotToForgiveYou = "%s решил не прощать вас.",
 
-	-- Months
+	-- Месяцы
 	January = "Январь",
 	February = "Февраль",
 	March = "Март",
@@ -333,7 +333,7 @@ DamagelogLang.russian = {
 	November = "Ноябрь",
 	December = "Декабрь",
 
-	-- Settings Tab
+	-- Вкладка настроек
 	Save = "Сохранить",
 	SetDefault = "Сбросить",
 	AddWeapon = "Добавить оружие или объект в список",
@@ -348,7 +348,7 @@ DamagelogLang.russian = {
 	PlayerDisconnected = "<Игрок отключился>",
 	healerNick = "отключившегося игрока",
 
-	-- Client Settings Tab
+	-- Вкладка клиентских настроек
 	Generalsettings = "Общие настройки",
 	RDMuponRDM = "Показывать всплывающее окно RDM Manager при смерти",
 	CurrentRoundLogs = "Загружать по умолчанию текущий раунд, если вы живы и имеете право смотреть логи",
@@ -356,7 +356,7 @@ DamagelogLang.russian = {
 	DamagelogMenuSettings = "Настройки меню Damagelogs",
 	ForcedLanguage = "Владелец сервера отключил возможность менять язык.",
 
-	-- Filters
+	-- Фильтры
 	filter_show_bodies = "Найденные тела",
 	filter_show_aslays = "Авто-слеи",
 	filter_show_credits = "Кредиты",
@@ -376,7 +376,7 @@ DamagelogLang.russian = {
 	filter_show_purchases = "Снаряжение",
 	filter_show_c4 = "C4",
 
-	-- Colors
+	-- Цвета
 	color_found_bodies = "Найденные тела",
 	colors_aslays = "Авто-слеи",
 	color_credits = "Кредиты",
