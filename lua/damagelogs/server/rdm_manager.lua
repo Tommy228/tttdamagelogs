@@ -22,14 +22,9 @@ util.AddNetworkString("DL_Answering")
 util.AddNetworkString("DL_Answering_global")
 util.AddNetworkString("DL_ForceRespond")
 util.AddNetworkString("DL_StartReport")
-util.AddNetworkString("DL_SendLang")
 util.AddNetworkString("DL_Conclusion")
 util.AddNetworkString("DL_AskOwnReportInfo")
 util.AddNetworkString("DL_SendOwnReportInfo")
-
-net.Receive("DL_SendLang", function(_, ply)
-	ply.DMGLogLang = net.ReadString()
-end)
 
 Damagelog.Reports = Damagelog.Reports or {
 	Current = {}

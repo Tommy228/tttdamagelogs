@@ -140,7 +140,9 @@ function Damagelog:OpenMenu()
 	self:DrawDamageTab(x, y)
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
-	self:DrawRDMManager(x, y)
+	if Damagelog.RDM_Manager_Enabled then
+		self:DrawRDMManager(x, y)
+	end
 	self.About = vgui.Create("DButton", self.Menu)
 	self.About:SetPos(x - 60, show_outdated and 57 or 27)
 	self.About:SetSize(55, 19)
