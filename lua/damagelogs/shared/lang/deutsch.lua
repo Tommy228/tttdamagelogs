@@ -10,7 +10,7 @@ DamagelogLang.deutsch = {
 	DMG_ENERGYBEAM = "ein Laser",
 	DMG_SONIC = "eine Teleportkollision",
 	DMG_PHYSGUN = "ein massives Volumen",
-	
+
 	Damagelog = "Damagelog",
 	SLogs = "Schuss Protokolle",
 	RDMManag = "RDM Manager",

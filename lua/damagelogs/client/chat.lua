@@ -172,7 +172,7 @@ function PANEL:GetPlayers()
 		if not table.HasValue(tbl, v) then
 			table.insert(tbl, v)
 		end
-	end	
+	end
 	return tbl
 end
 
@@ -189,7 +189,7 @@ vgui.Register("DL_ChatList", PANEL, "DPanelList")
 Damagelog.CurrentChats = Damagelog.CurrentChats or {}
 
 function Damagelog:StartChat(report, admins, victim, attacker, players, history, adminReport)
-	
+
 	local Chat = vgui.Create("DFrame")
 	Chat:SetSize(600, 350)
 	Chat:SetTitle(TTTLogTranslate(GetDMGLogLang, "ChatTitle"))
@@ -199,7 +199,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 	Chat:SetDeleteOnClose(false)
 	Chat.VictimName = victim:Nick()
 	Chat.AttackerName = attacker:Nick()
-	
+
 	Chat.OnRemove = function()
 		for k,v in pairs(self.CurrentChats) do
 			if v == Chat then
@@ -207,7 +207,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 			end
 		end
 	end
-	
+
 	local List = vgui.Create("DL_ChatList", Chat)
 	List:SetRID(Chat.RID)
 	List:SetPos(2, 26)
@@ -222,7 +222,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 	for k,v in ipairs(players) do
 		List:AddPlayer(v, DAMAGELOG_OTHER)
 	end
-	
+
 	local Actions = vgui.Create("DButton", Chat)
 	Actions:SetPos(2, Chat:GetTall() - 30)
 	Actions:SetSize(152, 28)
@@ -255,12 +255,12 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 			plist:CenterHorizontal()
 			plist:EnableVerticalScrollbar(true)
 			local cur_selected
-			plist.AddPlayer = function(pnl, pl)  
+			plist.AddPlayer = function(pnl, pl)
 				local pl = pl
 				if not IsValid(pl) then return end
 				if not IsValid(pnl) then return end
 				local ply = vgui.Create("DPanel")
-				ply:SetSize(0, 30) 
+				ply:SetSize(0, 30)
 				local alpha = 140
 				local col = { r = 40, g = 40, b = 40 }
 				local col_selected = { r = 204, g = 204, b = 51 }
@@ -270,7 +270,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 						ply:Remove()
 						pnl:Clear(false)
 						return false
-					end	
+					end
 					return true
 				end
 				ply.Think = checkValidity
@@ -284,19 +284,19 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 						draw.RoundedBox(0, 0, 0, w, h, Color(13, 14, 15, alpha))
 						draw.RoundedBox(0, 1, 1, w - 2, h - 2, Color(col_selected.r + 40, col_selected.g + 40, col_selected.b + 40, alpha))
 						draw.RoundedBox(0, 2, 2, w - 4, h - 4, Color(col_selected.r, col_selected.g, col_selected.b, alpha))
-					end			    
+					end
 					AAText(pl:Nick(), "GModNotify", 40, 7, Color(255, 255, 255, 255), TEXT_ALIGN_LEFT)
 				end
 				ply.OnMousePressed = function(pnl, mc)
 					if mc == MOUSE_LEFT and cur_selected != ply then
-						cur_selected = ply  
+						cur_selected = ply
 					end
 				end
 				local ava = vgui.Create("AvatarImage", ply)
 				ava:SetSize(24, 24)
 				ava:SetPlayer(pl, 32)
 				ava:SetPos(4, 4)
-				pnl:AddItem(ply) 
+				pnl:AddItem(ply)
 			end
 			local list = List:GetPlayers()
 			for k,v in ipairs(player.GetHumans()) do
@@ -313,7 +313,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 					net.SendToServer()
 				end
 				selection:Close()
-			end			
+			end
 		end):SetImage("icon16/user_add.png")
 
 		local forceStayPnl = vgui.Create("DMenuOption", menu)
@@ -334,8 +334,8 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 
 		for k,v in pairs(List.Normal.Players) do
 			local playerPanel = forceStayList:AddOption(IsValid(v) and v:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"), function()
-				if not IsValid(v) then 
-					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "InvalidPlayerChat"), 2, "buttons/weapon_cant_buy.wav")					
+				if not IsValid(v) then
+					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "InvalidPlayerChat"), 2, "buttons/weapon_cant_buy.wav")
 					return
 				end
 				net.Start("DL_ForceStay")
@@ -372,7 +372,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 
 		for k,v in pairs(List.Normal.Players) do
 			local playerPanel = releaseList:AddOption(IsValid(v) and v:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"), function()
-				if not IsValid(v) then 
+				if not IsValid(v) then
 					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "InvalidPlayerChat"), 2, "buttons/weapon_cant_buy.wav")
 					return
 				end
@@ -390,7 +390,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 			else
 				playerPanel:SetImage("icon16/user.png")
 			end
-		end		
+		end
 
 		menu:AddOption("Close chat", function()
 			net.Start("DL_CloseChat")
@@ -417,7 +417,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 		end):SetImage("icon16/door_out.png")
 		menu:Open()
 	end
-	
+
 	Chat.AddPlayer = function(self, ply, category)
 		List:AddPlayer(ply, category)
 	end
@@ -425,7 +425,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 	Chat.RemoveAdmin = function(self, admin)
 		List:RemoveAdmin(admin)
 	end
-		
+
 	local Sheet = vgui.Create("DPropertySheet", Chat)
 	Sheet:SetPos(List:GetWide()+2, 25)
 	Sheet:SetSize(Chat:GetWide() - List:GetWide() - 4, Chat:GetTall() - 26)
@@ -433,7 +433,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 		surface.SetDrawColor(color_black)
 		surface.DrawLine(0, 5, 0, 30)
 	end
-		
+
 	local ChatBox = vgui.Create("DPanel")
 	ChatBox.Paint = function(self, w, h)
 		surface.SetDrawColor(Color(101, 100, 105, 255))
@@ -441,38 +441,38 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 		surface.SetDrawColor(Color(220, 220, 220, 255))
 		surface.DrawRect(0, h - 35, w, 35)
 	end
-	
+
 	local RichText = vgui.Create("RichText", ChatBox)
 	RichText:SetPos(5, 10)
 	RichText:SetSize(Sheet:GetWide() - 25, Sheet:GetTall() - 78)
 	RichText.AddText = function(self, nick, color, text)
 		self.m_FontName = "DL_ChatFont"
-		self:SetFontInternal("DL_ChatFont")	
+		self:SetFontInternal("DL_ChatFont")
 		self:InsertColorChange(color.r, color.g, color.b, color.a or 255)
 		self:AppendText(nick.. ": ")
 		self:InsertColorChange(255, 255, 255, 255)
 		self:AppendText(text.."\n")
 	end
 	Chat.RichText = RichText
-	
+
 	Sheet:AddSheet("Chatbox", ChatBox, "icon16/application_view_list.png")
-	
+
 	local TextEntry = vgui.Create("DTextEntry", ChatBox)
 	local Send = vgui.Create("DButton", ChatBox)
-	
+
 	Chat.Stop = function(self)
 		TextEntry:SetDisabled(true)
 		Actions:SetDisabled(true)
 		self:SetDeleteOnClose(true)
 	end
-	
+
 	Chat.AddMessage = function(self, msg)
 		RichText.m_FontName = "DL_ChatFont"
-		RichText:SetFontInternal("DL_ChatFont")	
+		RichText:SetFontInternal("DL_ChatFont")
 		RichText:InsertColorChange(230, 62, 99, 255)
 		RichText:AppendText(msg.."\n")
 	end
-	
+
 	local function SendMessage(msg)
 		if #msg == 0 or #msg > 200 then return end
 		net.Start("DL_SendChatMessage")
@@ -482,29 +482,29 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 		TextEntry:SetText("")
 		TextEntry:RequestFocus()
 	end
-	
+
 	TextEntry:SetPos(3, Sheet:GetTall() - 65)
 	TextEntry:SetSize(Sheet:GetWide() - 80, 25)
 	TextEntry.OnEnter = function(self)
 		SendMessage(self:GetValue())
 	end
-		
+
 	Send:SetPos(Sheet:GetWide() - 75, Sheet:GetTall() - 65)
 	Send:SetSize(55, 25)
 	Send:SetText(TTTLogTranslate(GetDMGLogLang, "Send"))
 	Send.DoClick = function()
 		SendMessage(TextEntry:GetValue())
 	end
-		
+
 	Chat:MakePopup()
-	
+
 	timer.Simple(0.1, function()
 		for k,v in ipairs(history) do
 			RichText:AddText(v.nick, v.color, v.msg)
 		end
 		TextEntry:RequestFocus()
 	end)
-	
+
 end
 
 net.Receive("DL_BroadcastMessage", function()
@@ -519,7 +519,7 @@ net.Receive("DL_BroadcastMessage", function()
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
 			if not v:IsVisible() then
-				if not v.MissingMessages then 
+				if not v.MissingMessages then
 					v.MissingMessages = 1
 				else
 					v.MissingMessages = v.MissingMessages + 1
@@ -540,22 +540,22 @@ net.Receive("DL_OpenChat", function()
 	local victim = net.ReadEntity()
 	local attacker = net.ReadEntity()
 	local players = net.ReadTable()
-	
+
 	local loadhistory = net.ReadUInt(1) == 1
-		
+
 	local history = {}
-	
+
 	if loadhistory then
-	
+
 		local length = net.ReadUInt(32)
 		local compressed = net.ReadData(length)
 		local json = util.Decompress(compressed)
 		history = util.JSONToTable(json)
-		
+
 	end
-	
+
 	if not report or not IsValid(admin) or not IsValid(victim) or not IsValid(attacker) then return end
-	
+
 	Damagelog:StartChat(report, { admin }, victim, attacker, players, history, adminReport)
 
 end)
@@ -563,16 +563,16 @@ end)
 net.Receive("DL_JoinChatCL", function()
 
 	local is_joining = net.ReadUInt(1) == 1
-	
+
 	if is_joining then
-		
+
 		local id = net.ReadUInt(32)
 		local size = net.ReadUInt(32)
 		local compressed = net.ReadData(size)
 		local not_compressed = util.Decompress(compressed)
 		local history = util.JSONToTable(not_compressed)
 		local tbl = net.ReadTable()
-		
+
 		for k,v in pairs(Damagelog.CurrentChats) do
 			if v.RID == id then
 				if not v:IsVisible() then
@@ -583,22 +583,22 @@ net.Receive("DL_JoinChatCL", function()
 				return
 			end
 		end
-		
+
 		Damagelog:StartChat(id, tbl.admins, tbl.victim, tbl.attacker, tbl.players, history)
-		
+
 	else
-	
+
 		local id = net.ReadUInt(32)
 		local ply = net.ReadEntity()
 		local category = net.ReadUInt(32)
-		
+
 		local chat = Damagelog.CurrentChats[id]
 		if not chat then return end
-		
+
 		chat:AddPlayer(ply, category)
-		
+
 	end
-			
+
 end)
 
 local drawing = false
@@ -631,7 +631,7 @@ hook.Add("Think", "Damagelog_Chat", function()
 			v.cursor_set = false
 		end
 	end
-	
+
 	if input.IsMouseDown(MOUSE_LEFT) and not pressed_key then
 		pressed_key = true
 		for k,v in pairs(buttons) do
@@ -652,9 +652,9 @@ net.Receive("DL_StopChat", function()
 
 	local id = net.ReadUInt(32)
 	local forced = net.ReadUInt(1) == 1
-	
+
 	local msg
-	
+
 	if not forced then
 		msg = TTTLogTranslate(GetDMGLogLang, "AdminsDisconnectedChat")
 	else
@@ -671,8 +671,8 @@ net.Receive("DL_StopChat", function()
 			table.remove(Damagelog.CurrentChats, k)
 			break
 		end
-	end	
-	
+	end
+
 end)
 
 net.Receive("DL_LeaveChatCL", function()
@@ -739,7 +739,7 @@ net.Receive("DL_ForceStayNotification", function()
 			end
 			break
 		end
-	end	
+	end
 
 end)
 
@@ -762,7 +762,7 @@ net.Receive("DL_ViewChatCL", function()
 	RichText:SetSize(Frame:GetWide() - 10, Frame:GetTall() - 60)
 	RichText.AddText = function(self, nick, color, text)
 		self.m_FontName = "DL_ChatFont"
-		self:SetFontInternal("DL_ChatFont")	
+		self:SetFontInternal("DL_ChatFont")
 		self:InsertColorChange(color.r, color.g, color.b, color.a or 255)
 		self:AppendText(nick.. ": ")
 		self:InsertColorChange(255, 255, 255, 255)
@@ -795,10 +795,10 @@ end)
 hook.Add("HUDPaint", "Damagelog_Chat", function()
 
 	if IsValid(LocalPlayer()) then
-	
+
 		local wr, hr = 150, 40
 		local w, h = ScrW()/2, ScrH() - 50
-			
+
 		if not drawing and #Damagelog.CurrentChats > 0 then
 			TIPS.Hide()
 			drawing = true
@@ -826,9 +826,9 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 			drawing = false
 			Damagelog.ChatButton:Remove()
 		end
-		
+
 		if #Damagelog.CurrentChats > 0 then
-			
+
 			surface.SetDrawColor(Color(171, 181, 198, 200))
 			surface.DrawRect(w - wr/2, h - hr/2, wr, hr)
 			surface.SetDrawColor(color_black)
@@ -836,43 +836,43 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 			surface.DrawLine(w + wr/2, h - hr/2, w + wr/2, h + hr/2)
 			surface.DrawLine(w + wr/2, h + hr/2, w - wr/2, h + hr/2)
 			surface.DrawLine(w - wr/2, h + hr/2, w - wr/2, h - hr/2)
-			
+
 			surface.SetTextColor(color_black)
 			surface.SetFont("DL_ChatCategory")
 			local text = string.format(TTTLogTranslate(GetDMGLogLang, "ActiveChats"), #Damagelog.CurrentChats)
 			local wt, ht = surface.GetTextSize(text)
 			surface.SetTextPos(w - wr/2 + 10, h - ht/2)
 			surface.DrawText(text)
-			
+
 			local missing_messages = 0
 			for k,v in pairs(Damagelog.CurrentChats) do
 				if v.MissingMessages then
 					missing_messages = missing_messages + v.MissingMessages
 				end
 			end
-			
+
 			if missing_messages > 0 and not show_chats then
-				
+
 				surface.SetDrawColor(Color(92, 127, 183))
 				Damagelog.DrawCircle(w + wr/2, h-hr/2, 13, 50)
-				
+
 				surface.SetFont("DL_ChatCategory")
 				surface.SetTextPos(w + wr/2 - 4, h-hr/2 - 8)
 				surface.SetTextColor(color_white)
 				surface.DrawText(tostring(missing_messages))
-			
+
 			end
-			
+
 			table.Empty(buttons)
-			
+
 			if show_chats then
-			
+
 				local andStr = TTTLogTranslate(GetDMGLogLang, "And")
 
 				local i = h - hr
-				
+
 				surface.SetFont("DL_ChatPlayer")
-				
+
 				local max_w = 0
 				for k,v in pairs(Damagelog.CurrentChats) do
 					local w = surface.GetTextSize(v.VictimName.." "..andStr.." "..v.AttackerName)
@@ -880,17 +880,17 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 						max_w = w
 					end
 				end
-				
+
 				max_w = max_w + 30
-			
+
 				for k,v in ipairs(Damagelog.CurrentChats) do
-				
+
 					if k == 1 then
 						i = i - 17
 					else
 						i = i - 27
 					end
-					
+
 					surface.SetDrawColor(color_black)
 					local _x, _y, _w, _h = w - max_w/2, i, max_w, 30
 					local tbl = {
@@ -915,45 +915,45 @@ hook.Add("HUDPaint", "Damagelog_Chat", function()
 						surface.SetDrawColor(Color(215, 216, 222))
 					end
 					surface.DrawRect(_x+1, _y+1, _w-2, _h-2)
-					
+
 					surface.SetTextColor(Color(62, 141, 99))
 					local victim = v.VictimName
 					local w_victim, h_victim = surface.GetTextSize(victim)
 					local ytext =  _y + _h/2 - h_victim/2
 					surface.SetTextPos(_x + 5, ytext)
 					surface.DrawText(victim)
-					
+
 					w_victim = w_victim + _x + 5
-					
+
 					local w_and, y_and = surface.GetTextSize(andStr)
 					surface.SetTextColor(color_black)
 					surface.SetTextPos(w_victim + 3, ytext)
 					surface.DrawText(andStr)
-					
+
 					w_victim = w_victim + w_and + 2
-					
+
 					local attacker = v.AttackerName
 					local w_attacker, h_attacker = surface.GetTextSize(attacker)
 					surface.SetTextPos(w_victim + 3, ytext)
 					surface.SetTextColor(Color(181, 62, 99))
 					surface.DrawText(attacker)
-					
+
 					surface.SetDrawColor(Color(92, 127, 183))
 					Damagelog.DrawCircle(_x + max_w - 15, _y + 15, 10, 20)
-					
+
 					surface.SetTextColor(color_white)
 					surface.SetFont("DL_ChatPlayer")
 					local count = v.MissingMessages or 0
 					local count_x = count >= 10 and 22 or 18
 					surface.SetTextPos(_x + max_w - count_x, _y + 7)
 					surface.DrawText(tostring(count))
-				
+
 				end
-			
+
 			end
-			
+
 		end
-	
+
 	end
 
 end)

@@ -392,9 +392,9 @@ net.Receive("DL_SendDamagelog", function()
 	for k, v in ipairs(player.GetHumans()) do
 		Damagelog.RoleNicks[v:Nick()] = v
 	end
-	
+
 	if not IsValid(Damagelog.Menu) then return end
-	
+
 	Damagelog.Highlighted = {}
 	if Damagelog.PlayerSelect and Damagelog.PlayerSelect.UpdatePlayers then
 		Damagelog.PlayerSelect:UpdatePlayers()

@@ -15,7 +15,7 @@ function Damagelog:SaveFilters()
 end
 
 Damagelog.filters = Damagelog.filters or {}
-Damagelog.filter_settings = Damagelog.filter_settings or {} 
+Damagelog.filter_settings = Damagelog.filter_settings or {}
 
 DAMAGELOG_FILTER_BOOL = 1
 DAMAGELOG_FILTER_PLAYER = 2

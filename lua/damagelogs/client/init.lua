@@ -70,8 +70,8 @@ end)
 function Damagelog:OpenMenu()
 	local x, y = 665, 680
 
-	local show_outdated = outdated and GetConVar("ttt_dmglogs_updatenotifications"):GetBool() 
-		
+	local show_outdated = outdated and GetConVar("ttt_dmglogs_updatenotifications"):GetBool()
+
 	if show_outdated then
 		y = y + 30
 	end

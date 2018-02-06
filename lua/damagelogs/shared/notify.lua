@@ -45,9 +45,9 @@ else
 	end
 
 	net.Receive("DL_Notify", function()
-		Damagelog:Notify(net.ReadUInt(4), 
-				net.ReadString(), 
-				net.ReadUInt(4), 
+		Damagelog:Notify(net.ReadUInt(4),
+				net.ReadString(),
+				net.ReadUInt(4),
 				(net.ReadUInt(1) == 1) and net.ReadString() or false)
 	end)
 

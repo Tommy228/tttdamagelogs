@@ -142,7 +142,7 @@ local function TakeAction()
 				else
 					net.Start("DL_ViewChat")
 					net.WriteUInt(report.index, 32)
-					net.SendToServer()					
+					net.SendToServer()
 				end
 			end):SetImage("icon16/application_view_list.png")
 
@@ -186,7 +186,7 @@ local function TakeAction()
 	end):SetImage("icon16/television.png")
 
 	if serverguard or ulx then
-	
+
 		if serverguard or (ulx and (mode == 1 or mode == 2)) then
 			local function SetConclusion(ply, num, reason)
 				net.Start("DL_Conclusion")
@@ -206,7 +206,7 @@ local function TakeAction()
 				net.WriteString(string.format(TTTLogTranslate(GetDMGLogLang, "AutoReasonBan"), ply, num, reason))
 				net.SendToServer()
 			end
-			
+
 			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
@@ -246,10 +246,10 @@ local function TakeAction()
 				frame.SetConclusion = SetConclusionBan
 				frame:SetPlayer(false, victim, report.victim, report)
 			end):SetImage("icon16/user.png")
-			
-			
+
+
 		end
-		
+
 		menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "SlayReportedPlayerNow"), function()
 			if IsValid(attacker) then
 				if ulx then
@@ -261,7 +261,7 @@ local function TakeAction()
 				Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "RDMNotValid"), 2, "buttons/weapon_cant_buy.wav")
 			end
 		end):SetImage("icon16/lightning.png")
-		
+
 		local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
@@ -295,7 +295,7 @@ local function TakeAction()
 					Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
 				end
 			end):SetImage("icon16/user.png")
-		
+
 			local slaynr_pnl = vgui.Create("DMenuOption", menuPanel)
 			local slaynr = DermaMenu(menuPanel)
 			slaynr:SetVisible(false)
@@ -338,11 +338,11 @@ local function TakeAction()
 						RunConsoleCommand("ulx", mode == 1 and "aslayid" or "ajailid", report.victim, "0")
 					else
 						Damagelog:Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(GetDMGLogLang, "VictimReportedDisconnected"), 2, "buttons/weapon_cant_buy.wav")
-					end					
+					end
 				end
 			end):SetImage("icon16/user.png")
 	end
-	
+
 	menuPanel:Open()
 end
 local PANEL = {}
@@ -381,7 +381,7 @@ function PANEL:GetStatus(report)
 
 	if report.status == RDM_MANAGER_FINISHED and report.autoStatus then
 		str = TTTLogTranslate(GetDMGLogLang, "RDMManagerAuto").." "..str
-	end	
+	end
 
 	if (report.status == RDM_MANAGER_FINISHED or report.status == RDM_MANAGER_PROGRESS) and report.admin then
 		str = str .. " " .. TTTLogTranslate(GetDMGLogLang, "By") .. " " .. report.admin
@@ -401,12 +401,12 @@ function PANEL:UpdateReport(index)
 	else
 		str = report.response and TTTLogTranslate(GetDMGLogLang, "RDMResponded") or TTTLogTranslate(GetDMGLogLang, "RDMWaitingAttacker")
 	end
-	local tbl = { 
-		report.index, 
-		report.adminReport and "N/A (Admin Report)" or report.victim_nick, 
-		report.attacker_nick, 
-		report.round or "?", 
-		str, 
+	local tbl = {
+		report.index,
+		report.adminReport and "N/A (Admin Report)" or report.victim_nick,
+		report.attacker_nick,
+		report.round or "?",
+		str,
 		report.adminReport and "N/A" or "";
 		self:GetStatus(report)
 	}
@@ -727,7 +727,7 @@ function Damagelog:DrawRDMManager(x, y)
 
 		VictimInfos.Paint = function(panel, w, h)
 			local bar_height = 27
-			if panel.isAdmin then 
+			if panel.isAdmin then
 				surface.SetDrawColor(200, 200, 30)
 			else
 				surface.SetDrawColor(30, 200, 30)
@@ -970,7 +970,7 @@ function PANEL:Init()
 		Damagelog.Autoslay_DefaultReason3,
 		Damagelog.Autoslay_DefaultReason4,
 		Damagelog.Autoslay_DefaultReason5,
-		Damagelog.Autoslay_DefaultReason6		
+		Damagelog.Autoslay_DefaultReason6
 	}
 
 	self:AddReasonRow(self.Distance/2 + self.Dimension/2, self.Distance*1.5,
@@ -982,7 +982,7 @@ function PANEL:Init()
 		Damagelog.Autoslay_DefaultReason9,
 		Damagelog.Autoslay_DefaultReason10,
 		Damagelog.Autoslay_DefaultReason11,
-		Damagelog.Autoslay_DefaultReason12		
+		Damagelog.Autoslay_DefaultReason12
 	}
 
 	self:AddReasonRow(self.Distance + self.Dimension * 1.25, self.Distance*1.5,
@@ -991,21 +991,21 @@ function PANEL:Init()
 	local DLabel = vgui.Create("DLabel", self)
 	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 5)
 	DLabel:SetSize(self.Distance * 4.65 , 25)
-				
+
 	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "GoingToSlay"))
 	self.NameLabel = vgui.Create("DLabel", self)
 	self.NameLabel:SetPos(self.Distance/2 + 5, self.Dimension/2.5 + 25)
 	self.NameLabel:SetSize(self.Distance * 4.65 - 15, 25)
 	self.NameLabel:SetText("")
-				
+
 	local DLabel = vgui.Create("DLabel", self)
 	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 45)
 	DLabel:SetSize(self.Distance * 4.65 , 25)
 	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "ThisOften"))
-				
+
 	self.Reason = vgui.Create("DLabel", self )
-	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)				
-	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)	
+	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)
+	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)
 	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason"))
 
 	self.CREnable = vgui.Create("DCheckBox", self)
@@ -1030,12 +1030,12 @@ function PANEL:Init()
 
 	self.Button = vgui.Create("DButton", self)
 	if ulx and mode == 2 then
-		self.Button:SetText("ajail!")	
+		self.Button:SetText("ajail!")
 	else
-		self.Button:SetText("aslay!")	
-	end							 
-	self.Button:SetPos(self.Distance/4,self.Dimension*2/3 + 60)				
-	self.Button:SetSize(self:GetWide() - self.Distance/2 , 30)				 
+		self.Button:SetText("aslay!")
+	end
+	self.Button:SetPos(self.Distance/4,self.Dimension*2/3 + 60)
+	self.Button:SetSize(self:GetWide() - self.Distance/2 , 30)
 
 	self:UpdateReason()
 
@@ -1065,7 +1065,7 @@ function PANEL:SetPlayer(reported, ply, steamid, report)
 			end
 		end
 		self:Close()
-	end	
+	end
 end
 
 function PANEL:UpdateReason()
@@ -1094,15 +1094,15 @@ end
 
 function PANEL:PaintOver(w, h)
 	surface.SetDrawColor(color_white)
-	surface.DrawLine(self.Distance/2 + self.Dimension/2 - 10, 
+	surface.DrawLine(self.Distance/2 + self.Dimension/2 - 10,
 		self.Distance * 1.5 - 1,
 		self.Distance/2 + self.Dimension/2 - 10,
 		self.Distance * 1.5 + self.Dimension * 2/3  - 6)
-	surface.DrawLine(self.Distance/2 - 5, 
+	surface.DrawLine(self.Distance/2 - 5,
 		self.Dimension/2.5 + 5,
 		self.Distance * 4.85,
 		self.Dimension/2.5 + 5)
-	surface.DrawLine(self.Distance/2 - 5, 
+	surface.DrawLine(self.Distance/2 - 5,
 		self.Dimension*2/3 + 31,
 		w * 23/24 + 5,
 		self.Dimension*2/3 + 31)
@@ -1216,7 +1216,7 @@ function PANEL:Init()
 		Damagelog.Ban_DefaultReason3,
 		Damagelog.Ban_DefaultReason4,
 		Damagelog.Ban_DefaultReason5,
-		Damagelog.Ban_DefaultReason6		
+		Damagelog.Ban_DefaultReason6
 	}
 
 	self:AddReasonRow(self.Distance/2 + self.Dimension/2, self.Distance*1.5,
@@ -1228,7 +1228,7 @@ function PANEL:Init()
 		Damagelog.Ban_DefaultReason9,
 		Damagelog.Ban_DefaultReason10,
 		Damagelog.Ban_DefaultReason11,
-		Damagelog.Ban_DefaultReason12		
+		Damagelog.Ban_DefaultReason12
 	}
 
 	self:AddReasonRow(self.Distance + self.Dimension * 1.25, self.Distance*1.5,
@@ -1238,7 +1238,7 @@ function PANEL:Init()
 	DLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 35)
 	DLabel:SetText(TTTLogTranslate(GetDMGLogLang, "GoingToBan"))
 	DLabel:SizeToContents()
-				
+
 	self.NameLabel= vgui.Create("DLabel", self)
 	self.NameLabel:SetPos(self.Distance/2 + 5, self.Dimension/2.5 + 48)
 	self.NameLabel:SetSize(self.Distance * 4.65 , 25)
@@ -1248,10 +1248,10 @@ function PANEL:Init()
 	self.TimeLabel:SetPos(self.Distance/2, self.Dimension/2.5 + 67)
 	self.TimeLabel:SetSize(self.Distance * 4.65 , 25)
 	self.TimeLabel:SetText(TTTLogTranslate(GetDMGLogLang, "forspace"))
-				
+
 	self.Reason = vgui.Create("DLabel", self )
-	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)				
-	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)	
+	self.Reason:SetPos(self.Distance/2,self.Dimension*2/3 + 31)
+	self.Reason:SetSize(self:GetWide() - self.Distance/2, 30)
 	self.Reason:SetText(TTTLogTranslate(GetDMGLogLang, "Reason"))
 
 	self.CREnable = vgui.Create("DCheckBox", self)
@@ -1275,9 +1275,9 @@ function PANEL:Init()
 	self.CustomReason:SelectAll()
 
 	self.Button = vgui.Create("DButton", self)
-	self.Button:SetText("Ban")					 
-	self.Button:SetPos(self.Distance/4,self.Dimension*2/3 + 60)				
-	self.Button:SetSize(self:GetWide() - self.Distance/2 , 30)				 
+	self.Button:SetText("Ban")
+	self.Button:SetPos(self.Distance/4,self.Dimension*2/3 + 60)
+	self.Button:SetSize(self:GetWide() - self.Distance/2 , 30)
 
 	self:UpdateBanTime()
 	self:UpdateReason()
@@ -1321,7 +1321,7 @@ function PANEL:SetPlayer(reported, ply, steamid, report)
 			end
 		end
 		self:Close()
-	end	
+	end
 end
 
 function PANEL:UpdateReason()
@@ -1350,15 +1350,15 @@ end
 
 function PANEL:PaintOver(w, h)
 	surface.SetDrawColor(color_white)
-	surface.DrawLine(self.Distance/2 + self.Dimension/2 - 10, 
+	surface.DrawLine(self.Distance/2 + self.Dimension/2 - 10,
 		self.Distance * 1.5 - 1,
 		self.Distance/2 + self.Dimension/2 - 10,
 		self.Distance * 1.5 + self.Dimension * 2/3  - 6)
-	surface.DrawLine(self.Distance/2 - 5, 
+	surface.DrawLine(self.Distance/2 - 5,
 		self.Dimension/2 + 5,
 		self.Distance * 4.85,
 		self.Dimension/2 + 5)
-	surface.DrawLine(self.Distance/2 - 5, 
+	surface.DrawLine(self.Distance/2 - 5,
 		self.Dimension*2/3 + 31,
 		w * 23/24 + 5,
 		self.Dimension*2/3 + 31)

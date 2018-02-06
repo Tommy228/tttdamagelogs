@@ -3,7 +3,7 @@ function Damagelog:DrawShootsTab()
 	self.Shoots:SetSpacing(10)
 	self.ShootsRefresh = vgui.Create("DButton")
 	self.ShootsRefresh:SetText(TTTLogTranslate(GetDMGLogLang, "Refresh"))
-	
+
 	self.ShootsRefresh.DoClick = function()
 		if not tonumber(self.SelectedRound) then return end
 		self.ShootTableTemp = {}

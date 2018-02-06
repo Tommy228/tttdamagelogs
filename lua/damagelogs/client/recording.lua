@@ -91,9 +91,9 @@ local function CreateShotsPanel()
 			local diff = current_second - second
 			v:SetSelected(diff < 0.2 and diff > 0)
 		end
-	end  
+	end
 	Info.LinesInfo = {}
-	
+
 	Frame.SetInfo = function(Frame)
 		if not current_scene then return end
 		Info:Clear()
@@ -264,7 +264,7 @@ function Damagelog:CreateDSPanel()
 	showShots.Icon:SetImage("icon16/gun.png")
 	showShots.DoClick = function()
 		Frame:SetVisible(not Frame:IsVisible())
-	end	
+	end
 
 	self.DS_Replay = replay
 
@@ -294,9 +294,9 @@ net.Receive("DL_SendDeathScene", function()
 	local sceneString = net.ReadData(sceneSize)
 	sceneString = util.Decompress(sceneString)
 	current_scene = util.JSONToTable(sceneString)
-	
+
 	Damagelog:CreateDSPanel()
-	
+
 	i = 1
 	models = {}
 	props = {}
@@ -674,7 +674,7 @@ function Damagelog:StopRecording()
 	if IsValid(Frame) then
 		Frame:SetVisible(false)
 	end
-	
+
 end
 
 hook.Add("OnContextMenuOpen", "Recording", function()

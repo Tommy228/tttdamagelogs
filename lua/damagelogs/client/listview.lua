@@ -225,7 +225,7 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 	for k,v in pairs(shoot_colors) do
 		shoot_colors[k] = true
 	end
-	if beg then 
+	if beg then
 		beg = string.FormattedTime(math.Clamp(beg, 0, 999), "%02i:%02i")
 	end
 	if t then
@@ -271,7 +271,7 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 							used_nicks[i[1]] = color
 						else
 							used_nicks[i[1]] = COLOR_WHITE
-						end				
+						end
 					else
 						color = used_nicks[i[1]]
 					end
@@ -296,8 +296,8 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 						item.Columns[1]:SetTextColor(color)
 					end
 				end
-			end	
-		end			
+			end
+		end
 	end
 	self.DamageInfoBox:Toggle()
 end

@@ -19,9 +19,9 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	local dgui = vgui.Create("DForm", dsettings)
 	dgui:SetName(TTTLogTranslate(GetDMGLogLang, "Generalsettings"))
 	local selectedcolor
-	
+
 	local dmgLang = vgui.Create("DComboBox")
-	
+
 	for k,v in pairs(DamagelogLang) do
 		dmgLang:AddChoice(string.upper(string.sub(k,1,1))..string.sub(k,2,100))
 	end
@@ -102,7 +102,7 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	end
 
 	colorSettings:AddItem(defaultcolor)
-	
+
 	dsettings:AddItem(colorSettings)
 
 	dtabs:AddSheet("Damagelogs", dsettings, "icon16/table_gear.png", false, false, TTTLogTranslate(GetDMGLogLang, "DamagelogMenuSettings"))

@@ -37,7 +37,7 @@ function event:ToString(v, roles)
 		weapon = Damagelog:GetWeaponName(weapon)
 	end
 	local ply = Damagelog:InfoFromID(roles, v[1])
-	return string.format(TTTLogTranslate(GetDMGLogLang, "HasBought"), ply.nick, Damagelog:StrRole(ply.role), weapon) 
+	return string.format(TTTLogTranslate(GetDMGLogLang, "HasBought"), ply.nick, Damagelog:StrRole(ply.role), weapon)
 end
 
 function event:IsAllowed(tbl)

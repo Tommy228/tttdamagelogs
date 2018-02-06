@@ -175,7 +175,7 @@ end)
 
 function Damagelog:GetPlayerReportsList(ply)
 	local steamid = ply:SteamID()
-	
+
 	local previous = {}
 	for k,v in pairs(Damagelog.Reports.Previous) do
 		if v.victim == steamid then
@@ -185,7 +185,7 @@ function Damagelog:GetPlayerReportsList(ply)
 				attackerID = v.attacker
 			})
 		end
-	end 
+	end
 
 	local current = {}
 	for k,v in pairs(Damagelog.Reports.Current) do
@@ -275,14 +275,14 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 				break
 			end
 		end
-		
+
 		if not Damagelog.NoStaffReports then
 			if not found then
 				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
 				return
 			end
 		end
-		
+
 		if not ply.CanReport then
 			if not Damagelog.MoreReportsPerRound then
 				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NeedToPlay"), 4, "buttons/weapon_cant_buy.wav")
@@ -298,7 +298,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 				end
 			end
 		end
-		
+
 		if not Damagelog.MoreReportsPerRound then
 			if ply:RemainingReports() <= 0 then return end
 		end
@@ -383,7 +383,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	end
 
 	if reportType != DAMAGELOG_REPORT_STANDARD then
-		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "YouHaveAdminReported"), attacker:Nick()), 5, "")		
+		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "YouHaveAdminReported"), attacker:Nick()), 5, "")
 	else
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, string_format(TTTLogTranslate(ply.DMGLogLang, "YouHaveReported"), attacker:Nick()), 5, "")
 	end
@@ -404,9 +404,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 			players = {}
 		}
 		report.chat_opened = true
-		
+
 		Damagelog.ChatHistory[index] = {}
-		
+
 		net.Start("DL_OpenChat")
 		net.WriteUInt(index, 32)
 		net.WriteUInt(1, 1)
@@ -416,9 +416,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		net.WriteTable(report.chat_open.players)
 		net.WriteUInt(0, 1)
 		net.Send({ ply, attacker })
-		
+
 		for k,v in ipairs(player_GetHumans()) do
-			if v:CanUseRDMManager() then	
+			if v:CanUseRDMManager() then
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "OpenChatNotification"), ply:Nick(), index), 5, "")
 				v:UpdateReport(false, index)
 			end
@@ -449,12 +449,12 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 	local msg
 
 	if status == RDM_MANAGER_WAITING then
-	
+
 		msg = string_format(TTTLogTranslate(ply.DMGLogLang, "HasSetReport"), ply:Nick(), index, TTTLogTranslate(ply.DMGLogLang, "RDMWaiting"))
 		local syncEnt = Damagelog:GetSyncEnt()
 		if IsValid(syncEnt)then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() + 1)
-		end	
+		end
 	elseif status == RDM_MANAGER_PROGRESS then
 
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "DealingReport") .. " #" .. index .. "."
@@ -468,7 +468,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 		local syncEnt = Damagelog:GetSyncEnt()
 		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
-		end	
+		end
 
 	elseif status == RDM_MANAGER_FINISHED then
 		msg = string_format(TTTLogTranslate(ply.DMGLogLang, "HasSetReport"), ply:Nick(), index, TTTLogTranslate(ply.DMGLogLang, "Finished"))

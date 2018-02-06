@@ -26,7 +26,7 @@ function event:TTTPlayerUsedHealthStation(ply, ent, healed)
 					self:RemoveTimer(ply:SteamID())
 				end
 			end)
-			
+
 			self:Store(ply, ent, healed)
 			usages[ply:SteamID()] = 0
 		else
@@ -36,7 +36,7 @@ function event:TTTPlayerUsedHealthStation(ply, ent, healed)
 end
 
 function event:Store(ply, ent, healed)
-	local tbl = { 
+	local tbl = {
 		[1] = ply:GetDamagelogID(),
 		[2] = healed
 	}
@@ -73,7 +73,7 @@ function event:ToString(tbl, roles)
 	else
 		healerNick = TTTLogTranslate(GetDMGLogLang, "healerNick")
 	end
-	return string.format(TTTLogTranslate(GetDMGLogLang, "HealthStationHeal"), ply.nick, Damagelog:StrRole(ply.role), tbl[2], healerNick) 
+	return string.format(TTTLogTranslate(GetDMGLogLang, "HealthStationHeal"), ply.nick, Damagelog:StrRole(ply.role), tbl[2], healerNick)
 end
 
 function event:IsAllowed(tbl)

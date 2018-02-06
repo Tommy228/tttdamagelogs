@@ -67,7 +67,7 @@ function event:ToString(v, roles)
 	if lang_param then
 		text = util.Capitalize(text)
 	end
-	
+
 	local targetrole = ""
 	if targetply then
 		targetrole = " ["..Damagelog:StrRole(v[4]).."]"

@@ -10,7 +10,7 @@ DamagelogLang.russian = {
 	DMG_ENERGYBEAM = "лазер",
 	DMG_SONIC = "телепортация",
 	DMG_PHYSGUN = "толчок огромной силы",
-	
+
 	Damagelog = "Логи",
 	SLogs = "Выстрелы",
 	RDMManag = "RDM Manager",
