@@ -127,3 +127,15 @@ Damagelog.ReportsBeforePlaying = false
 -- Private message prefix from RDM Manager
 
 Damagelog.PrivateMessagePrefix = "[RDM Manager]"
+
+-- Discord Webhooks
+-- You can create a webhook on your Discord server that will automatically post messages when a report is created.
+
+-- Webhook mode:
+-- 0 - disabled
+-- 1 - create messages for new reports when there are no admins online
+-- 2 - create messages for every report
+Damagelog.DiscordWebhookMode = 0
+
+-- Webhook URL
+Damagelog.DiscordWebhookURL = "https://discordapp.com/api/webhooks/1234567890/your.token.here"

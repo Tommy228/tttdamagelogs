@@ -394,5 +394,10 @@ DamagelogLang.russian = {
 	color_purchases = "Снаряжение",
 	color_c4 = "C4",
 	color_team_kills = "Убийства товарищей",
-	color_drownings = "Утопания"
+	color_drownings = "Утопания",
+
+	-- Discord webhook
+	webhook_AdminsOnline = "Есть администрация онлайн.",
+	webhook_NoAdminsOnline = "Нет администрации онлайн.",
+	webhook_ServerInfo = "Текущая карта: *%s*, раунд: *%s*"
 }

@@ -29,6 +29,7 @@ include("damagelogs/server/damageinfos.lua")
 include("damagelogs/server/recording.lua")
 include("damagelogs/server/autoslay.lua")
 include("damagelogs/shared/autoslay.lua")
+include("damagelogs/server/discord.lua")
 
 -- Building error reporting
 -- Damagelog:Error(debug.getinfo(1).source, debug.getinfo(1).currentline, "connection error")

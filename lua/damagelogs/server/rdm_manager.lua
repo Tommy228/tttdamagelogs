@@ -267,18 +267,20 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	message = string_gsub(string_gsub(message, "[^%g\128-\191\208-\210 ]+", ""), "%s+", " ")
 
-	if not ply:CanUseRDMManager() then
+	local adminOnline = true
 
-		local found
+	if not ply:CanUseRDMManager() then
+		adminOnline = false
+
 		for k, v in ipairs(player_GetHumans()) do
 			if v:CanUseRDMManager() then
-				found = true
+				adminOnline = true
 				break
 			end
 		end
 
 		if not Damagelog.NoStaffReports then
-			if not found then
+			if not adminOnline then
 				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
 				return
 			end
@@ -328,7 +330,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	table_insert(ply.Reported, attacker)
 
-	local index = table_insert(Damagelog.Reports.Current, {
+	local newReport = {
 		victim = ply:SteamID(),
 		victim_nick = ply:Nick(),
 		attacker = attacker:SteamID(),
@@ -343,13 +345,17 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		conclusion = false,
 		adminReport = reportType != DAMAGELOG_REPORT_STANDARD,
 		chatReport = reportType == DAMAGELOG_REPORT_CHAT
-	})
+	}
+
+	local index = table_insert(Damagelog.Reports.Current, newReport)
 
 	Damagelog.getmreports.id[1] = {}
 	Damagelog.getmreports.id[1].victim = ply:SteamID()
 	Damagelog.getmreports.id[1].index = index
 
 	Damagelog.Reports.Current[index].index = index
+
+	Damagelog:DiscordMessage(newReport, adminOnline)
 
 	if reportType != DAMAGELOG_REPORT_STANDARD then
 		Damagelog.Reports.Current[index].status = RDM_MANAGER_PROGRESS
