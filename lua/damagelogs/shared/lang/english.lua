@@ -400,5 +400,5 @@ DamagelogLang.english = {
 	-- Discord webhook
 	webhook_AdminsOnline = "There is staff online.",
 	webhook_NoAdminsOnline = "There is no staff online.",
-	webhook_ServerInfo = "Current map: *%s*, round: *%s*"
+	webhook_ServerInfo = "Current map: %s, round: %s"
 }

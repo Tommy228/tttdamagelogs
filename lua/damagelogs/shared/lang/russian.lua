@@ -399,5 +399,5 @@ DamagelogLang.russian = {
 	-- Discord webhook
 	webhook_AdminsOnline = "Есть администрация онлайн.",
 	webhook_NoAdminsOnline = "Нет администрации онлайн.",
-	webhook_ServerInfo = "Текущая карта: *%s*, раунд: *%s*"
+	webhook_ServerInfo = "Текущая карта: %s, раунд: %s"
 }
