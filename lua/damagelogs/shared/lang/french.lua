@@ -10,7 +10,7 @@ DamagelogLang.french = {
 	DMG_ENERGYBEAM = "un laser",
 	DMG_SONIC = "une collision de téléporteurs",
 	DMG_PHYSGUN = "un objet massif",
-	
+
 	Damagelog = "Damagelog",
 	SLogs = "Logs de tirs",
 	RDMManag = "RDM Manager",
@@ -124,7 +124,6 @@ DamagelogLang.french = {
 	YouHaveReported = "Vous avez report %s",
 	YouHaveAdminReported = "Vous avez admin-report %s",
 	HasSetReport = "a mis le report",
-	To = "en",
 	DealingReport = "gère maintenant le report",
 	HandlingYourReport = "gère maintenant votre report.",
 	Finished = "Terminé",

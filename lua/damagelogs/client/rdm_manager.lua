@@ -37,10 +37,10 @@ local function BuildReportFrame(report)
 				break
 			end
 		end
-		
-		
+
+
 			if not found then return end
-		
+
 		net.Start("DL_Answering")
 		net.SendToServer()
 		ReportFrame = vgui.Create("DFrame")
@@ -88,10 +88,10 @@ local function BuildReportFrame(report)
 			PanelList:AddItem(TextEntry)
 			local Button = vgui.Create("DButton")
 			Button:SetText(TTTLogTranslate(GetDMGLogLang, "Send"))
-			
+
 			Button.DoClick = function()
 				local text = string.Trim(TextEntry:GetValue())
-				local size = #string.gsub(text, "[%G ]+", " ")
+				local size = #text:gsub("[^%g\128-\191\208-\210 ]+", ""):gsub("%s+", " ")
 
 				if size < 10 then
 					Info:SetText(TTTLogTranslate(GetDMGLogLang, "MinCharacters"))
@@ -119,14 +119,14 @@ local function BuildReportFrame(report)
 					net.SendToServer()
 
 					for k,v in pairs(Damagelog.ReportsQueue) do
-						if not v.finished then 
+						if not v.finished then
 							for _, sheet in pairs(ColumnSheet.Items) do
 								if sheet.Button != ColumnSheet:GetActiveButton() then
 									ColumnSheet:SetActiveButton(sheet.Button)
 									break
 								end
 							end
-							return 
+							return
 						end
 					end
 
@@ -157,7 +157,7 @@ local PANEL = {}
 function PANEL:Init()
 	self.ava = vgui.Create("AvatarImage", self)
 	self.ava:SetSize(23, 23)
-	self.ava:SetPos(4, 4)	
+	self.ava:SetPos(4, 4)
 end
 
 function PANEL:SetPlayer(ply)
@@ -278,7 +278,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 		else
 			msg = string.format(TTTLogTranslate(GetDMGLogLang, "ReportNoDNAInfo"), ply:Nick())
 			colour = color_black
-		end			
+		end
 
 		DNAMessage:SetTextColor(colour)
 		DNAMessage:SetText(msg)
@@ -384,7 +384,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 	Submit:SetSize(370, 25)
 
 	Submit.Think = function(self)
-		local characters = #string.gsub(Entry:GetText(), "[%G ]+", " ")
+		local characters = #Entry:GetText():gsub("[^%g\128-\191\208-\210 ]+", ""):gsub("%s+", " ")
 		local disable = characters < 10 or not cur_selected
 
 		if disable and select(2, Type:GetSelected()) != DAMAGELOG_REPORT_CHAT then
@@ -420,7 +420,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 
 	Tabs:AddSheet(TTTLogTranslate(GetDMGLogLang, "ReportPlayer"), ReportPanel, "icon16/report_user.png")
 
-	local MReportsPanel = vgui.Create("DPanel")	
+	local MReportsPanel = vgui.Create("DPanel")
 	Tabs:AddSheet(TTTLogTranslate(GetDMGLogLang, "ViewPreviousReports"), MReportsPanel, "icon16/page_find.png")
 
 	local RoundsList = vgui.Create("DPanelList", MReportsPanel)
@@ -429,7 +429,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 		surface.DrawRect(0, 0, w, h)
 	end
 	self.ReportsInfo = vgui.Create("DPanel", MReportsPanel)
-	
+
 	local VictimInfos = vgui.Create("DPanel", self.ReportsInfo)
 	VictimInfos:SetHeight(100)
 
@@ -456,7 +456,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 	VictimMessage:SetMultiline(true)
 	VictimMessage:SetKeyboardInputEnabled(false)
 	VictimMessage:SetVerticalScrollbarEnabled(true)
-		
+
 	local KillerMessage = vgui.Create("DTextEntry", VictimInfos)
 	KillerMessage:SetMultiline(true)
 	KillerMessage:SetKeyboardInputEnabled(false)
@@ -624,7 +624,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 				end
 			end
 			button.Selected = false
-			form:AddItem(button)		
+			form:AddItem(button)
 		end
 		RoundsList:AddItem(form)
 		for k,v in pairs(form.Items) do
@@ -634,7 +634,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 	end
 
 	if table.Count(currentReports) > 0 then
-	
+
 		local order = {}
 		for k,v in pairs(currentReports) do
 			table.insert(order, k)
@@ -690,7 +690,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 			roundForm:SizeToContents()
 			RoundsList:AddItem(roundForm)
 		end
-	
+
 	end
 
 	if first and buttons[1] then
@@ -717,7 +717,7 @@ net.Receive("DL_SendOwnReportInfo", function()
 	local tbl = net.ReadTable()
 	if not IsValid(Damagelog.ReportsInfo) then return end
 	if tbl.previous and not Damagelog.ReportsInfo.ViewingPrevious then return end
-	if tbl.index != Damagelog.ReportsInfo.CurrentIndex then return end	
+	if tbl.index != Damagelog.ReportsInfo.CurrentIndex then return end
 	Damagelog.ReportsInfo:ViewLogs(tbl)
 end)
 
@@ -826,7 +826,7 @@ net.Receive("DL_SendForgive", function()
 end)
 
 net.Receive("DL_Answering_global", function(_len)
-	if not LocalPlayer():IsActive() then
+	if LocalPlayer().IsActive and not LocalPlayer():IsActive() then
 		chat.AddText(Color(255, 62, 62), net.ReadString(), color_white, " " .. TTTLogTranslate(GetDMGLogLang, "IsAnswering"))
 	end
 end)
@@ -858,7 +858,7 @@ hook.Add("HUDPaint", "DamagelogPendingReports", function()
 	local pendingReports = syncEnt:GetPendingReports()
 	if pendingReports < 1 then return end
 	pendingReports = tostring(pendingReports)
-	
+
 	local textTop = TTTLogTranslate(GetDMGLogLang, "PendingTop")
 	local textBottom = TTTLogTranslate(GetDMGLogLang, "ReportsBottom")
 

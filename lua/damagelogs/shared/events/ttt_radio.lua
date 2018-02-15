@@ -33,13 +33,15 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 		end
 	end
 
-	self.CallEvent({
-		[1] = ply:GetDamagelogID(),
-		[2] = msg_name,
-		[3] = name,
-		[4] = name_role,
-		[5] = target_steamid
-	})
+	if name then
+		self.CallEvent({
+			[1] = ply:GetDamagelogID(),
+			[2] = msg_name,
+			[3] = name,
+			[4] = name_role,
+			[5] = target_steamid
+		})
+	end
 end
 
 function event:ToString(v, roles)
@@ -65,7 +67,7 @@ function event:ToString(v, roles)
 	if lang_param then
 		text = util.Capitalize(text)
 	end
-	
+
 	local targetrole = ""
 	if targetply then
 		targetrole = " ["..Damagelog:StrRole(v[4]).."]"

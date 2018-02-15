@@ -4,6 +4,7 @@ if SERVER then
 	Damagelog:EventHook("TTTC4Disarm")
 	Damagelog:EventHook("TTTC4Destroyed")
 	Damagelog:EventHook("TTTC4Pickup")
+	Damagelog:EventHook("TTTC4Explode")
 else
 	Damagelog:AddFilter("filter_show_c4", DAMAGELOG_FILTER_BOOL, true)
 	Damagelog:AddColor("color_c4", Color(128, 64, 0))
@@ -54,6 +55,16 @@ function event:TTTC4Pickup(bomb, ply)
 	})
 end
 
+function event:TTTC4Explode(bomb)
+	local owner = bomb:GetOwner()
+	local ownervalid = IsValid(owner)
+	self.CallEvent({
+		[1] = 6,
+		[2] = ownervalid and owner:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"),
+		[3] = ownervalid and owner:GetRole() or -1
+	})
+end
+
 function event:Initialize()
 	for k,v in pairs(weapons.GetList()) do
 		if v.ClassName == "weapon_ttt_c4" then
@@ -90,6 +101,8 @@ function event:ToString(v)
 		return string.format(TTTLogTranslate(GetDMGLogLang, "C4Planted"), v[2], Damagelog:StrRole(v[3]))
 	elseif v[1] == 5 then
 		return string.format(TTTLogTranslate(GetDMGLogLang, "C4Destroyed"), v[2], Damagelog:StrRole(v[3]), v[5])
+	elseif v[1] == 6 then
+		return string.format(TTTLogTranslate(GetDMGLogLang, "C4Exploded"), v[2], v[3] == -1 and "?" or Damagelog:StrRole(v[3]))
 	end
 end
 

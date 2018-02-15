@@ -25,9 +25,9 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 	if #Damagelog.Records >= 50 then
 		table.remove(Damagelog.Records, 1)
 	end
-	
+
 	local tbl = {}
-	
+
 	for k,v in pairs(magneto_ents) do
 		if v.record and CurTime() - v.last_saw > 15 then
 			v.record = false
@@ -35,7 +35,7 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 	end
 
 	for k,v in ipairs(player.GetHumans()) do
-		if not v:IsActive() then 
+		if not v:IsActive() then
 			local rag = v.server_ragdoll
 			if IsValid(rag) then
 				local pos,ang = rag:GetPos(), rag:GetAngles()
@@ -77,7 +77,7 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 			end
 		end
 	end
-	
+
 	for k,v in pairs(magneto_ents) do
 		if v.record and IsValid(v.ent) then
 			table.insert(tbl, v.ent:EntIndex(), {

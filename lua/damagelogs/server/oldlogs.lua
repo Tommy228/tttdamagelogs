@@ -64,8 +64,8 @@ if Damagelog.Use_MySQL then
 					local months = monthQuery:getData()
 					for k2, month in pairs(months) do
 						local m = tonumber(month.month)
-						if not m then continue end		
-						Damagelog.OldLogsDays[y][m] = {}	
+						if not m then continue end
+						Damagelog.OldLogsDays[y][m] = {}
 						local dayQuery = self:query("SELECT DISTINCT day FROM damagelog_oldlogs_v3;")
 						dayQuery.onSuccess = function(dayQuery)
 							local days = dayQuery:getData()

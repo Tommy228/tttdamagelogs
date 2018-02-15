@@ -1,7 +1,7 @@
 Damagelog.NamesTable = Damagelog.NamesTable or {}
 
 function Damagelog:GetWeaponName(class)
-    return self.NamesTable[class] or class
+    return self.NamesTable[class] or TTTLogTranslate(GetDMGLogLang, class) or class
 end
 
 local function UpdateWeaponNames()

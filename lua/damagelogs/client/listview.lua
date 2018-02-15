@@ -225,7 +225,7 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 	for k,v in pairs(shoot_colors) do
 		shoot_colors[k] = true
 	end
-	if beg then 
+	if beg then
 		beg = string.FormattedTime(math.Clamp(beg, 0, 999), "%02i:%02i")
 	end
 	if t then
@@ -271,7 +271,7 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 							used_nicks[i[1]] = color
 						else
 							used_nicks[i[1]] = COLOR_WHITE
-						end				
+						end
 					else
 						color = used_nicks[i[1]]
 					end
@@ -282,8 +282,7 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 				elseif i[2] == "crowbarpouss" then -- Currently unused
 					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasPushed"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles, i[1]).nick, self:InfoFromID(roles,i[3]).nick))
 				else
-					wep = Damagelog:GetWeaponName(i[2])
-					wep = wep or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
+					wep = Damagelog:GetWeaponName(i[2]) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
 					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles,i[1]).nick, wep))
 				end
 				item.PaintOver = function()
@@ -297,8 +296,8 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 						item.Columns[1]:SetTextColor(color)
 					end
 				end
-			end	
-		end			
+			end
+		end
 	end
 	self.DamageInfoBox:Toggle()
 end

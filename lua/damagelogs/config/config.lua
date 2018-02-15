@@ -49,7 +49,7 @@ Damagelog.Respond_Command = "!respond"
 
 Damagelog.Use_MySQL = false
 
---[[ Autoslay and Autojail Mode 
+--[[ Autoslay and Autojail Mode
 REQUIRES ULX ! If you are using ServerGuard, set this to 0 (it will use ServerGuard's autoslay automatically)
 - 0 : Disables autoslay
 - 1 : Enables the !aslay and !aslayid command for ULX, designed to work with the logs.

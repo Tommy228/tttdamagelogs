@@ -49,7 +49,7 @@ end)
 
 function Damagelog:SendDamageInfos(ply, t, att, victim, round)
 	local results = {}
-	local found = false	
+	local found = false
 	local data
 	if round == -1 then
 		data = Damagelog.PreviousMap.ShootTable

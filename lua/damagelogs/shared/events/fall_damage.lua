@@ -11,10 +11,10 @@ event.Type = "FD"
 
 function event:EntityTakeDamage(ent, dmginfo)
 	local att = dmginfo:GetAttacker()
-	if not (ent.IsGhost and ent:IsGhost()) and ent:IsPlayer() and att == game.GetWorld() and dmginfo:GetDamageType() == DMG_FALL then
+	if not (ent.IsGhost and ent:IsGhost()) and ent:IsPlayer() and att:IsWorld() and dmginfo:GetDamageType() == DMG_FALL then
 		local damages = dmginfo:GetDamage()
 		if math.floor(damages) > 0 then
-			local tbl = { 
+			local tbl = {
 				[1] = ent:GetDamagelogID(),
 				[2] = math.Round(damages)
 			}
@@ -32,7 +32,7 @@ end
 
 function event:ToString(tbl, roles)
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
-	local t = string.format(TTTLogTranslate(GetDMGLogLang, "FallDamage"), ply.nick, Damagelog:StrRole(ply.role), tbl[2]) 	
+	local t = string.format(TTTLogTranslate(GetDMGLogLang, "FallDamage"), ply.nick, Damagelog:StrRole(ply.role), tbl[2])
 	if tbl[3] then
 		local att = Damagelog:InfoFromID(roles, tbl[4])
 		t = t..string.format(TTTLogTranslate(GetDMGLogLang, "AfterPush"), att.nick, Damagelog:StrRole(att.role))

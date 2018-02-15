@@ -70,8 +70,8 @@ end)
 function Damagelog:OpenMenu()
 	local x, y = 665, 680
 
-	local show_outdated = outdated and GetConVar("ttt_dmglogs_updatenotifications"):GetBool() 
-		
+	local show_outdated = outdated and GetConVar("ttt_dmglogs_updatenotifications"):GetBool()
+
 	if show_outdated then
 		y = y + 30
 	end
@@ -140,7 +140,9 @@ function Damagelog:OpenMenu()
 	self:DrawDamageTab(x, y)
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
-	self:DrawRDMManager(x, y)
+	if Damagelog.RDM_Manager_Enabled then
+		self:DrawRDMManager(x, y)
+	end
 	self.About = vgui.Create("DButton", self.Menu)
 	self.About:SetPos(x - 60, show_outdated and 57 or 27)
 	self.About:SetSize(55, 19)
