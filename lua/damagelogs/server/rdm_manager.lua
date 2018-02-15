@@ -269,6 +269,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
 	if not ply:CanUseRDMManager() then
 
+		local found
 		for k, v in ipairs(player_GetHumans()) do
 			if v:CanUseRDMManager() then
 				found = true
