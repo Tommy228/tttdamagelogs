@@ -136,6 +136,4 @@ Damagelog.PrivateMessagePrefix = "[RDM Manager]"
 -- 1 - create messages for new reports when there are no admins online
 -- 2 - create messages for every report
 Damagelog.DiscordWebhookMode = 0
-
--- Webhook URL
-Damagelog.DiscordWebhookURL = "https://discordapp.com/api/webhooks/1234567890/your.token.here"
+-- Don't forget to set the value of "ttt_dmglog_discordurl" convar to your webhook URL in server.cfg

@@ -1,8 +1,8 @@
 local HTTP = HTTP
 
-local disabled = Damagelog.DiscordWebhookMode == 0
+local url = cvars.String("ttt_dmglog_discordurl")
+local disabled = not url or Damagelog.DiscordWebhookMode == 0
 local noadmins = Damagelog.DiscordWebhookMode == 1
-local url = Damagelog.DiscordWebhookURL
 
 local limit
 local reset = 0
