@@ -1,7 +1,7 @@
 local HTTP = HTTP
 
-local url = cvars.String("ttt_dmglog_discordurl")
-local disabled = not url or Damagelog.DiscordWebhookMode == 0
+local url = CreateConVar("ttt_dmglog_discordurl", "", FCVAR_PROTECTED + FCVAR_LUA_SERVER, "TTTDamagelogs - Discord Webhook URL")
+local disabled = Damagelog.DiscordWebhookMode == 0
 local noadmins = Damagelog.DiscordWebhookMode == 1
 
 local limit
@@ -24,7 +24,7 @@ local function post(embed)
 
 	HTTP({
 		method = "POST",
-		url = url,
+		url = url:GetString(),
 		body = util.TableToJSON({embeds = {embed}}),
 		type = "application/json",
 		success = cb
