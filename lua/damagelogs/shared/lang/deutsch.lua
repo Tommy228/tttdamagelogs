@@ -395,5 +395,10 @@ DamagelogLang.deutsch = {
 	color_purchases = "Waffeneinkäufe",
 	color_c4 = "C4",
 	color_team_kills = "Team Kills",
-	color_drownings = "Ertränkungen"
+	color_drownings = "Ertränkungen",
+
+	-- Discord webhook
+	webhook_AdminsOnline = "Es sind Admins online.",
+	webhook_NoAdminsOnline = "Es sind keine Admins online.",
+	webhook_ServerInfo = "Aktuelle Karte: %s, Runde: %s"
 }
