@@ -27,7 +27,7 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	end
 	if Damagelog.ForcedLanguage == "" then
 		dmgLang:SetDisabled(false)
-		dmgLang:ChooseOption(string.upper(string.sub(GetConVar("ttt_dmglog_language"):GetString(),1,1))..string.sub(GetConVar("ttt_dmglog_language"):GetString(),2,100))
+		dmgLang:ChooseOption(string.upper(string.sub(GetConVar("ttt_dmglogs_language"):GetString(),1,1))..string.sub(GetConVar("ttt_dmglogs_language"):GetString(),2,100))
 	else
 		dmgLang:SetDisabled(true)
 		dmgLang:SetTooltip(TTTLogTranslate(GetDMGLogLang, "ForcedLanguage"))
@@ -35,10 +35,10 @@ hook.Add("TTTSettingsTabs", "DamagelogsTTTSettingsTab", function(dtabs)
 	end
 
 	dmgLang.OnSelect = function(panel, index, value, data, Damagelog)
-		local currentLanguage = GetConVar("ttt_dmglog_language"):GetString()
+		local currentLanguage = GetConVar("ttt_dmglogs_language"):GetString()
 		local newLang = string.lower(value)
 		if currentLanguage == newLang then return end
-		RunConsoleCommand("ttt_dmglog_language", newLang)
+		RunConsoleCommand("ttt_dmglogs_language", newLang)
 	end
 
 	dgui:AddItem(dmgLang)

@@ -1,7 +1,7 @@
-CreateClientConVar("ttt_dmglog_language", "english", FCVAR_ARCHIVE)
-GetDMGLogLang = GetConVar("ttt_dmglog_language"):GetString()
+CreateClientConVar("ttt_dmglogs_language", "english", FCVAR_ARCHIVE)
+GetDMGLogLang = GetConVar("ttt_dmglogs_language"):GetString()
 
-cvars.AddChangeCallback("ttt_dmglog_language", function(convar_name, value_old, value_new)
+cvars.AddChangeCallback("ttt_dmglogs_language", function(convar_name, value_old, value_new)
 	GetDMGLogLang = value_new
 	net.Start("DL_SendLang")
 	net.WriteString(value_new)
