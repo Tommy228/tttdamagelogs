@@ -1,6 +1,6 @@
 local HTTP = HTTP
 
-local url = CreateConVar("ttt_dmglog_discordurl", "", FCVAR_PROTECTED + FCVAR_LUA_SERVER, "TTTDamagelogs - Discord Webhook URL")
+local url = CreateConVar("ttt_dmglogs_discordurl", "", FCVAR_PROTECTED + FCVAR_LUA_SERVER, "TTTDamagelogs - Discord Webhook URL")
 local disabled = Damagelog.DiscordWebhookMode == 0
 local noadmins = Damagelog.DiscordWebhookMode == 1
 
