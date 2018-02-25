@@ -8,7 +8,7 @@ for k,v in pairs(file.Find("damagelogs/shared/lang/*.lua", "LUA")) do
 	include(f)
 end
 
-function TTTLogTranslate(GetDMGLogLang, phrase)
+function TTTLogTranslate(GetDMGLogLang, phrase, nomissing)
 	local f = GetDMGLogLang
 	if Damagelog.ForcedLanguage == "" then
 		if !DamagelogLang[f] then
@@ -17,5 +17,5 @@ function TTTLogTranslate(GetDMGLogLang, phrase)
 	else
 		f = Damagelog.ForcedLanguage
 	end
-	return DamagelogLang[f][phrase] or "Missing: "..tostring(phrase)
+	return DamagelogLang[f][phrase] or not nomissing and "Missing: "..tostring(phrase)
 end
