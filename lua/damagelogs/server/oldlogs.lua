@@ -157,7 +157,7 @@ hook.Add("TTTEndRound", "Damagelog_EndRound", function()
 				year, month, day, t, Damagelog.CurrentRound, game.GetMap(), sql.SQLStr(logs))
 			local query = Damagelog.database:query(insert)
 			query:start()
-		elseif  not Damagelog.Use_MySQL then
+		elseif not Damagelog.Use_MySQL then
 			local insert = string.format("INSERT INTO damagelog_oldlogs_v3(`id`, `year`, `month`, `day`, `date`, `round`, `map`, `damagelog`) VALUES(%i, %i, %i, %i, %i, %i, \"%s\", %s);",
 				GetLogsCount_SQLite() + 1, year, month, day, t, Damagelog.CurrentRound, game.GetMap(), sql.SQLStr(logs))
 			sql.Query(insert)

@@ -38,8 +38,7 @@ local function BuildReportFrame(report)
 			end
 		end
 
-
-			if not found then return end
+		if not found then return end
 
 		net.Start("DL_Answering")
 		net.SendToServer()
