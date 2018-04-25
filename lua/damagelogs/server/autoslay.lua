@@ -2,6 +2,7 @@ util.AddNetworkString("DL_SlayMessage")
 util.AddNetworkString("DL_AutoSlay")
 util.AddNetworkString("DL_AutoslaysLeft")
 util.AddNetworkString("DL_PlayerLeft")
+util.AddNetworkString("DL_SendJails")
 
 local mode = Damagelog.ULX_AutoslayMode
 
