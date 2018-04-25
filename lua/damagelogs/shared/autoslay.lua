@@ -169,7 +169,7 @@ if CLIENT then
 	end)
 
 	local ents = {}
-	net.Receive("SendJails", function()
+	net.Receive("DL_SendJails", function()
 		local count = net.ReadUInt(32)
 		local walls = {}
 		for i=1, count do
