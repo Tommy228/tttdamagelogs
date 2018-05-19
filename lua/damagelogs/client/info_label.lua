@@ -1,50 +1,60 @@
-local PANEL = {};
-local GRADIENT = surface.GetTextureID("gui/gradient_down");
+local PANEL = {}
+local GRADIENT = surface.GetTextureID("gui/gradient_down")
 local color_halfwhite = Color(255, 255, 255, 50)
 
 function PANEL:Init()
-	self:SetPos(4,4);
+	self:SetPos(4, 4)
 	self:SetSize(self:GetWide() - 8, 24)
 	self:SetBackgroundColor(Color(139, 174, 179, 255))
+    
 	self.icon = vgui.Create("DImage", self)
 	self.icon:SetImage("icon16/comment.png")
 	self.icon:SizeToContents()
+    
 	self.label = vgui.Create("DLabel", self)
 	self.label:SetText("")
 	self.label:SetTextColor(color_white)
 	self.label:SetExpensiveShadow(1, Color(0, 0, 0, 150))
-end;
+end
 
 function PANEL:PerformLayout(w, h)
 	self.icon:SetPos(4, 4)
-	if (self.textToLeft) then
-		if (self.icon:IsVisible()) then
+    
+	if self.textToLeft then
+		if self.icon:IsVisible() then
 			self.label:SetPos(self.icon.x + 8, h / 2 - self.label:GetTall() / 2)
 		else
 			self.label:SetPos(8, h / 2 - h / 2)
 		end
 	else
-		self.label:SetPos(w / 2 - self.label:GetWide() / 2, h / 2 - self.label:GetTall() / 2);
+		self.label:SetPos(w / 2 - self.label:GetWide() / 2, h / 2 - self.label:GetTall() / 2)
 	end
+    
 	derma.SkinHook("Layout", "Panel", self)
-end;
+end
 
 function PANEL:Paint(w, h)
 	if self:GetPaintBackground() then
 		local width, height = self:GetSize()
 		local x, y = 0, 0
-		if (self:IsDepressed()) then
+        
+		if self:IsDepressed() then
 			height = height - 4
 			width = width - 4
 			x = x + 2
 			y = y + 2
 		end
+        
 		local color = self:GetBackgroundColor()
+        
 		if self:IsButton() and self:IsHovered() then
 			color = color_halfwhite
 		end
+        
 		local cornerSize = 4
+        
 		draw.RoundedBox(cornerSize, x, y, width, height, Color(color.r, color.g, color.b, color.a * 0.75))
+        
 		if x + cornerSize < x + width and y + cornerSize < y + height then
 			surface.SetDrawColor(color.r, color.g, color.b, color.a)
 		end
@@ -81,15 +91,15 @@ function PANEL:SetHovered(isHovered)
 end
 
 function PANEL:IsHovered()
-	return self.isHovered;
+	return self.isHovered
 end
 
 function PANEL:SetTextColor(color)
-	self.label:SetTextColor(color);
+	self.label:SetTextColor(color)
 end
 
 function PANEL:OnMousePressed(mouseCode)
-	if (self:IsButton()) then
+	if self:IsButton() then
 		self:SetDepressed(true)
 		self:MouseCapture(true)
 	end
@@ -108,27 +118,27 @@ function PANEL:SetShowIcon(showIcon)
 end
 
 function PANEL:SetIcon(icon)
-	self.icon:SetImage(icon);
-	self.icon:SizeToContents();
-	self.icon:SetVisible(true);
+	self.icon:SetImage(icon)
+	self.icon:SizeToContents()
+	self.icon:SetVisible(true)
 end
 
 function PANEL:SetInfoColor(color)
-	if (color == "red") then
-		self:SetBackgroundColor(Color(179, 46, 49, 255));
-		self:SetIcon("icon16/exclamation.png");
-	elseif (color == "orange") then
-		self:SetBackgroundColor(Color(223, 154, 72, 255));
-		self:SetIcon("icon16/error.png");
-	elseif (color == "green") then
-		self:SetBackgroundColor(Color(139, 215, 113, 255));
-		self:SetIcon("icon16/tick.png");
-	elseif (color == "blue") then
-		self:SetBackgroundColor(Color(139, 174, 179, 255));
-		self:SetIcon("icon16/information.png");
+	if color == "red" then
+		self:SetBackgroundColor(Color(179, 46, 49, 255))
+		self:SetIcon("icon16/exclamation.png")
+	elseif color == "orange" then
+		self:SetBackgroundColor(Color(223, 154, 72, 255))
+		self:SetIcon("icon16/error.png")
+	elseif color == "green" then
+		self:SetBackgroundColor(Color(139, 215, 113, 255))
+		self:SetIcon("icon16/tick.png")
+	elseif color == "blue" then
+		self:SetBackgroundColor(Color(139, 174, 179, 255))
+		self:SetIcon("icon16/information.png")
 	else
-		self:SetShowIcon(false);
-		self:SetBackgroundColor(color);
+		self:SetShowIcon(false)
+		self:SetBackgroundColor(color)
 	end
 end
 
