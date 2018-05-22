@@ -6,7 +6,6 @@ else
 end
 
 local event = {}
-
 event.Type = "WEP"
 
 function event:TTTOrderedEquipment(ply, ent, is_item)
@@ -19,35 +18,35 @@ end
 
 function event:ToString(v, roles)
 	local weapon = v[3]
-    
+	
 	if isnumber(weapon) then
 		weapon = tonumber(weapon)
-        
+		
 		for _, role in pairs(EquipmentItems) do
 			local found = false
-            
+			
 			for _, v in pairs(role) do
 				if v.id == weapon then
 					local translated = LANG.TryTranslation(v.name)
-                    
-      				weapon = translated or v.name
+	  				
+					weapon = translated or v.name
 					found = true
-                    
+					
 					break
 				end
 			end
-            
+			
 			if found then 
-                break 
-            end
+				break 
+			end
 		end
 	else
 		weapon = Damagelog:GetWeaponName(weapon)
 	end
-    
+	
 	local ply = Damagelog:InfoFromID(roles, v[1])
-    
-	return string.format(TTTLogTranslate(GetDMGLogLang, "HasBought"), ply.nick, Damagelog:StrRole(ply.role), weapon) 
+	
+	return string.format(TTTLogTranslate(GetDMGLogLang, "HasBought"), ply.nick, Damagelog:StrRole(ply.role), weapon)
 end
 
 function event:IsAllowed(tbl)
@@ -64,9 +63,9 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(true)
-    
+	
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
-    
+	
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
 end
 

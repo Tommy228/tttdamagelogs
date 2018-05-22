@@ -14,6 +14,7 @@ local function post(embed)
 		local function tcb()
 			post(data)
 		end
+		
 		timer.Simple(reset - now, tcb)
 	end
 
@@ -40,12 +41,12 @@ function Damagelog:DiscordMessage(report, adminOnline)
 		fields = {
 			{
 				name = TTTLogTranslate(nil, "Victim"),
-				value = "["..report.victim_nick:gsub("([%*_~<>\\@%]])", "\\%1").."](".."https://steamcommunity.com/profiles/"..util.SteamIDTo64(report.victim)..")",
+				value = "[" .. report.victim_nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(report.victim) .. ")",
 				inline = true
 			},
 			{
 				name = TTTLogTranslate(nil, "ReportedPlayer"),
-				value = "["..report.attacker_nick:gsub("([%*_~<>\\@%]])", "\\%1").."](".."https://steamcommunity.com/profiles/"..util.SteamIDTo64(report.attacker)..")",
+				value = "[" .. report.attacker_nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(report.attacker) .. ")",
 				inline = true
 			},
 			{
@@ -56,7 +57,9 @@ function Damagelog:DiscordMessage(report, adminOnline)
 		color = adminOnline and 0xffff00 or 0xff0000
 	}
 
-	if not noadmins then data.footer = {text = TTTLogTranslate(nil, adminOnline and "webhook_AdminsOnline" or "webhook_NoAdminsOnline")} end
+	if not noadmins then 
+		data.footer = {text = TTTLogTranslate(nil, adminOnline and "webhook_AdminsOnline" or "webhook_NoAdminsOnline")} 
+	end
 
 	post(data)
 end

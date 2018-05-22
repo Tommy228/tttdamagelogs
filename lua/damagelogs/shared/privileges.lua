@@ -8,7 +8,7 @@ local function checkSettings(self, value)
 	elseif value == 4 then
 		return true
 	end
-    
+	
 	return false
 end
 
@@ -21,7 +21,7 @@ function meta:CanUseDamagelog()
 			return checkSettings(self, v)
 		end
 	end
-    
+	
 	return checkSettings(self, 2)
 end
 
@@ -31,6 +31,6 @@ function meta:CanUseRDMManager()
 			return v
 		end
 	end
-    
+	
 	return false
 end
