@@ -13,5 +13,10 @@
 
             roles: 'Roles'
             show_innocent_roles: 'Show innocents players'
-        
+
+        -- Damagelog ListView
+            listview_time: 'Time'
+            listview_type: 'Type'
+            listview_event: 'Event'
+
 }

@@ -1,9 +1,7 @@
 PANEL =
 
-    forms: {}
-
     Init: (using nil) =>
-        table.Empty(@forms)    
+        @forms = {}
         @CreatePanelList!            
         @CreateRoundForm(true)
         @CreateDamageInfoForm!
@@ -26,7 +24,6 @@ PANEL =
             @OnFormToggle(form)
 
     OnFormToggle: (form using nil) =>
-        print(form, form.GetExpanded)
         if form\GetExpanded! 
             return false
         for otherForm in *@forms
@@ -78,6 +75,7 @@ PANEL =
                 \SetName(dmglog.Translate('roles'))
                 with roles = vgui.Create('DListView')
                     \SetHeight(90)
+                    rolesForm\AddItem(roles)
                 with showInnocentRoles = vgui.Create('DCheckBoxLabel', rolesForm)
                     \SetPos(455, 3)
                     \SetText(dmglog.Translate('show_innocent_roles'))

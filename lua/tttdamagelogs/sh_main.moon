@@ -6,3 +6,4 @@ IncludeModule = (name using nil) ->
 IncludeModule('menu')
 IncludeModule('damagetab')
 IncludeModule('translations')
+IncludeModule('events')
