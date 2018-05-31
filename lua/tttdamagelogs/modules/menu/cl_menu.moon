@@ -1,8 +1,7 @@
 
-x, y = 665, 680
 key = KEY_F8
 
-dmglog.OpenMenu = (using x, y) ->
+dmglog.OpenMenu = (using nil) ->
     dmglog.Menu = vgui.Create('DamagelogMenu')
 
 concommand.Add('damagelog', () -> dmglog.OpenMenu!)
