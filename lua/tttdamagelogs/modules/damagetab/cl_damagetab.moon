@@ -1,5 +1,5 @@
 
-CreateDamageTab = (tabs using nil) ->
+CreateDamageTab = (tabs) ->
     with damageTab = vgui.Create('DListLayout')
         \Add('DamagelogSelectionPanel')
         with \Add('DamagelogListView')    

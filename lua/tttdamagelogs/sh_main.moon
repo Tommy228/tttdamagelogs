@@ -1,7 +1,10 @@
-IncludeModule = (name using nil) ->
+dmglog.IncludeSharedFile = (file) ->
+    include(file)
+    AddCSLuaFile(file)
+
+IncludeModule = (name) ->
     initFilePath = "modules/#{name}/sh_init.lua"
-    include(initFilePath)
-    AddCSLuaFile(initFilePath)
+    dmglog.IncludeSharedFile(initFilePath)
 
 IncludeModule('menu')
 IncludeModule('damagetab')

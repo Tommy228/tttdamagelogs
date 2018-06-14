@@ -1,29 +1,29 @@
 PANEL =
 
-    Init: (using nil) =>
+    Init: () =>
         @forms = {}
         @CreatePanelList!            
         @CreateRoundForm(true)
         @CreateDamageInfoForm!
         @CreateRolesForm!
 
-    AddForm: (expand = false, formCreator using nil) =>
+    AddForm: (expand = false, formCreator) =>
         with form = formCreator!
             \SetExpanded(expand)
             @CreateFormToggleHook(form)
             @panelList\AddItem(form)
             table.insert(@forms, form)
 
-    CreateFormToggleHook: (form using nil) =>
+    CreateFormToggleHook: (form) =>
         oldFormToggle = form.Toggle 
-        form.Toggle = (forced using nil) =>
+        form.Toggle = (forced) =>
             allowToggle = forced or form\OnToggle!
             if allowToggle
                 oldFormToggle(self)
-        form.OnToggle = (form using nil) ->
+        form.OnToggle = (form) ->
             @OnFormToggle(form)
 
-    OnFormToggle: (form using nil) =>
+    OnFormToggle: (form) =>
         if form\GetExpanded! 
             return false
         for otherForm in *@forms
@@ -32,15 +32,15 @@ PANEL =
                     otherForm\Toggle(true)
         true
 
-    PerformLayout: (w, h using nil) =>
+    PerformLayout: (w, h) =>
         @\SetSize(w, 195)
         @panelList\StretchToParent(12, 5, 12, 0)
  
-    CreatePanelList: (using nil) =>
+    CreatePanelList: ()) =>
         with @panelList = vgui.Create('DPanelList', self)
             \SetSpacing(7)
 
-    CreateRoundForm: (expand using nil) =>
+    CreateRoundForm: (expand) =>
         @AddForm expand, -> 
             with roundForm = vgui.Create('DForm')
                 \SetName(dmglog.Translate('round_selection'))
@@ -59,7 +59,7 @@ PANEL =
                         \SetPos(0, 30)
                     roundForm\AddItem(roundFormPanel)
 
-    CreateDamageInfoForm: (expand using nil) =>
+    CreateDamageInfoForm: (expand) =>
         @AddForm expand, ->
             damageInfoTitle = dmglog.Translate('damage_information') 
             with damageInfoForm = vgui.Create('DForm')
@@ -69,7 +69,7 @@ PANEL =
                     \AddColumn(damageInfoTitle)
                     damageInfoForm\AddItem(damageInformation)
 
-    CreateRolesForm: (expand using nil) =>
+    CreateRolesForm: (expand) =>
         @AddForm expand, ->
             with rolesForm = vgui.Create('DForm')
                 \SetName(dmglog.Translate('roles'))

@@ -3,7 +3,7 @@ PANEL =
     w: 665
     h: 680
 
-    Init: (using nil) =>
+    Init: () =>
         @SetSize(@w, @h)
 
         @SetTitle(dmglog.Translate('menu_title'))

@@ -1,7 +1,7 @@
 dmglog.Translate = -> ''
 
 pendingLanguagesToAdd = {}
-dmglog.AddLanguage = (name using nil) ->
+dmglog.AddLanguage = (name) ->
     languageContent = include("langs/#{name}.lua")
     table.insert(pendingLanguagesToAdd, {
         name: name

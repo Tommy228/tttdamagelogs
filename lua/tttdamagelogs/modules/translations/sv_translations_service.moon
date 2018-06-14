@@ -1,3 +1,2 @@
-dmglog.AddLanguage = (name using nil) ->
-    print("langs/#{name}.lua")
+dmglog.AddLanguage = (name) ->
     AddCSLuaFile("langs/#{name}.lua")
