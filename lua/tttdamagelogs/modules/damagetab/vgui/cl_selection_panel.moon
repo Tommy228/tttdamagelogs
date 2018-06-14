@@ -36,7 +36,7 @@ PANEL =
         @\SetSize(w, 195)
         @panelList\StretchToParent(12, 5, 12, 0)
  
-    CreatePanelList: ()) =>
+    CreatePanelList: () =>
         with @panelList = vgui.Create('DPanelList', self)
             \SetSpacing(7)
 
