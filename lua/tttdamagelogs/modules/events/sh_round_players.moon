@@ -5,13 +5,17 @@ class dmglog.RoundPlayers
 
     InitializeWithCurrentPlayers: () =>
         table.Empty(@list)
-        for ply in *player.GetAll()
+        for ply in *player.GetAll!
             @AddPlayer(ply)
 
     AddPlayer: (ply) =>
-        roundPlayer = dmglog.RoundPlayer(ply\Name(), ply\SteamID64())
+        roundPlayer = dmglog.CreateRoundPlayer(ply)
         id = table.insert(@list, roundPlayer)
         roundPlayer\SetId(id)
 
+    GetPlayerId: (ply) =>
+        steamId64 = ply\SteamID64!
+        dmglog.table.FindKey(@list, (roundPlayer) -> roundPlayer.steamId64 == steamId64) or false
+
     GetById: (id) =>
-        @roundPlayers[id]
+        @list[id]

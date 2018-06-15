@@ -1,3 +1,5 @@
+dmglog.INVALID_ROUNDPLAYER_ID = -1
+
 class dmglog.RoundPlayer
 
     new: (name, steamId64) =>
@@ -6,3 +8,6 @@ class dmglog.RoundPlayer
     
     SetId: (id) =>
         @id = id
+
+dmglog.CreateRoundPlayer = (ply) ->
+    dmglog.RoundPlayer(ply\Name(), ply\SteamID64())

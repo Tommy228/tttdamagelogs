@@ -8,16 +8,20 @@ dmglog.AddLanguage = (name) ->
         content: languageContent
     })
 
-InitTranslations = (using dmglog) ->
+InitTranslations = () ->
+
+    import GetTranslation, AddToLanguage, GetParamTranslation from LANG
 
     prefix = 'dmglog_'
 
-    import GetTranslation, AddToLanguage from LANG
+    dmglog.Translate = (key, params = false) -> 
+        tttKey = prefix .. key
+        if params 
+            GetTranslation(tttKey)
+        else
+            GetParamTranslation(tttKey, params)
 
-    dmglog.Translate = (key using prefix, GetTranslation) -> 
-        GetTranslation(prefix .. key)
-
-    AddPendingLanguages = (using pendingLanguagesToAdd) ->
+    AddPendingLanguages = () ->
         for language in *pendingLanguagesToAdd
             for key, text in pairs(language.content)
                 AddToLanguage(language.name, prefix .. key, text)

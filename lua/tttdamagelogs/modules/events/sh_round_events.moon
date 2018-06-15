@@ -1,6 +1,7 @@
 class dmglog.RoundEvents
 
     new: () =>
+        @currentTime = 0
         @eventsList = {}
         @roundPlayers = dmglog.RoundPlayers()
 
