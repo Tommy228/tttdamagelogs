@@ -1,12 +1,12 @@
-GetNetworkString = (name) ->
-    'dmglog' .. name
+GetNetworkString = (name) -> 'dmglog' .. name
 
 if SERVER
+
     dmglog.AddNetworkString = (name) ->
         networkString = GetNetworkString(name)
         util.AddNetworkString(networkString)
-        networkString
+        return networkString
 
 if CLIENT
-    dmglog.AddNetworkString = (name) ->
-        GetNetworkString(name)
+
+    dmglog.AddNetworkString = (name) -> GetNetworkString(name)

@@ -7,9 +7,12 @@
         roundEvents = dmglog.RoundEvents!
         roundEvents.roundPlayers\InitializeWithCurrentPlayers()
         table.insert(@roundEvents, roundEvents)
+        hook.Run('TTTDamagelogsRoundCreated', roundEvents)
+        hook.Run('TTTDamagelogsRoundsCountUpdated', @GetRoundsCount!)
 
-    GetCurrentRound: () =>
-        @roundEvents[#@roundEvents]
+    GetRoundsCount: () => #@roundEvents
+
+    GetCurrentRound: () => @roundEvents[@GetRoundsCount!]
 
 
 dmglog.eventsHandler = dmglog.EventsHandler!
@@ -30,4 +33,4 @@ timer.Create 'TTTDamagelogs_EventsHandlerRoundTimer', 1, 0, () ->
 
 Player = FindMetaTable('Player')
 Player.GetDamagelogId = (round = dmglog.eventsHandler\GetCurrentRound()) =>
-    round.roundPlayers\GetPlayerId(self) if round else dmglog.INVALID_ROUNDPLAYER_ID
+    return round.roundPlayers\GetPlayerId(self) if round else dmglog.INVALID_ROUNDPLAYER_ID

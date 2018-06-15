@@ -1,4 +1,4 @@
-dmglog.Translate = -> ''
+dmglog.GetTranslation = -> ''
 
 pendingLanguagesToAdd = {}
 dmglog.AddLanguage = (name) ->
@@ -8,18 +8,17 @@ dmglog.AddLanguage = (name) ->
         content: languageContent
     })
 
-InitTranslations = () ->
+hook.Add 'Initialize', 'TTTDamagelogs_ClientsideTranslations', () ->
 
     import GetTranslation, AddToLanguage, GetParamTranslation from LANG
 
     prefix = 'dmglog_'
 
-    dmglog.Translate = (key, params = false) -> 
+    dmglog.GetTranslation = (key, params = false) -> 
         tttKey = prefix .. key
-        if params 
-            GetTranslation(tttKey)
-        else
-            GetParamTranslation(tttKey, params)
+        if params
+           PrintTable(params)
+        return GetParamTranslation(tttKey, params) if params else GetTranslation(tttKey)
 
     AddPendingLanguages = () ->
         for language in *pendingLanguagesToAdd
@@ -27,5 +26,3 @@ InitTranslations = () ->
                 AddToLanguage(language.name, prefix .. key, text)
 
     AddPendingLanguages!
-
-hook.Add('Initialize', 'TTTDamagelogs_ClientsideTranslations', InitTranslations)

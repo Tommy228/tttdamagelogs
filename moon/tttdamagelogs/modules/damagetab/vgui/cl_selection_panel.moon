@@ -30,7 +30,7 @@ PANEL =
             if form != otherForm
                 if otherForm\GetExpanded!
                     otherForm\Toggle(true)
-        true
+        return true
 
     PerformLayout: (w, h) =>
         @\SetSize(w, 195)
@@ -43,17 +43,17 @@ PANEL =
     CreateRoundForm: (expand) =>
         @AddForm expand, -> 
             with roundForm = vgui.Create('DForm')
-                \SetName(dmglog.Translate('round_selection'))
+                \SetName(dmglog.GetTranslation('round_selection'))
                 with roundFormPanel = vgui.Create('DPanel')
                     \SetHeight(90)
                     .Paint = ->
-                    with roundSelection = vgui.Create('DComboBox', roundFormPanel)
+                    with roundSelection = vgui.Create('DamagelogRoundSelection', roundFormPanel)
                         \SetSize(500, 22)
                         \SetPos(0, 0)
                     with filters = vgui.Create('DButton', roundFormPanel)
                         \SetSize(85, 22)
                         \SetPos(505, 0)
-                        \SetText(dmglog.Translate('filters'))
+                        \SetText(dmglog.GetTranslation('filters'))
                     with playerSelect = vgui.Create('DPanel', roundFormPanel)
                         \SetSize(590, 60)
                         \SetPos(0, 30)
@@ -61,7 +61,7 @@ PANEL =
 
     CreateDamageInfoForm: (expand) =>
         @AddForm expand, ->
-            damageInfoTitle = dmglog.Translate('damage_information') 
+            damageInfoTitle = dmglog.GetTranslation('damage_information') 
             with damageInfoForm = vgui.Create('DForm')
                 \SetName(damageInfoTitle)
                 with damageInformation = vgui.Create('DListView', damageInfoForm)
@@ -72,13 +72,13 @@ PANEL =
     CreateRolesForm: (expand) =>
         @AddForm expand, ->
             with rolesForm = vgui.Create('DForm')
-                \SetName(dmglog.Translate('roles'))
+                \SetName(dmglog.GetTranslation('roles'))
                 with roles = vgui.Create('DListView')
                     \SetHeight(90)
                     rolesForm\AddItem(roles)
                 with showInnocentRoles = vgui.Create('DCheckBoxLabel', rolesForm)
                     \SetPos(455, 3)
-                    \SetText(dmglog.Translate('show_innocent_roles'))
+                    \SetText(dmglog.GetTranslation('show_innocent_roles'))
                     \SetTextColor(color_white)
                     \SetConVar('ttt_dmglogs_showinnocents')
                     \SizeToContents!

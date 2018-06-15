@@ -6,6 +6,7 @@
         damagelog_tab_title: 'Damagelogs'
         
             round_selection: 'Round Selection'
+            combobox_round: 'Round {roundNumber}'
             
             filters: 'Filters'
             

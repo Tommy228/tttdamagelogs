@@ -13,7 +13,7 @@ class DamageEvent extends dmglog.Event
     ToString: (roundPlayers) =>
         attackerInformation = roundPlayers\GetById(@attackerId)
         targetInformation = roundPayers\GetById(@targetId)
-        dmglog.Translate(damageEvent, {
+        return dmglog.GetTranslation(damageEvent, {
             attacker: attackerInformation.name
             target: targetInformation.name
             damages: @damages
@@ -23,7 +23,7 @@ class DamageEvent extends dmglog.Event
         attackerId = net.ReadUInt(16)
         targetId = net.ReadUInt(16)
         damages = net.ReadUInt(16)
-        DamageEvent(attackerId, targetId, damages)
+        return DamageEvent(attackerId, targetId, damages)
 
 dmglog.RegisterEvent(DamageEvent)
 

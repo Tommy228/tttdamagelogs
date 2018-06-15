@@ -1,2 +1,3 @@
-./moonc.exe -t lua moon/*
-./moonc.exe -w -t lua moon/*
+cd moon 
+./../moonc.exe -t ../lua *
+./../moonc.exe -w -t ../lua *

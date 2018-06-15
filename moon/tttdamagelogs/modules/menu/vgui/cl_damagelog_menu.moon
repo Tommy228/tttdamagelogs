@@ -6,7 +6,7 @@ PANEL =
     Init: () =>
         @SetSize(@w, @h)
 
-        @SetTitle(dmglog.Translate('menu_title'))
+        @SetTitle(dmglog.GetTranslation('menu_title'))
         @SetDraggable(true)
         @SetKeyboardInputEnabled(false)
         

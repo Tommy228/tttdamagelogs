@@ -15,7 +15,6 @@ class dmglog.RoundPlayers
 
     GetPlayerId: (ply) =>
         steamId64 = ply\SteamID64!
-        dmglog.table.FindKey(@list, (roundPlayer) -> roundPlayer.steamId64 == steamId64) or false
+        return dmglog.table.FindKey(@list, (roundPlayer) -> roundPlayer.steamId64 == steamId64) or false
 
-    GetById: (id) =>
-        @list[id]
+    GetById: (id) => @list[id]
