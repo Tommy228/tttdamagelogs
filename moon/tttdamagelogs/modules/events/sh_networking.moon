@@ -17,7 +17,6 @@ if SERVER
         askedId = net.ReadUInt(32)
         roundEvents = dmglog.eventsHandler.roundEvents[askedId]
         if roundEvents
-            print(ply)
             SendRoundEvents(ply, roundEvents)
 
 if CLIENT

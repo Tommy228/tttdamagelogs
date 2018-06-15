@@ -1,2 +1,2 @@
-./moonc.exe lua/*
-./moonc.exe -w lua/*
+./moonc.exe -t lua moon/*
+./moonc.exe -w -t lua moon/*
