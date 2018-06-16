@@ -50,6 +50,8 @@ PANEL =
                     with roundSelection = vgui.Create('DamagelogRoundSelection', roundFormPanel)
                         \SetSize(500, 22)
                         \SetPos(0, 0)
+                        .OnSelect = () ->
+                            @OnSelectedRoundChanged(roundSelection\GetSelectedRound!) if @OnSelectedRoundChanged
                     with filters = vgui.Create('DButton', roundFormPanel)
                         \SetSize(85, 22)
                         \SetPos(505, 0)

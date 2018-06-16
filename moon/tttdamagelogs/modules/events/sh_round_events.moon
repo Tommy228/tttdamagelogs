@@ -1,9 +1,9 @@
 class dmglog.RoundEvents
 
-    new: () =>
+    new: (eventsList = false, roundPlayers = false) =>
         @currentTime = 0
-        @eventsList = {}
-        @roundPlayers = dmglog.RoundPlayers()
+        @eventsList = eventsList or {}
+        @roundPlayers = roundPlayers or dmglog.RoundPlayers()
 
     AddEvent: (event) =>
         table.insert(@eventsList, event)

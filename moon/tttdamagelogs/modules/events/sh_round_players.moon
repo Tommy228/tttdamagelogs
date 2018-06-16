@@ -1,7 +1,7 @@
 class dmglog.RoundPlayers
 
-    new: () =>
-        @list = {}
+    new: (list = false) =>
+        @list = list or {}
 
     InitializeWithCurrentPlayers: () =>
         table.Empty(@list)

@@ -22,7 +22,6 @@
 
 
     -- Events
-
-        damageEvent: '{attacker} has damaged {target} for {damages} damages'
+    damage_event: '{attacker} has damaged {target} for {damages} damages'
 
 }

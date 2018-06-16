@@ -5,19 +5,19 @@ class DamageEvent extends dmglog.Event
         @targetId = targetId
         @damages = math.Round(damages)
 
-    Send: () =>
-        net.WriteUInt(@attackerId, 16)
-        net.WriteUInt(@targetId, 16)
-        net.WriteUInt(@damages, 16)
-
     ToString: (roundPlayers) =>
         attackerInformation = roundPlayers\GetById(@attackerId)
-        targetInformation = roundPayers\GetById(@targetId)
-        return dmglog.GetTranslation(damageEvent, {
+        targetInformation = roundPlayers\GetById(@targetId)
+        return dmglog.GetTranslation('damage_event', {
             attacker: attackerInformation.name
             target: targetInformation.name
             damages: @damages
         })
+
+    Send: () =>
+        net.WriteUInt(@attackerId, 16)
+        net.WriteUInt(@targetId, 16)
+        net.WriteUInt(@damages, 16)
 
     @Read: () ->
         attackerId = net.ReadUInt(16)
@@ -30,10 +30,10 @@ dmglog.RegisterEvent(DamageEvent)
 if SERVER
 
     hook.Add 'EntityTakeDamage', 'TTTDamagelogs_DamageEvent', (target, dmginfo) -> 
-        if not target\IsPlayer() return
-        attacker = dmginfo\GetAttacker()
-        if attacker == target return
-        damageEvent = DamageEvent(attacker\GetDamagelogId(), target\GetDamagelogId(), dmginfo\GetDamage())
+        if not target\IsPlayer! return
+        attacker = dmginfo\GetAttacker!
+        if attacker == target or not target\IsPlayer! return
+        damageEvent = DamageEvent(attacker\GetDamagelogId!, target\GetDamagelogId!, dmginfo\GetDamage!)
         dmglog.CallEvent(damageEvent)
 
     if dmglog.DebugMode

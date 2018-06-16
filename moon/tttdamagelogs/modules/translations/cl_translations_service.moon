@@ -16,8 +16,6 @@ hook.Add 'Initialize', 'TTTDamagelogs_ClientsideTranslations', () ->
 
     dmglog.GetTranslation = (key, params = false) -> 
         tttKey = prefix .. key
-        if params
-           PrintTable(params)
         return GetParamTranslation(tttKey, params) if params else GetTranslation(tttKey)
 
     AddPendingLanguages = () ->

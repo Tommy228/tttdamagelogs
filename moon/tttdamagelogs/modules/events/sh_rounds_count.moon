@@ -19,5 +19,5 @@ if CLIENT
     dmglog.roundsCount = dmglog.roundsCount or 0
 
     net.Receive roundsCountNetworkMessage, (length) ->
-        dmglog.roundsCount += 1
+        dmglog.roundsCount = net.ReadUInt(32)
         hook.Run('TTTDamagelogsRoundsCountUpdated', dmglog.roundsCount)
