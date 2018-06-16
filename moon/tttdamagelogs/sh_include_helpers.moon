@@ -12,7 +12,3 @@ dmglog.IncludeServerFile = (file) ->
 dmglog.IncludeModule = (name) ->
     initFilePath = "modules/#{name}/sh_init.lua"
     dmglog.IncludeSharedFile(initFilePath)
-
-
-
-

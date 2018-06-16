@@ -75,9 +75,9 @@ PANEL =
         @AddForm expand, ->
             with rolesForm = vgui.Create('DForm')
                 \SetName(dmglog.GetTranslation('roles'))
-                with roles = vgui.Create('DListView')
+                with @roles = vgui.Create('DamagelogRolesView')
                     \SetHeight(90)
-                    rolesForm\AddItem(roles)
+                    rolesForm\AddItem(@roles)
                 with showInnocentRoles = vgui.Create('DCheckBoxLabel', rolesForm)
                     \SetPos(455, 3)
                     \SetText(dmglog.GetTranslation('show_innocent_roles'))

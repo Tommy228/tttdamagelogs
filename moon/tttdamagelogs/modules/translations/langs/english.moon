@@ -20,6 +20,12 @@
             -- Roles
             roles: 'Roles'
             show_innocent_roles: 'Show innocents players'
+            role: 'Role'
+            player: 'Player'
+            status: 'Status'
+            alive: 'Alive'
+            disconnected: 'Disconnected'
+            round_ended: 'Round ended'
 
             -- Damagelog ListView
             listview_time: 'Time'

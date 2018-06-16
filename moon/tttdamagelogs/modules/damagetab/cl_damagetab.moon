@@ -3,17 +3,17 @@ CreateGui = (tabs) ->
 
 hook.Add 'TTTDamagelogsMenuOpen', 'TTTDamagelogs_DamageTab', (tabs) ->
     damageTab = vgui.Create('DListLayout')
-    damageTab\Add('DamagelogSelectionPanel')
+    
+    selectionPanel = damageTab\Add('DamagelogSelectionPanel')
     
     damagelogListView = damageTab\Add('DamagelogListView')
     damagelogListView\SetHeight(415)
 
     LoadRound = (round) ->
-        print('asking')
         dmglog.AskRoundEvents round, (roundEvents) ->
-            print('displaying')
-            PrintTable(roundEvents)
             damagelogListView\DisplayRoundEvents(roundEvents)
+            selectionPanel.roles\SetRoundNumber(round)
+            selectionPanel.roles\SetRoundPlayers(roundEvents.roundPlayers)
 
     damageTab.OnSelectedRoundChanged = LoadRound
 
