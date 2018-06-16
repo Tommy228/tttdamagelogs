@@ -8,8 +8,9 @@ PANEL =
 
     DisplayRoundEvents: (roundEvents) =>
         for roundEvent in *roundEvents.eventsList
+            displayedRoundTime = string.FormattedTime(roundEvent.roundTime, "%02i:%02i")
+            displayedType = roundEvent.displayedType
             text = roundEvent\ToString(roundEvents.roundPlayers)
-            print('text', text)
-            @AddLine('', '', text)
+            @AddLine(displayedRoundTime, displayedType, text)
 
 vgui.Register('DamagelogListView', PANEL, 'DListView')

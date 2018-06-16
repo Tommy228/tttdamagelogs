@@ -8,6 +8,13 @@ dmglog.AddLanguage = (name) ->
         content: languageContent
     })
 
+dmglog.GetTranslatedRoleString = (role) ->
+    translationKey = switch role
+        when ROLE_INNOCENT then 'innocent'
+        when ROLE_TRAITOR then 'traitor'
+        when ROLE_DETECTIVE then 'detective'
+    return dmglog.GetTranslation(translationKey)
+
 hook.Add 'Initialize', 'TTTDamagelogs_ClientsideTranslations', () ->
 
     import GetTranslation, AddToLanguage, GetParamTranslation from LANG

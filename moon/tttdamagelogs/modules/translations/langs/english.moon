@@ -20,8 +20,13 @@
             listview_type: 'Type'
             listview_event: 'Event'
 
-
     -- Events
-    damage_event: '{attacker} has damaged {target} for {damages} damages'
+    damage_event: '{attacker} [{attackerRole}] has damaged {target} [{targetRole}] for {damages} damages'
+    damage_event_type: 'DMG'
+
+    -- Roles
+    innocent: 'Innocent'
+    traitor: 'Traitor'
+    detective: 'Detective'
 
 }
