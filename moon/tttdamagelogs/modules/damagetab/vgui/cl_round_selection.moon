@@ -1,15 +1,22 @@
 PANEL = 
 
     Init: () =>
-        @UpdateRounds!
-        hook.Add 'TTTDamagelogsRoundsCountUpdated', 'TTTDamagelogs_UpdateRoundsCountDisplay', () ->
-            @UpdateRounds! if IsValid(self)
+        @UpdateRounds(true)
+        hook.Add 'TTTDamagelogsRoundsCountChanged', 'TTTDamagelogs_UpdateRoundsCountDisplay', () ->
+            @UpdateRounds(false) if IsValid(self)
 
-    UpdateRounds: () =>
+    UpdateRounds: (firstUpdate) =>
         @Clear!
-        for i = 1, dmglog.roundsCount
-            @AddChoice(dmglog.GetTranslation('combobox_round', {roundNumber: i}), i)
-        @ChooseOptionID(dmglog.roundsCount) if dmglog.roundsCount > 0
+        for roundNumber = 1, dmglog.roundsCount
+            displayedText = @GetDisplayedText(roundNumber)
+            @AddChoice(displayedText, i)
+        @ChooseOptionID(dmglog.roundsCount) if dmglog.roundsCount > 0 and firstUpdate
+
+    GetDisplayedText: (roundNumber) =>
+        if roundNumber == dmglog.roundsCount and GetRoundState() == ROUND_ACTIVE
+            return dmglog.GetTranslation('current_round')
+        else 
+            return dmglog.GetTranslation('combobox_round', {roundNumber: roundNumber})
 
     GetSelectedRound: () => select(2, @GetSelected!)        
     

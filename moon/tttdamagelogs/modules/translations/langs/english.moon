@@ -1,17 +1,23 @@
 {
+    
     -- Menu
     menu_title: 'TTT Damagelogs'
 
         -- Damagelog Tab
         damagelog_tab_title: 'Damagelogs'
         
+            -- Round Selection
             round_selection: 'Round Selection'
             combobox_round: 'Round {roundNumber}'
+            current_round: 'Current round'
             
+            -- Filters
             filters: 'Filters'
             
+            -- Damage information
             damage_information: 'Damage information'
 
+            -- Roles
             roles: 'Roles'
             show_innocent_roles: 'Show innocents players'
 

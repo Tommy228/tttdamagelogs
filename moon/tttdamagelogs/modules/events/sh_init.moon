@@ -7,5 +7,4 @@ dmglog.IncludeSharedFile('sh_rounds_count.lua')
 
 dmglog.IncludeSharedFile('events/damage.lua')
 
-if SERVER
-    include('sv_events_handler.lua')
+dmglog.IncludeServerFile('sv_events_handler.lua')

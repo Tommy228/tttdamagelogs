@@ -1,14 +1,14 @@
-dmglog.IncludeSharedFile = (file) ->
-    include(file)
-    AddCSLuaFile(file)
+AddCSLuaFile('sh_include_helpers.lua')
+include('sh_include_helpers.lua')
 
-IncludeModule = (name) ->
-    initFilePath = "modules/#{name}/sh_init.lua"
-    dmglog.IncludeSharedFile(initFilePath)
+modules = {
+    'utils'
+    'debug'
+    'menu'
+    'damagetab'
+    'translations'
+    'events'
+}
 
-IncludeModule('utils')
-IncludeModule('debug')
-IncludeModule('menu')
-IncludeModule('damagetab')
-IncludeModule('translations')
-IncludeModule('events')
+for module in *modules
+    dmglog.IncludeModule(module)
