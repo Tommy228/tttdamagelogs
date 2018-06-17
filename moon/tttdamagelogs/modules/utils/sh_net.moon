@@ -1,39 +1,29 @@
-GetNetworkString = (name) -> 'dmglog_' .. name
+dmglog.net = 
 
-if SERVER
+    AddNetworkString: (name) ->
+        networkString = 'dmglog_' .. name
+        util.AddNetworkString(networkString) if SERVER
+        return networkString
 
-    dmglog.net = 
-
-        AddNetworkString: (name) ->
-            networkString = GetNetworkString(name)
-            util.AddNetworkString(networkString)
-            return networkString
-
-        WriteSteamId: do 
-            steamIdInformationStart = #'STEAM_' + 1
-            (steamId) ->
-                if steamId == 'BOT'
-                    net.WriteBit(1)
-                else
-                    net.WriteBit(0)
-                    steamIdInformation = string.sub(steamId, steamIdInformationStart)
-                    {universe, id, accountNumber} = string.Explode(':', steamIdInformation)
-                    net.WriteUInt(tonumber(universe), 3)
-                    net.WriteBit(id == '1')
-                    net.WriteUInt(tonumber(accountNumber), 32)
-
-if CLIENT
-
-    dmglog.net = 
-
-        AddNetworkString: (name) -> GetNetworkString(name)
-
-        ReadSteamId: () ->
-            isBot = net.ReadBit! == 1
-            if isBot
-                return 'BOT'
+    WriteSteamId: do 
+        steamIdInformationStart = #'STEAM_' + 1
+        (steamId) ->
+            if steamId == 'BOT'
+                net.WriteBit(1)
             else
-                universe = net.ReadUInt(3)
-                id = net.ReadBit!
-                accountNumber = net.ReadUInt(32)
-                return "STEAM_#{universe}:#{id}:#{accountNumber}"
+                net.WriteBit(0)
+                steamIdInformation = string.sub(steamId, steamIdInformationStart)
+                {universe, id, accountNumber} = string.Explode(':', steamIdInformation)
+                net.WriteUInt(tonumber(universe), 3)
+                net.WriteBool(id == '1')
+                net.WriteUInt(tonumber(accountNumber), 32)
+
+    ReadSteamId: () ->
+        isBot = net.ReadBool!
+        if isBot
+            return 'BOT'
+        else
+            universe = net.ReadUInt(3)
+            id = net.ReadBit!
+            accountNumber = net.ReadUInt(32)
+            return "STEAM_#{universe}:#{id}:#{accountNumber}"

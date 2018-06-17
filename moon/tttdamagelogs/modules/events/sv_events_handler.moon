@@ -7,7 +7,7 @@
         roundEvents = dmglog.RoundEvents!
         roundEvents.roundPlayers\InitializeWithCurrentPlayers()
         table.insert(@roundEvents, roundEvents)
-        hook.Run('TTTDamagelogsRoundCreated', roundEvents)
+        return roundEvents
 
     GetRoundsCount: () => #@roundEvents
 
@@ -16,8 +16,9 @@
 
 dmglog.eventsHandler = dmglog.EventsHandler!
 
-hook.Add 'TTTBeginRound', 'TTTDamagelogs_EventsHandlerNewRound', () ->
-    dmglog.eventsHandler\NewRound!
+hook.Add 'TTTPrepareRound', 'TTTDamagelogs_EventsHandlerNewRound', () ->
+    roundEvents = dmglog.eventsHandler\NewRound!
+    hook.Run('TTTDamagelogsRoundCreated', roundEvents)
 
 hook.Add 'OnEntityCreated', 'TTTDamagelogs_EventsHandlerAddPlayer', (ent) ->
     if ent\IsPlayer!

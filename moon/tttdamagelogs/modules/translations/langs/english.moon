@@ -13,6 +13,12 @@
             
             -- Filters
             filters: 'Filters'
+
+            -- Highlight
+            currently_highlighted_players: 'Currently hightlighted players:'
+            none: 'None'
+            no_players: 'No players'
+            highlight_action: 'Highlight'
             
             -- Damage information
             damage_information: 'Damage information'
@@ -32,9 +38,13 @@
             listview_type: 'Type'
             listview_event: 'Event'
 
-    -- Events
+    -- Damage Event
     damage_event: '{attacker} [{attackerRole}] has damaged {target} [{targetRole}] for {damages} damages'
     damage_event_type: 'DMG'
+
+    -- Preparation start event
+    preparation_start_event: 'Round preparation has started on the map {mapName}'
+    preparation_start_event_type: 'PREP'
 
     -- Roles
     innocent: 'Innocent'

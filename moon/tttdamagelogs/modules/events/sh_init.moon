@@ -6,5 +6,6 @@ dmglog.IncludeSharedFile('sh_networking.lua')
 dmglog.IncludeSharedFile('sh_rounds_count.lua')
 
 dmglog.IncludeSharedFile('events/damage.lua')
+dmglog.IncludeSharedFile('events/preparation_start.lua')
 
 dmglog.IncludeServerFile('sv_events_handler.lua')

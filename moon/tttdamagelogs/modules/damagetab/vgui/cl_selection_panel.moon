@@ -56,7 +56,7 @@ PANEL =
                         \SetSize(85, 22)
                         \SetPos(505, 0)
                         \SetText(dmglog.GetTranslation('filters'))
-                    with playerSelect = vgui.Create('DPanel', roundFormPanel)
+                    with highlightPanel = vgui.Create('DamagelogHighlightPanel', roundFormPanel)
                         \SetSize(590, 60)
                         \SetPos(0, 30)
                     roundForm\AddItem(roundFormPanel)

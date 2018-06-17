@@ -19,3 +19,11 @@ if dmglog.DebugMode
         else
             callback(bot)
 
+    if SERVER
+
+        hook.Add 'PlayerInitialSpawn', 'TTTDamagelogs_DebugBot', () ->
+            RunConsoleCommand('bot')
+            hook.Remove('PlayerInitialSpawn', 'TTTDamagelogs_DebugBot')
+
+        hook.Add 'PlayerSpawn', 'TTTDamagelogs_DebugWeapons', (ply) ->
+            ply\Give('weapon_zm_sledge')
