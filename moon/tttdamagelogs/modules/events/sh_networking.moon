@@ -1,17 +1,17 @@
-askRoundsEvent = dmglog.AddNetworkString('AskRoundEvents')
-sendRoundEvents = dmglog.AddNetworkString('SendRoundEvents')
+askRoundsEvent = dmglog.net.AddNetworkString('AskRoundEvents')
+sendRoundEvents = dmglog.net.AddNetworkString('SendRoundEvents')
 
 if SERVER
 
     net.Receive askRoundsEvent, (length, ply) ->
-        callbackId = net.ReadUInt(32)
-        askedId = net.ReadUInt(32)
-        roundEvents = dmglog.eventsHandler.roundEvents[askedId]
+        callbackId = net.ReadUInt(5)
+        roundNumber = net.ReadUInt(8)
+        roundEvents = dmglog.eventsHandler.roundEvents[roundNumber]
         if roundEvents
             net.Start(sendRoundEvents)
-            net.WriteUInt(callbackId, 32)
+            net.WriteUInt(callbackId, 5)
             roundEvents\Send!
-            net.Send(ply)
+            net.Send(ply) 
 
 if CLIENT
 
@@ -19,16 +19,21 @@ if CLIENT
 
     dmglog.AskRoundEvents = do
         callbackId = 0
-        (round, callback) ->
-            callbackId += 1
-            callbacks[callbackId] = callback
-            net.Start(askRoundsEvent)
-            net.WriteUInt(callbackId, 32)
-            net.WriteUInt(round, 32)
-            net.SendToServer!
+        (roundNumber, callback) ->
+            do
+                if table.Count(callbacks) == 0
+                    callbackId = 1
+                else
+                    callbackId += 1
+                callbacks[callbackId] = callback
+            do
+                net.Start(askRoundsEvent)
+                net.WriteUInt(callbackId, 5)
+                net.WriteUInt(roundNumber, 8)
+                net.SendToServer!
 
     net.Receive sendRoundEvents, (length) ->
-        callbackId = net.ReadUInt(32)
+        callbackId = net.ReadUInt(5)
         roundEvents = dmglog.RoundEvents.Read!
         callback = callbacks[callbackId]
         if callback

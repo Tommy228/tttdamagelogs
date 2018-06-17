@@ -1,4 +1,4 @@
-roundsCountNetworkMessage = dmglog.AddNetworkString('roundsCount')
+roundsCountNetworkMessage = dmglog.net.AddNetworkString('roundsCount')
 
 if SERVER
 

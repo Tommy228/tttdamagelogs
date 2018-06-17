@@ -1,4 +1,4 @@
-dmglog.GetTranslation = -> ''
+dmglog.GetTranslation = dmglog.GetTranslation or () -> ''
 
 pendingLanguagesToAdd = {}
 dmglog.AddLanguage = (name) ->

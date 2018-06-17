@@ -21,7 +21,7 @@ PANEL =
 
     GetStatusText: (roundPlayer) =>
         if GetRoundState() == ROUND_ACTIVE and dmglog.roundsCount == @roundNumber
-            ply = player.GetBySteamID64(roundPlayer.steamId64)
+            ply = player.GetBySteamID(roundPlayer.steamId)
             if IsValid(ply)
                 return 'alive' if ply\IsActive! else 'dead'
             else
