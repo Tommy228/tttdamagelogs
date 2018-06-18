@@ -10,26 +10,30 @@ local event = {}
 event.Type = "KILL"
 
 function event:DoPlayerDeath(ply, attacker, dmginfo)
-	local class = attacker:GetClass()
-	if ((IsValid(attacker) and ((attacker:IsPlayer() and attacker == ply) or class == "prop_physics" or class == "func_physbox"))) or attacker:IsWorld() and not (dmginfo:IsDamageType(DMG_DROWN) or (ply.IsGhost and ply:IsGhost())) then
-		Damagelog.SceneID = Damagelog.SceneID + 1
-		local scene = Damagelog.SceneID
-		Damagelog.SceneRounds[scene] = Damagelog.CurrentRound
-		local tbl = {
-			[1] = ply:GetDamagelogID(),
-			[2] = scene
-		}
-		if scene then
-			timer.Simple(0.6, function()
-				Damagelog.Death_Scenes[scene] = table.Copy(Damagelog.Records)
-			end)
+	
+	
+	if(IsValid(attacker)) then
+		local class = attacker:GetClass()
+		if ((((attacker:IsPlayer() and attacker == ply) or class == "prop_physics" or class == "func_physbox"))) or attacker:IsWorld() and not (dmginfo:IsDamageType(DMG_DROWN) or (ply.IsGhost and ply:IsGhost())) then
+			Damagelog.SceneID = Damagelog.SceneID + 1
+			local scene = Damagelog.SceneID
+			Damagelog.SceneRounds[scene] = Damagelog.CurrentRound
+			local tbl = {
+				[1] = ply:GetDamagelogID(),
+				[2] = scene
+			}
+			if scene then
+				timer.Simple(0.6, function()
+					Damagelog.Death_Scenes[scene] = table.Copy(Damagelog.Records)
+				end)
+			end
+			self.CallEvent(tbl)
+			ply.rdmInfo = {
+				time = Damagelog.Time,
+				round = Damagelog.CurrentRound,
+			}
+			ply.rdmSend = true
 		end
-		self.CallEvent(tbl)
-		ply.rdmInfo = {
-			time = Damagelog.Time,
-			round = Damagelog.CurrentRound,
-		}
-		ply.rdmSend = true
 	end
 end
 
