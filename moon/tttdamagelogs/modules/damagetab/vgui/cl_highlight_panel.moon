@@ -15,8 +15,7 @@ PANEL =
         @CreateHighlightButton!
         dmglog.HighlightedPlayers = {}
 
-
-    PaintOver: (w, h) =>
+    Paint: (w, h) =>
         surface.SetDrawColor(borderColor)
         surface.DrawLine(0, 0, w - 1, 0)
         surface.DrawLine(w - 1, 0, w - 1, h - 1)

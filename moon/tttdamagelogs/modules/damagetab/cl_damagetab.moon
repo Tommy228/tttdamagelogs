@@ -2,16 +2,21 @@ CreateGui = (tabs) ->
     
 
 hook.Add 'TTTDamagelogsMenuOpen', 'TTTDamagelogs_DamageTab', (tabs) ->
+
     damageTab = vgui.Create('DListLayout')
-    
+    damageTab.Paint = (w, h) =>
+        surface.SetDrawColor(Color(234, 234, 234))
+        surface.DrawRect(1, 1, w - 2, h - 2)
+
     selectionPanel = damageTab\Add('DamagelogSelectionPanel')
     
-    damagelogListView = damageTab\Add('DamagelogListView')
-    damagelogListView\SetHeight(415)
+    viewTabs = damageTab\Add('DamagelogViewTabs')
+    viewTabs\SetHeight(450)
+    viewTabs\Resize!
 
     LoadRound = (round) ->
         dmglog.AskRoundEvents round, (roundEvents) ->
-            damagelogListView\DisplayRoundEvents(roundEvents)
+            --damagelogListView\DisplayRoundEvents(roundEvents)
             selectionPanel.roles\SetRoundNumber(round)
             selectionPanel.roles\SetRoundPlayers(roundEvents.roundPlayers)
 

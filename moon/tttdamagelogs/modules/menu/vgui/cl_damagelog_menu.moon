@@ -8,7 +8,6 @@ PANEL =
 
         @SetTitle(dmglog.GetTranslation('menu_title'))
         @SetDraggable(true)
-        @SetKeyboardInputEnabled(false)
         
         @CreateTabs!
         hook.Run('TTTDamagelogsMenuOpen', @Tabs)

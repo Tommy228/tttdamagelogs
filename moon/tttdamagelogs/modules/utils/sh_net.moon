@@ -9,13 +9,13 @@ dmglog.net =
         steamIdInformationStart = #'STEAM_' + 1
         (steamId) ->
             if steamId == 'BOT'
-                net.WriteBit(1)
+                net.WriteBool(true)
             else
-                net.WriteBit(0)
+                net.WriteBool(false)
                 steamIdInformation = string.sub(steamId, steamIdInformationStart)
                 {universe, id, accountNumber} = string.Explode(':', steamIdInformation)
                 net.WriteUInt(tonumber(universe), 3)
-                net.WriteBool(id == '1')
+                net.WriteBit(id == '1')
                 net.WriteUInt(tonumber(accountNumber), 32)
 
     ReadSteamId: () ->

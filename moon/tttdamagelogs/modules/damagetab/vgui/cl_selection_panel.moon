@@ -1,18 +1,21 @@
 PANEL =
 
     Init: () =>
+        @panelHeight = 90
         @forms = {}
         @CreatePanelList!            
         @CreateRoundForm(true)
-        @CreateDamageInfoForm!
         @CreateRolesForm!
 
+    Paint: () =>
+        -- NO-OP
+
     AddForm: (expand = false, formCreator) =>
-        with form = formCreator!
-            \SetExpanded(expand)
-            @CreateFormToggleHook(form)
-            @panelList\AddItem(form)
-            table.insert(@forms, form)
+        form = formCreator!
+        form\SetExpanded(expand)
+        @CreateFormToggleHook(form)
+        @panelList\AddItem(form)
+        table.insert(@forms, form)
 
     CreateFormToggleHook: (form) =>
         oldFormToggle = form.Toggle 
@@ -33,7 +36,7 @@ PANEL =
         return true
 
     PerformLayout: (w, h) =>
-        @\SetSize(w, 195)
+        @\SetSize(w, 160)
         @panelList\StretchToParent(12, 5, 12, 0)
  
     CreatePanelList: () =>
@@ -45,7 +48,7 @@ PANEL =
             with roundForm = vgui.Create('DForm')
                 \SetName(dmglog.GetTranslation('round_selection'))
                 with roundFormPanel = vgui.Create('DPanel')
-                    \SetHeight(90)
+                    \SetHeight(@panelHeight)
                     .Paint = ->
                     with roundSelection = vgui.Create('DamagelogRoundSelection', roundFormPanel)
                         \SetSize(500, 22)
@@ -61,22 +64,12 @@ PANEL =
                         \SetPos(0, 30)
                     roundForm\AddItem(roundFormPanel)
 
-    CreateDamageInfoForm: (expand) =>
-        @AddForm expand, ->
-            damageInfoTitle = dmglog.GetTranslation('damage_information') 
-            with damageInfoForm = vgui.Create('DForm')
-                \SetName(damageInfoTitle)
-                with damageInformation = vgui.Create('DListView', damageInfoForm)
-                    \SetHeight(90)
-                    \AddColumn(damageInfoTitle)
-                    damageInfoForm\AddItem(damageInformation)
-
     CreateRolesForm: (expand) =>
         @AddForm expand, ->
             with rolesForm = vgui.Create('DForm')
                 \SetName(dmglog.GetTranslation('roles'))
                 with @roles = vgui.Create('DamagelogRolesView')
-                    \SetHeight(90)
+                    \SetHeight(@panelHeight)
                     rolesForm\AddItem(@roles)
                 with showInnocentRoles = vgui.Create('DCheckBoxLabel', rolesForm)
                     \SetPos(455, 3)

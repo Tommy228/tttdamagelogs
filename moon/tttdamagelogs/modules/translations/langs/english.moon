@@ -20,9 +20,6 @@
             no_players: 'No players'
             highlight_action: 'Highlight'
             
-            -- Damage information
-            damage_information: 'Damage information'
-
             -- Roles
             roles: 'Roles'
             show_innocent_roles: 'Show innocents players'
@@ -33,7 +30,11 @@
             disconnected: 'Disconnected'
             round_ended: 'Round ended'
 
-            -- Damagelog ListView
+            -- Damagelog View
+            round_events: 'Round events'
+            shot_logs: 'Shot logs'
+            search_placeholder: 'Search...'
+
             listview_time: 'Time'
             listview_type: 'Type'
             listview_event: 'Event'
