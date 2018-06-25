@@ -2,7 +2,7 @@ dmglog.INVALID_ROUNDPLAYER_ID = -1
 
 class dmglog.RoundPlayer
 
-    new: (name, steamId, onlyPlayedPreparation = false, role = ROLE_INNOCENT) =>
+    new: (name, steamId, role = ROLE_INNOCENT, onlyPlayedPreparation = false) =>
         @name = name
         @steamId = steamId
         @role = role
@@ -15,14 +15,14 @@ class dmglog.RoundPlayer
         net.WriteString(@name)
         dmglog.net.WriteSteamId(@steamId)
         net.WriteBool(@onlyPlayedPreparation)
-        net.WriteUInt(@role, 3)
+        net.WriteUInt(@role, 2)
 
     @Read: () ->
         name = net.ReadString!
         steamId = dmglog.net.ReadSteamId!
         onlyPlayedPreparation = net.ReadBool!
-        role = net.ReadUInt(3)
-        return dmglog.RoundPlayer(name, steamId, onlyPlayedPreparation, role)
+        role = net.ReadUInt(2)
+        return dmglog.RoundPlayer(name, steamId, role, onlyPlayedPreparation)
 
     @Create: (ply) ->
         return dmglog.RoundPlayer(ply\Name!, ply\SteamID!, ply\GetRole!)

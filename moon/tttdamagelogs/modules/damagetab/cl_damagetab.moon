@@ -1,6 +1,3 @@
-CreateGui = (tabs) ->
-    
-
 hook.Add 'TTTDamagelogsMenuOpen', 'TTTDamagelogs_DamageTab', (tabs) ->
 
     damageTab = vgui.Create('DListLayout')
@@ -16,11 +13,16 @@ hook.Add 'TTTDamagelogsMenuOpen', 'TTTDamagelogs_DamageTab', (tabs) ->
 
     LoadRound = (round) ->
         dmglog.AskRoundEvents round, (roundEvents) ->
-            --damagelogListView\DisplayRoundEvents(roundEvents)
+            if not IsValid(dmglog.Menu) return
+            viewTabs.dmglogs\DisplayRoundEvents(roundEvents)
             selectionPanel.roles\SetRoundNumber(round)
             selectionPanel.roles\SetRoundPlayers(roundEvents.roundPlayers)
 
-    damageTab.OnSelectedRoundChanged = LoadRound
+    UpdateView = () ->
+        viewTabs.dmglogs\Update!
+
+    selectionPanel.OnSelectedRoundChanged = LoadRound
+    selectionPanel.OnFiltersUpdated = UpdateView
 
     tabs\AddSheet(dmglog.GetTranslation('damagelog_tab_title'), damageTab, 'icon16/application_view_detail.png')
 

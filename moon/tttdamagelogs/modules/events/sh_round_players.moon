@@ -24,6 +24,13 @@ class dmglog.RoundPlayers
         for roundPlayer in *@list
             roundPlayer\Send!
 
+    UpdateForRoundBegin: () =>
+        for roundPlayer in *@list
+            ply = player.GetBySteamID(roundPlayer.steamId)
+            if IsValid(ply) and ply\IsActive!
+                roundPlayer.role = ply\GetRole!
+                roundPlayer.onlyPlayedPreparation = false
+
     @Read: () ->
         list = {}
         for i = 1, net.ReadUInt(16)

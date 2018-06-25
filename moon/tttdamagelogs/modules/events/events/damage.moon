@@ -1,6 +1,6 @@
 DamageEvent = do dmglog.RegisterEvent class extends dmglog.Event
 
-    new: (attackerId, targetId, damages, roundTime = false) =>
+    new: (attackerId, targetId, damages, roundTime = nil) => 
         super(roundTime)
         @SetDisplayedTypeKey('damage_event_type')
         @attackerId = attackerId
@@ -35,13 +35,18 @@ DamageEvent = do dmglog.RegisterEvent class extends dmglog.Event
         if not target\IsPlayer! return
         attacker = dmginfo\GetAttacker!
         if attacker == target or not attacker\IsPlayer! return
-        do
+        do 
             attackerId = attacker\GetDamagelogId!
             targetId = target\GetDamagelogId!
             damages = math.Round(dmginfo\GetDamage!)
             damageEvent = DamageEvent(attackerId, targetId, damages)
             dmglog.CallEvent(damageEvent)
 
+    @AddFilter 'non_team_damages', true, 'show_non_team_damages', (text, roundPlayers) =>
+        attackerInformation = roundPlayers\GetById(@attackerId)
+        targetInformation = roundPlayers\GetById(@targetId)
+        return dmglog.IsTeamkill(attackerInformation.role, targetInformation.role)
+        
 if SERVER and dmglog.DebugMode
 
     concommand.Add 'dmglog_debugdamage', (ply, cmd, args) ->

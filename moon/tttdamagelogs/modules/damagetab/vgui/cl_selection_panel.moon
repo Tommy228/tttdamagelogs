@@ -55,10 +55,12 @@ PANEL =
                         \SetPos(0, 0)
                         .OnSelect = () ->
                             @OnSelectedRoundChanged(roundSelection\GetSelectedRound!) if @OnSelectedRoundChanged
-                    with filters = vgui.Create('DButton', roundFormPanel)
+                    with filters = vgui.Create('DamagelogFiltersButton', roundFormPanel)
                         \SetSize(85, 22)
                         \SetPos(505, 0)
                         \SetText(dmglog.GetTranslation('filters'))
+                        .OnUpdate = (filters) ->
+                            @OnFiltersUpdated! if @OnFiltersUpdated
                     with highlightPanel = vgui.Create('DamagelogHighlightPanel', roundFormPanel)
                         \SetSize(590, 60)
                         \SetPos(0, 30)

@@ -7,10 +7,18 @@ PANEL =
         @AddColumn('')\SetFixedWidth(30)
 
     DisplayRoundEvents: (roundEvents) =>
-        for roundEvent in *roundEvents.eventsList
+        @roundEvents = roundEvents
+        @Update!
+
+    Update: () =>
+        if not @roundEvents return
+        @Clear!
+        roundPlayers = @roundEvents.roundPlayers
+        for roundEvent in *@roundEvents.eventsList
             displayedRoundTime = string.FormattedTime(roundEvent.roundTime, "%02i:%02i")
             displayedType = roundEvent.displayedType
-            text = roundEvent\ToString(roundEvents.roundPlayers)
+            text = roundEvent\ToString(roundPlayers)
+            if not roundEvent\ShouldBeDisplayed(text, roundPlayers) continue
             @AddLine(displayedRoundTime, displayedType, text)
 
 vgui.Register('DamagelogListView', PANEL, 'DListView')

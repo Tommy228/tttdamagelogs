@@ -20,6 +20,6 @@ class dmglog.RoundEvents
         eventsList = {}
         for i = 1, net.ReadUInt(32)
             id = net.ReadUInt(16)
-            event = dmglog.Events[id]
+            event = dmglog.events[id]
             table.insert(eventsList, event.__class.Read())
         return dmglog.RoundEvents(eventsList, roundPlayers)

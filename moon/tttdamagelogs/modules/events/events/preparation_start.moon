@@ -16,4 +16,4 @@ PreparationStartEvent = do dmglog.RegisterEvent class extends dmglog.Event
         return PreparationStartEvent(mapName)
 
     @AddServerHook 'TTTDamagelogsRoundCreated', (roundEvents) ->
-        dmglog.CallEvent(PreparationStartEvent!)
+        dmglog.CallEvent(PreparationStartEvent!) 

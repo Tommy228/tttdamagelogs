@@ -42,6 +42,7 @@
     -- Damage Event
     damage_event: '{attacker} [{attackerRole}] has damaged {target} [{targetRole}] for {damages} damages'
     damage_event_type: 'DMG'
+    show_non_team_damages: 'Show non-team damages'
 
     -- Preparation start event
     preparation_start_event: 'Round preparation has started on the map {mapName}'
