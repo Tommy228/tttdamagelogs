@@ -16,13 +16,9 @@
 
 dmglog.eventsHandler = dmglog.EventsHandler!
 
-hook.Add 'TTTPrepareRound', 'TTTDamagelogs_EventsHandlerRoundPreparation', () ->
+hook.Add 'TTTBeginRound', 'TTTDamagelogs_EventsHandlerNewRound', () ->
     roundEvents = dmglog.eventsHandler\NewRound!
     hook.Run('TTTDamagelogsRoundCreated', roundEvents)
-
-hook.Add 'TTTBeginRound', 'TTTDamagelogs_EventsHandlerNewRound', () ->
-    roundEvents = dmglog.eventsHandler\GetCurrentRound!
-    roundEvents.roundPlayers\UpdateForRoundBegin!
 
 hook.Add 'OnEntityCreated', 'TTTDamagelogs_EventsHandlerAddPlayer', (ent) ->
     if ent\IsPlayer!

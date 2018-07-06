@@ -45,12 +45,4 @@ DamageEvent = do dmglog.RegisterEvent class extends dmglog.Event
     @AddFilter 'non_team_damages', true, 'show_non_team_damages', (text, roundPlayers) =>
         attackerInformation = roundPlayers\GetById(@attackerId)
         targetInformation = roundPlayers\GetById(@targetId)
-        return dmglog.IsTeamkill(attackerInformation.role, targetInformation.role)
-        
-if SERVER and dmglog.DebugMode
-
-    concommand.Add 'dmglog_debugdamage', (ply, cmd, args) ->
-        dmglog.GetDebugBot (debugBot) ->
-            damages = args[0] and tonumber(args[0]) or 20
-            damageEvent = DamageEvent(debugBot\GetDamagelogId(), ply\GetDamagelogId(), math.Round(damages))
-            dmglog.CallEvent(damageEvent) 
+        return dmglog.IsTeamkill(attackerInformation.role, targetInformation.role)z

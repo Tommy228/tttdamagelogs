@@ -14,6 +14,7 @@ hook.Add 'TTTDamagelogsMenuOpen', 'TTTDamagelogs_DamageTab', (tabs) ->
     LoadRound = (round) ->
         dmglog.AskRoundEvents round, (roundEvents) ->
             if not IsValid(dmglog.Menu) return
+            dmglog.HighlightedPlayers = {}
             viewTabs.dmglogs\DisplayRoundEvents(roundEvents)
             selectionPanel.roles\SetRoundNumber(round)
             selectionPanel.roles\SetRoundPlayers(roundEvents.roundPlayers)
