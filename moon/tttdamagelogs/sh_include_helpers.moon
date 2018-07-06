@@ -1,13 +1,13 @@
 dmglog.IncludeSharedFile = (file) ->
-    include(file)
     AddCSLuaFile(file)
+    return include(file)
 
 dmglog.IncludeClientFile = (file) ->
-    include(file) if CLIENT
     AddCSLuaFile(file) if SERVER
+    return include(file) if CLIENT
 
 dmglog.IncludeServerFile = (file) ->
-    include(file) if SERVER
+    return include(file) if SERVER
 
 dmglog.IncludeModule = (name) ->
     initFilePath = "modules/#{name}/sh_init.lua"
