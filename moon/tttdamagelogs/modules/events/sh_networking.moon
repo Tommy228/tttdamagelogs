@@ -39,9 +39,3 @@ if CLIENT
         if callback
             callback(roundEvents)
             callbacks[callbackId] = nil
-
-    if dmglog.DebugMode
-
-        concommand.Add 'dmglog_askroundEvents', (ply, cmd, args) ->
-            dmglog.AskRoundEvents (args[0] and tonumber(args[0]) or dmglog.roundsCount), (roundEvents) ->
-                PrintTable(roundEvents)

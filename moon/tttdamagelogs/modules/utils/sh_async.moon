@@ -4,7 +4,6 @@ export class Promise
         @func = func
 
     start: () =>
-        print('starting!!!')
         baseCoroutine = coroutine.running!
         startFunc = () ->
             resolve = (...) ->
@@ -23,5 +22,4 @@ export async = (func) ->
         coroutine.resume(c)
 
 export await = (promise) ->
-    print('awaiting')
     return promise\start!
