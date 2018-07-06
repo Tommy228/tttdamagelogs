@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `damagelogs_players`
 (
-    `id`      INT(11) NOT NULL auto_increment,
+    `id`      INT NOT NULL AUTO_INCREMENT,
     `steamid` VARCHAR(25) NOT NULL,
     `name`    VARCHAR(40) NOT NULL,
     PRIMARY KEY (`id`),
@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS `damagelogs_players`
 
 CREATE TABLE IF NOT EXISTS `damagelogs_punish`
 (
-    `id`           INT(11) NOT NULL auto_increment,
-    `date`         BIGINT(20) NOT NULL,
-    `punishmentid` INT(11) NOT NULL,
-    `player`       VARCHAR(25) NOT NULL,
+    `id`           INT NOT NULL AUTO_INCREMENT,
+    `date`         BIGINT NOT NULL,
+    `punishmentid` INT NOT NULL,
+    `player`       INT NOT NULL,
     `reason`       TEXT NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`player`) REFERENCES damagelogs_players(id)
