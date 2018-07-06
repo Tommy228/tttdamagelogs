@@ -5,6 +5,7 @@ modules = {
     'utils'
     'debug'
     'menu'
+    'mysql'
     'damagetab'
     'translations'
     'events'
