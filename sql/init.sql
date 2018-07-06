@@ -17,3 +17,10 @@ CREATE TABLE IF NOT EXISTS `damagelogs_punish`
     PRIMARY KEY (`id`),
     FOREIGN KEY (`player`) REFERENCES damagelogs_players(id)
 );
+
+DROP PROCEDURE IF EXISTS player_exists;
+CREATE PROCEDURE player_exists
+  (IN in_steamid VARCHAR(25))
+BEGIN
+  SELECT EXISTS (SELECT 1 FROM damagelogs_players WHERE steamid = in_steamid LIMIT 1) AS PlayerExists;
+END;

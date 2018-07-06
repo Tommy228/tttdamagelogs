@@ -1,19 +1,16 @@
 require('mysqloo')
 
-mysql_config = dmglog.IncludeServerFile('sv_mysql_config.lua')
-
-db = mysqloo.connect(mysql_config.host, mysql_config.username, mysql_config.password, mysql_config.db_name, mysql_config.db_port)
-init_requests = file.Read('addons/tttdamagelogs/sql/init.sql', 'GAME')
-
-print(init_requests)
-
-onInitSuccess = ->
-    dmglog.db = db
-
-db.onConnected = (self) ->
-    query = db\query(init_requests)
-    query.onSuccess = onInitSuccess
+hook.Add 'TTTDamagelogsDatabaseConnected', 'TTTDamagelogs_InitRequest', () ->
+    initRequests = file.Read('addons/tttdamagelogs/sql/init.sql', 'GAME')
+    query = dmglog.db\query(initRequests)
     query\start!
-    
-db\setMultiStatements(true)
-db\connect!
+
+ConnectToDatabase = () ->
+    mysqlConfig = dmglog.IncludeServerFile('sv_mysql_config.lua')
+    with dmglog.db = mysqloo.connect(mysqlConfig.host, mysqlConfig.username, mysqlConfig.password, mysqlConfig.db_name, mysqlConfig.db_port)
+        \setMultiStatements(true)
+        .onConnected = () =>
+            hook.Run('TTTDamagelogsDatabaseConnected')
+        \connect!
+
+ConnectToDatabase!
