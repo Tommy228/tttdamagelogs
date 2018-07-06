@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS `damagelogs_punish`
     `player`       VARCHAR(25) NOT NULL,
     `reason`       TEXT NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `punishmentid` (`punishmentid`)
+    FOREIGN KEY (`player`) REFERENCES damagelogs_players(id)
 );
