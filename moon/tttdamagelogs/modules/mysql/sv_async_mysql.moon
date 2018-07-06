@@ -1,13 +1,9 @@
 dmglog.mysql = 
 
-    QueryAndGetData: (query) ->
-        print('returning promise')
+    Query: (query) ->
         return Promise (resolve) ->
-            print('promise start')
             query.onSuccess = () =>
-                print('success')
-                resolve(@getData!)
-            query.onError = (sql, err) =>
-                print('fail lol')
                 resolve(false)
+            query.onError = (sql, err) =>
+                resolve(true)
             query\start!
