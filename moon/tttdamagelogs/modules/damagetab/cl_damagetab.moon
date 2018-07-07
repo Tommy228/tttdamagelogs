@@ -11,12 +11,12 @@ hook.Add 'TTTDamagelogsMenuOpen', 'TTTDamagelogs_DamageTab', (tabs) ->
     viewTabs\SetHeight(450)
     viewTabs\Resize!
 
-    LoadRound = (round) ->
-        dmglog.AskRoundEvents round, (roundEvents) ->
-            if not IsValid(dmglog.Menu) return
-            viewTabs.dmglogs\DisplayRoundEvents(roundEvents)
-            selectionPanel.roles\SetRoundNumber(round)
-            selectionPanel.roles\SetRoundPlayers(roundEvents.roundPlayers)
+    LoadRound = async (round) ->
+        roundEvents = await dmglog.AskRoundEvents(round)
+        if not IsValid(dmglog.Menu) return
+        viewTabs.dmglogs\DisplayRoundEvents(roundEvents)
+        selectionPanel.roles\SetRoundNumber(round)
+        selectionPanel.roles\SetRoundPlayers(roundEvents.roundPlayers)
 
     UpdateView = () ->
         viewTabs.dmglogs\Update!

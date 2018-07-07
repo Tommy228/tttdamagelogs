@@ -1,41 +1,27 @@
 askRoundsEvent = dmglog.net.AddNetworkString('AskRoundEvents')
-sendRoundEvents = dmglog.net.AddNetworkString('SendRoundEvents')
 
 if SERVER
 
-    net.Receive askRoundsEvent, (length, ply) ->
-        callbackId = net.ReadUInt(5)
+    dmglog.net.ReceiveAsync askRoundsEvent, (length, ply) ->
         roundNumber = net.ReadUInt(8)
         roundEvents = dmglog.eventsHandler.roundEvents[roundNumber]
         if roundEvents
-            net.Start(sendRoundEvents)
-            net.WriteUInt(callbackId, 5)
-            roundEvents\Send!
-            net.Send(ply) 
+            return () ->
+                roundEvents\Send!
 
 if CLIENT
 
-    callbacks = {}
+    dmglog.AskRoundEvents = (roundNumber) ->
+        promise = Promise async (resolve, reject) ->
+            net.Start(askRoundsEvent)
+            net.WriteUInt(roundNumber, 8)
+            result = await dmglog.net.SendAsync()
+            roundEvents = dmglog.RoundEvents.Read!
+            resolve(roundEvents)
+        return promise
 
-    dmglog.AskRoundEvents = do
-        callbackId = 0
-        (roundNumber, callback) ->
-            do
-                if table.Count(callbacks) == 0
-                    callbackId = 1
-                else
-                    callbackId += 1
-                callbacks[callbackId] = callback
-            do
-                net.Start(askRoundsEvent)
-                net.WriteUInt(callbackId, 5)
-                net.WriteUInt(roundNumber, 8)
-                net.SendToServer!
+    if dmglog.DebugMode
 
-    net.Receive sendRoundEvents, (length) ->
-        callbackId = net.ReadUInt(5)
-        roundEvents = dmglog.RoundEvents.Read!
-        callback = callbacks[callbackId]
-        if callback
-            callback(roundEvents)
-            callbacks[callbackId] = nil
+        concommand.Add 'dmglog_askroundEvents', async (ply, cmd, args) ->
+            res = await dmglog.AskRoundEvents(args[0] and tonumber(args[0]) or dmglog.roundsCount)
+            print("result", res)

@@ -1,9 +1,9 @@
 dmglog.mysql = 
 
     Query: (query) ->
-        return Promise (resolve) ->
+        return Promise (resolve, reject) ->
             query.onSuccess = () =>
                 resolve(false)
             query.onError = (sql, err) =>
-                resolve(true)
+                reject(err)
             query\start!
