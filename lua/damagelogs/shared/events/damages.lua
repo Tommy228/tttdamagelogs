@@ -38,7 +38,7 @@ function event:PlayerTakeRealDamage(ent, dmginfo, original_dmg)
 				[5] = math.Round(original_dmg)
 			}
 			
-			if Damagelog:IsTeamkill(ent:GetRole(), att:GetRole()) then
+			if Damagelog:IsTeamkill(att, ent) then
 				tbl.icon = {"icon16/exclamation.png"}
 			elseif Damagelog.Time then
 				local found_dmg = false
@@ -116,7 +116,7 @@ function event:GetColor(tbl, roles)
 	local ent = Damagelog:InfoFromID(roles, tbl[1])
 	local att = Damagelog:InfoFromID(roles, tbl[2])
 	
-	if Damagelog:IsTeamkill(att.role, ent.role) then
+	if Damagelog:IsTeamkill(player.GetBySteamID64(att.steamid64), player.GetBySteamID64(ent.steamid64)) then
 		return Damagelog:GetColor("color_team_damages")
 	else
 		return Damagelog:GetColor("color_damages")

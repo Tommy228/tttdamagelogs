@@ -142,7 +142,7 @@ function Damagelog:AddLogsLine(listview, tbl, roles, nofilters, old)
 		end
 	end
 	
-	function item:PaintOver(w,h)
+	function item:PaintOver(w, h)
 		if not self:IsSelected() and infos:Highlight(item, tbl.infos, text) then
 			surface.SetDrawColor(color_what)
 			surface.DrawRect(0, 0, w, h)

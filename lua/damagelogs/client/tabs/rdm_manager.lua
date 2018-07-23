@@ -442,7 +442,7 @@ function PANEL:UpdateReport(index)
 		report.attacker_nick,
 		report.round or "?",
 		str,
-		report.adminReport and "N/A" or ""
+		report.adminReport and "N/A" or "",
 		self:GetStatus(report)
 	}
 

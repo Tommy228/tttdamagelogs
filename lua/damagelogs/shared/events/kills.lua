@@ -35,14 +35,17 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 		if GetRoundState() == ROUND_ACTIVE then
 			net.Start("DL_Ded")
 			
-			if attacker:GetRole() == ROLE_TRAITOR and (ply:GetRole() == ROLE_INNOCENT or ply:GetRole() == ROLE_DETECTIVE) then
-				net.WriteUInt(0,1)
+			if not ROLES and attacker:GetRole() == ROLE_TRAITOR and (ply:GetRole() == ROLE_INNOCENT or ply:GetRole() == ROLE_DETECTIVE) 
+			or ROLES and attacker:HasTeamRole(TEAM_TRAITOR) and not ply:HasTeamRole(TEAM_TRAITOR) 
+			then
+				net.WriteUInt(0, 1)
 			else
-				net.WriteUInt(1,1)
+				net.WriteUInt(1, 1)
 				net.WriteString(attacker:Nick())
 			end
 			
 			net.Send(ply)
+			
 			ply:SetNWEntity("DL_Killer", attacker)
 		end
 	end
@@ -74,7 +77,7 @@ function event:GetColor(tbl, roles)
 	local ent = Damagelog:InfoFromID(roles, tbl[1])
 	local att = Damagelog:InfoFromID(roles, tbl[2])
 	
-	if Damagelog:IsTeamkill(ent.role, att.role) then
+	if Damagelog:IsTeamkill(player.GetBySteamID64(att.steamid64), player.GetBySteamID64(ent.steamid64)) then
 		return Damagelog:GetColor("color_team_kills")
 	else
 		return Damagelog:GetColor("color_kills")

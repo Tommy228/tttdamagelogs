@@ -393,7 +393,8 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 					ply:SetCleanRound(false)
 					ply:SetNWBool("body_found", true)
 					
-					if ply:GetRole() == ROLE_TRAITOR then
+					if not ROLES and ply:GetRole() == ROLE_TRAITOR 
+					or ROLES and ply:HasTeamRole(TEAM_TRAITOR) then
 						SendConfirmedTraitors(GetInnocentFilter(false))
 					end
 					
@@ -418,98 +419,104 @@ end)
 
 if Damagelog.ULX_Autoslay_ForceRole then
 	hook.Add("Initialize", "Autoslay_ForceRole", function()
-		local function GetTraitorCount(ply_count)
-			local traitor_count = math.floor(ply_count * GetConVar("ttt_traitor_pct"):GetFloat())
-			traitor_count = math.Clamp(traitor_count, 1, GetConVar("ttt_traitor_max"):GetInt())
-			return traitor_count
-		end
-
-		local function GetDetectiveCount(ply_count)
-			if ply_count < GetConVar("ttt_detective_min_players"):GetInt() then 
-				return 0 
+		if not ROLES then
+			local function GetTraitorCount(ply_count)
+				local traitor_count = math.floor(ply_count * GetConVar("ttt_traitor_pct"):GetFloat())
+				traitor_count = math.Clamp(traitor_count, 1, GetConVar("ttt_traitor_max"):GetInt())
+				
+				return traitor_count
 			end
-			
-			local det_count = math.floor(ply_count * GetConVar("ttt_detective_pct"):GetFloat())
-			det_count = math.Clamp(det_count, 1, GetConVar("ttt_detective_max"):GetInt())
-			return det_count
-		end
 
-		function SelectRoles()
-			local choices = {}
-			local prev_roles = {
-				[ROLE_INNOCENT] = {},
-				[ROLE_TRAITOR] = {},
-				[ROLE_DETECTIVE] = {}
-			}
-			
-			if not GAMEMODE.LastRole then 
-				GAMEMODE.LastRole = {} 
-			end
-			
-			for _, v in ipairs(player.GetHumans()) do
-				if IsValid(v) and (not v:IsSpec()) and not (v.AutoslaysLeft and tonumber(v.AutoslaysLeft) > 0) then
-					local r = GAMEMODE.LastRole[v:SteamID()] or v:GetRole() or ROLE_INNOCENT
-					
-					table.insert(prev_roles[r], v)
-					table.insert(choices, v)
+			local function GetDetectiveCount(ply_count)
+				if ply_count < GetConVar("ttt_detective_min_players"):GetInt() then 
+					return 0 
 				end
 				
-				v:SetRole(ROLE_INNOCENT)
-			end
-			
-			local choice_count = #choices
-			local traitor_count = GetTraitorCount(choice_count)
-			local det_count = GetDetectiveCount(choice_count)
-			
-			if choice_count == 0 then return end
-			
-			local ts = 0
-			
-			while ts < traitor_count do
-				local pick = math.random(1, #choices)
-				local pply = choices[pick]
+				local det_count = math.floor(ply_count * GetConVar("ttt_detective_pct"):GetFloat())
+				det_count = math.Clamp(det_count, 1, GetConVar("ttt_detective_max"):GetInt())
 				
-				if IsValid(pply) and ((not table.HasValue(prev_roles[ROLE_TRAITOR], pply)) or (math.random(1, 3) == 2)) then
-					pply:SetRole(ROLE_TRAITOR)
-					
-					table.remove(choices, pick)
-					
-					ts = ts + 1
-				end
+				return det_count
 			end
-			
-			local ds = 0
-			local min_karma = GetConVar("ttt_detective_karma_min"):GetInt()
-			
-			while ds < det_count and #choices >= 1 do
-				if #choices <= (det_count - ds) then
-					for _, pply in pairs(choices) do
-						if IsValid(pply) then
-							pply:SetRole(ROLE_DETECTIVE)
+
+			function SelectRoles()
+				local choices = {}
+				local prev_roles = {
+					[ROLE_INNOCENT] = {},
+					[ROLE_TRAITOR] = {},
+					[ROLE_DETECTIVE] = {}
+				}
+				
+				if not GAMEMODE.LastRole then 
+					GAMEMODE.LastRole = {} 
+				end
+				
+				for _, v in ipairs(player.GetHumans()) do
+					if IsValid(v) and (not v:IsSpec()) and not (v.AutoslaysLeft and tonumber(v.AutoslaysLeft) > 0) then
+						local r = GAMEMODE.LastRole[v:SteamID()] or v:GetRole() or ROLE_INNOCENT
+						
+						table.insert(prev_roles[r], v)
+						table.insert(choices, v)
+					end
+					
+					v:SetRole(ROLE_INNOCENT)
+				end
+				
+				local choice_count = #choices
+				local traitor_count = GetTraitorCount(choice_count)
+				local det_count = GetDetectiveCount(choice_count)
+				
+				if choice_count == 0 then return end
+				
+				local ts = 0
+				
+				while ts < traitor_count do
+					local pick = math.random(1, #choices)
+					local pply = choices[pick]
+					
+					if IsValid(pply) and ((not table.HasValue(prev_roles[ROLE_TRAITOR], pply)) or (math.random(1, 3) == 2)) then
+						pply:SetRole(ROLE_TRAITOR)
+						
+						table.remove(choices, pick)
+						
+						ts = ts + 1
+					end
+				end
+				
+				local ds = 0
+				local min_karma = GetConVar("ttt_detective_karma_min"):GetInt()
+				
+				while ds < det_count and #choices >= 1 do
+					if #choices <= (det_count - ds) then
+						for _, pply in pairs(choices) do
+							if IsValid(pply) then
+								pply:SetRole(ROLE_DETECTIVE)
+							end
 						end
+						
+						break
 					end
 					
-					break
-				end
-				
-				local pick = math.random(1, #choices)
-				local pply = choices[pick]
-				
-				if IsValid(pply) and (pply:GetBaseKarma() > min_karma and table.HasValue(prev_roles[ROLE_INNOCENT], pply) or math.random(1, 3) == 2) then
-					if not pply:GetAvoidDetective() then
-						pply:SetRole(ROLE_DETECTIVE)
-						ds = ds + 1
-					end
+					local pick = math.random(1, #choices)
+					local pply = choices[pick]
 					
-					table.remove(choices, pick)
+					if IsValid(pply) and (pply:GetBaseKarma() > min_karma and table.HasValue(prev_roles[ROLE_INNOCENT], pply) or math.random(1, 3) == 2) then
+						if not pply:GetAvoidDetective() then
+							pply:SetRole(ROLE_DETECTIVE)
+							
+							ds = ds + 1
+						end
+						
+						table.remove(choices, pick)
+					end
 				end
-			end
-			
-			GAMEMODE.LastRole = {}
-			
-			for _, ply in ipairs(player.GetHumans()) do
-				ply:SetDefaultCredits()
-				GAMEMODE.LastRole[ply:SteamID()] = ply:GetRole()
+				
+				GAMEMODE.LastRole = {}
+				
+				for _, ply in ipairs(player.GetHumans()) do
+					ply:SetDefaultCredits()
+					
+					GAMEMODE.LastRole[ply:SteamID()] = ply:GetRole()
+				end
 			end
 		end
 	end)

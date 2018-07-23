@@ -139,27 +139,27 @@ function Damagelog:DrawOldLogs()
 								number_of_days = 28
 							end
 						else
-							number_of_days =  (m % 2 == 0) and 31 or 30
+							number_of_days = (m % 2 == 0) and 31 or 30
 						end
-					end
-					
-					for d = 1, number_of_days do
-						if Damagelog.OldLogsDays[year][m][d] then
-							local day = node_month:AddNode(tostring(d))
-							day.year = node_month.year
-							day.month = node_month.month
-							day.day = d
-							
-							day:SetForceShowExpander(true)
-							
-							day.old_SetExpanded = day.SetExpanded
-							
-							day.SetExpanded = function(pnl, expand, animation)
-								if expand then 
-									LoadLogs(day) 
-								end
+						
+						for d = 1, number_of_days do
+							if Damagelog.OldLogsDays[year][m][d] then
+								local day = node_month:AddNode(tostring(d))
+								day.year = node_month.year
+								day.month = node_month.month
+								day.day = d
 								
-								return pnl.old_SetExpanded(pnl, expand, animation)
+								day:SetForceShowExpander(true)
+								
+								day.old_SetExpanded = day.SetExpanded
+								
+								day.SetExpanded = function(pnl, expand, animation)
+									if expand then 
+										LoadLogs(day) 
+									end
+									
+									return pnl.old_SetExpanded(pnl, expand, animation)
+								end
 							end
 						end
 					end

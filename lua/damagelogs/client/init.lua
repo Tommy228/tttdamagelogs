@@ -87,10 +87,11 @@ function Damagelog:OpenMenu()
 	self.Menu:MakePopup()
 	self.Menu:SetKeyboardInputEnabled(false)
 	self.Menu:Center()
+	
 	self.Menu.AboutPos = 0
 	self.Menu.AboutPosMax = 35
 	self.Menu.AboutState = false
-
+	
 	self.Menu.About = function(self)
 		self.AboutState = not self.AboutState
 	end
@@ -202,14 +203,22 @@ hook.Add("Think", "Think_Damagelog", function()
 end)
 
 function Damagelog:StrRole(role)
-	if role == ROLE_TRAITOR then
-		return TTTLogTranslate(GetDMGLogLang, "traitor")
-	elseif role == ROLE_DETECTIVE then
-		return TTTLogTranslate(GetDMGLogLang, "detective")
-	elseif role == "disconnected" then
-		return TTTLogTranslate(GetDMGLogLang, "disconnected")
+	if not ROLES then
+		if role == ROLE_TRAITOR then
+			return TTTLogTranslate(GetDMGLogLang, "traitor")
+		elseif role == ROLE_DETECTIVE then
+			return TTTLogTranslate(GetDMGLogLang, "detective")
+		elseif role == "disconnected" then
+			return TTTLogTranslate(GetDMGLogLang, "disconnected")
+		else
+			return TTTLogTranslate(GetDMGLogLang, "innocent")
+		end
 	else
-		return TTTLogTranslate(GetDMGLogLang, "innocent")
+		if role == "disconnected" then
+			return TTTLogTranslate(GetDMGLogLang, "disconnected")
+		else
+			return TTTLogTranslate(GetDMGLogLang, GetRoleByIndex(role).name)
+		end
 	end
 end
 
