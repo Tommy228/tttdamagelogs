@@ -1,4 +1,4 @@
---[[ User rights.
+--[[User rights.
 
 	First argument: name of usergroup (e. g. "user" or "admin").
 
@@ -24,7 +24,7 @@ Damagelog:AddUser("user", 2, false)
 
 Damagelog.Key = KEY_F8
 
---[[ Is a message shown when an alive player opens the menu?
+--[[Is a message shown when an alive player opens the menu?
 	0 : if you want to only show it to superadmins
 	1 : to let others see that you have abusive admins
 ]]--
@@ -43,13 +43,13 @@ Damagelog.RDM_Manager_Command = "!report"
 
 Damagelog.Respond_Command = "!respond"
 
---[[ Set to true if you want to enable MySQL (it needs to be configured on config/mysqloo.lua)
+--[[Set to true if you want to enable MySQL (it needs to be configured on config/mysqloo.lua)
 	Setting it to false will make the logs use SQLite (garrysmod/sv.db)
 ]]--
 
 Damagelog.Use_MySQL = false
 
---[[ Autoslay and Autojail Mode
+--[[Autoslay and Autojail Mode
 REQUIRES ULX ! If you are using ServerGuard, set this to 0 (it will use ServerGuard's autoslay automatically)
 - 0 : Disables autoslay
 - 1 : Enables the !aslay and !aslayid command for ULX, designed to work with the logs.
