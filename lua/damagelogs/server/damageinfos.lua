@@ -18,7 +18,7 @@ function Damagelog:shootCallback(weapon)
 	
 	if GetRoundState() == ROUND_ACTIVE then
 		if not self.ShootTables[self.CurrentRound][self.Time] then
-			self.ShootTables[self.CurrentRound][self.Time] =  {}
+			self.ShootTables[self.CurrentRound][self.Time] = {}
 		end
 		
 		table.insert(self.ShootTables[self.CurrentRound][self.Time], info)
