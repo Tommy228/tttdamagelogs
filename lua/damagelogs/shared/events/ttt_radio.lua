@@ -1,3 +1,4 @@
+
 if SERVER then
 	Damagelog:EventHook("TTTPlayerRadioCommand")
 else
@@ -8,9 +9,11 @@ else
 end
 
 local event = {}
+
 event.Type = "RADIO"
 
 function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
+
 	local name
 	local name_role = false
 	local target_steamid = false
@@ -42,6 +45,7 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 end
 
 function event:ToString(v, roles)
+
 	-- copied localization from cl_voice.lua
 	local targetply = true
 	local param = v[3]
@@ -54,9 +58,8 @@ function event:ToString(v, roles)
 			param = LANG.GetTranslation(lang_param)
 		end
 	elseif LANG.GetRawTranslation(param) then
-		targetply = false
-		
-		param = LANG.GetTranslation(param)
+			targetply = false
+			param = LANG.GetTranslation(param)
 	end
 
 	local text = LANG.GetPTranslation(v[2], {player = param})
@@ -67,18 +70,15 @@ function event:ToString(v, roles)
 
 	local targetrole = ""
 	if targetply then
-		targetrole = " [" .. Damagelog:StrRole(v[4]) .. "]"
+		targetrole = " ["..Damagelog:StrRole(v[4]).."]"
 	end
-	
 	local ply = Damagelog:InfoFromID(roles, v[1])
-	
 	return string.format(TTTLogTranslate(GetDMGLogLang, "RadioUsed"), ply.nick, Damagelog:StrRole(ply.role), text, targetrole)
 end
 
 function event:IsAllowed(tbl, roles)
-	--local ply = Damagelog:InfoFromID(roles, tbl[1]) -- not needed!
-	
-	if tbl[2] ~= "quick_traitor" then
+	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	if tbl[2] != "quick_traitor" then
 		return Damagelog.filter_settings["filter_show_radiocommands"]
 	else
 		return Damagelog.filter_settings["filter_show_radiokos"]
@@ -89,14 +89,12 @@ function event:Highlight(line, tbl, text)
 	if table.HasValue(Damagelog.Highlighted, tbl[1]) or table.HasValue(Damagelog.Highlighted, tbl[5]) then
 		return true
 	end
-	
 	return false
 end
 
 function event:GetColor(tbl, roles)
-	--local ply = Damagelog:InfoFromID(roles, tbl[1]) -- not needed!
-	
-	if tbl[2] ~= "quick_traitor" then
+	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	if tbl[2] != "quick_traitor" then
 		return Damagelog:GetColor("color_defaultradio")
 	else
 		return Damagelog:GetColor("color_kosradio")
@@ -105,13 +103,11 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(true)
-	
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
-	
 	if not tbl[5] then
-		line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
+		line:ShowCopy(true, { ply.nick, util.SteamIDFrom64(ply.steamid64) })
 	else
-		line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)}, {tbl[3], tbl[5]})
+		line:ShowCopy(true,  { ply.nick, util.SteamIDFrom64(ply.steamid64) }, { tbl[3], tbl[5] })
 	end
 end
 

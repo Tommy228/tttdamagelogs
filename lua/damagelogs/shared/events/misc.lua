@@ -13,17 +13,15 @@ else
 end
 
 local event = {}
+
 event.Type = "MISC"
 
 function event:TTTToggleDisguiser(ply, state)
 	if ply.NoDisguise then return end
-	
 	local timername = "DisguiserTimer_"..tostring(ply:SteamID())
-	
 	if not timer.Exists(timername) then
 		ply.DisguiseUses = 1
 		ply.DisguiseTimer = 10
-		
 		timer.Create(timername, 1, 0, function()
 			if not IsValid(ply) then
 				timer.Remove(timername)
@@ -32,7 +30,6 @@ function event:TTTToggleDisguiser(ply, state)
 				if ply.DisguiseTimer <= 0 then
 					timer.Remove(timername)
 				end
-				
 				if ply.DisguiseUses > 6 then
 					ply.NoDisguise = true
 					self.CallEvent({
@@ -49,7 +46,6 @@ function event:TTTToggleDisguiser(ply, state)
 			ply.DisguiseTimer = ply.DisguiseTimer + 1
 		end
 	end
-	
 	self.CallEvent({
 		[1] = 1,
 		[2] = ply:GetDamagelogID(),
@@ -57,8 +53,9 @@ function event:TTTToggleDisguiser(ply, state)
 	})
 end
 
+
 function event:TTTBeginRound()
-	for _, v in ipairs(player.GetHumans()) do
+	for k,v in ipairs(player.GetHumans()) do
 		if v.NoDisguise then
 			v.NoDisguise = false
 		end
@@ -67,7 +64,6 @@ end
 
 function event:TTTTraitorButtonActivated(btn, ply)
 	if not IsValid(ply) or not ply:IsActive() then return end
-	
 	self.CallEvent({
 		[1] = 4,
 		[2] = ply:GetDamagelogID(),
@@ -77,7 +73,6 @@ end
 
 function event:TTTBoughtRoleT(ply)
 	if not IsValid(ply) or not ply:IsActive() then return end
-	
 	self.CallEvent({
 		[1] = 5,
 		[2] = ply:GetDamagelogID()
@@ -87,13 +82,11 @@ end
 function event:Initialize()
 	local weap = weapons.GetStored("weapon_ttt_teleport")
 	local old_func = weap.TakePrimaryAmmo
-	
 	weap.TakePrimaryAmmo = function(wep, count)
 		self.CallEvent({
 			[1] = 2,
 			[2] = wep.Owner:GetDamagelogID()
 		})
-		
 		if old_func then
 			return old_func(wep, count)
 		else
@@ -118,22 +111,10 @@ function event:ToString(v, roles)
 end
 
 function event:IsAllowed(tbl)
-	if (tbl[1] == 1 or tbl[1] == 3) and not Damagelog.filter_settings["filter_show_disguises"] then 
-		return false 
-	end
-	
-	if tbl[1] == 2 and not Damagelog.filter_settings["filter_show_teleports"] then 
-		return false 
-	end
-	
-	if tbl[1] == 4 and not Damagelog.filter_settings["filter_show_traps"] then 
-		return false 
-	end
-	
-	if tbl[1] == 5 and not Damagelog.filter_settings["filter_show_psroles"] then 
-		return false 
-	end
-	
+	if (tbl[1] == 1 or tbl[1] == 3) and not Damagelog.filter_settings["filter_show_disguises"] then return false end
+	if tbl[1] == 2 and not Damagelog.filter_settings["filter_show_teleports"] then return false end
+	if tbl[1] == 4 and not Damagelog.filter_settings["filter_show_traps"] then return false end
+	if tbl[1] == 5 and not Damagelog.filter_settings["filter_show_psroles"] then return false end
 	return true
 end
 
@@ -147,10 +128,8 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(true)
-	
 	local ply = Damagelog:InfoFromID(roles, tbl[2])
-	
-	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
+	line:ShowCopy(true, { ply.nick, util.SteamIDFrom64(ply.steamid64) })
 end
 
 Damagelog:AddEvent(event)

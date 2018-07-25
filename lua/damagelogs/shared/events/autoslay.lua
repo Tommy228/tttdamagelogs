@@ -36,9 +36,7 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(true)
-	
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
-	
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
 end
 

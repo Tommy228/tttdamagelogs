@@ -6,19 +6,18 @@ else
 end
 
 local event = {}
+
 event.Type = "NADE"
 
 function event:Initialize()
-	for _, v in pairs(weapons.GetList()) do
+	for k,v in pairs(weapons.GetList()) do
 		if v.Base == "weapon_tttbasegrenade" then
 			v.CreateGrenade = function(gren, src, ang, vel, angimp, ply)
 				local tbl = {
 					[1] = gren.Owner:GetDamagelogID(),
 					[2] = gren:GetClass()
 				}
-				
 				self.CallEvent(tbl)
-				
 				return gren.BaseClass.CreateGrenade(gren, src, ang, vel, angimp, ply)
 			end
 		end
@@ -28,7 +27,6 @@ end
 function event:ToString(v, roles)
 	local weapon = Damagelog:GetWeaponName(v[2]) or tostring(v[2])
 	local ply = Damagelog:InfoFromID(roles, v[1])
-	
 	return string.format(TTTLogTranslate(GetDMGLogLang, "NadeThrown"), ply.nick, Damagelog:StrRole(ply.role), weapon)
 end
 
@@ -46,10 +44,8 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(true)
-	
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
-	
-	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
+	line:ShowCopy(true, { ply.nick, util.SteamIDFrom64(ply.steamid64) })
 end
 
 Damagelog:AddEvent(event)

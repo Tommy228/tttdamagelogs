@@ -6,41 +6,34 @@ else
 end
 
 local event = {}
+
 event.Type = "DRN"
 
 function event:DoPlayerDeath(ply, attacker, dmginfo)
 	if attacker:IsWorld() and dmginfo:IsDamageType(DMG_DROWN) and not (ply.IsGhost and ply:IsGhost()) then
 		Damagelog.SceneID = Damagelog.SceneID + 1
-		
 		local scene = Damagelog.SceneID
-		
 		Damagelog.SceneRounds[scene] = Damagelog.CurrentRound
-		
 		local tbl = {
 			[1] = ply:GetDamagelogID(),
 			[2] = scene
 		}
-		
 		if scene then
 			timer.Simple(0.6, function()
 				Damagelog.Death_Scenes[scene] = table.Copy(Damagelog.Records)
 			end)
 		end
-		
 		self.CallEvent(tbl)
-		
 		ply.rdmInfo = {
 			time = Damagelog.Time,
 			round = Damagelog.CurrentRound,
 		}
-		
 		ply.rdmSend = true
 	end
 end
 
 function event:ToString(v, roles)
 	local info = Damagelog:InfoFromID(roles, v[1])
-	
 	return string.format(TTTLogTranslate(GetDMGLogLang, "PlayerDrowned"), info.nick, Damagelog:StrRole(info.role))
 end
 
@@ -58,10 +51,8 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(false)
-	
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
-	
-	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
+	line:ShowCopy(true, { ply.nick, util.SteamIDFrom64(ply.steamid64) })
 	line:ShowDeathScene(tbl[1], tbl[1], tbl[2])
 end
 

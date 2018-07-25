@@ -17,7 +17,6 @@
 	if SERVER then
 		AddCSLuaFile()
 		AddCSLuaFile("damagelogs/client/init.lua")
-        
 		include("damagelogs/server/init.lua")
 	else
 		include("damagelogs/client/init.lua")

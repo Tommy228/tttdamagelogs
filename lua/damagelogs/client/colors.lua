@@ -1,5 +1,6 @@
 if file.Exists("damagelog/colors_v3.txt", "DATA") and not Damagelog.colors then
 	local colors = file.Read("damagelog/colors_v3.txt", "DATA")
+
 	if colors then
 		Damagelog.colors = util.JSONToTable(colors)
 	end
