@@ -147,7 +147,7 @@ if CLIENT then
 		local list = net.ReadString()
 		local reason = net.ReadString()
 		local _time = net.ReadString()
-		if not IsValid(ply) or not list or not reason or not _time then return end
+		if not IsValid(ply) or not ply:IsPlayer() or not list or not reason or not _time then return end
 		local text = aslay and " has been autoslain by " or " has been autojailed by "
 		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, text, color_lightblue, list.." ", color_white, _time.." ago with the reason: '"..reason.."'.")
 	end)
@@ -155,7 +155,7 @@ if CLIENT then
 	net.Receive("DL_AutoSlaysLeft", function()
 		local ply = net.ReadEntity()
 		local slays = net.ReadUInt(32)
-		if not IsValid(ply) or not slays then return end
+		if not IsValid(ply) or not ply:IsPlayer() or not slays then return end
 		ply.AutoslaysLeft = slays
 	end)
 

@@ -514,7 +514,7 @@ net.Receive("DL_BroadcastMessage", function()
 	local color = net.ReadColor()
 	local message = net.ReadString()
 
-	if not id or not IsValid(ply) or not color or not message then return end
+	if not id or not IsValid(ply) or not ply:IsPlayer() or not color or not message then return end
 
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
@@ -554,7 +554,7 @@ net.Receive("DL_OpenChat", function()
 
 	end
 
-	if not report or not IsValid(admin) or not IsValid(victim) or not IsValid(attacker) then return end
+	if not report or not IsValid(admin) or not admin:IsPlayer() or not IsValid(victim) or not victim:IsPlayer() or not IsValid(attacker) or not attacker:IsPlayer() then return end
 
 	Damagelog:StartChat(report, { admin }, victim, attacker, players, history, adminReport)
 
@@ -593,7 +593,7 @@ net.Receive("DL_JoinChatCL", function()
 		local category = net.ReadUInt(32)
 
 		local chat = Damagelog.CurrentChats[id]
-		if not chat then return end
+		if not chat or not IsValid(ply) or not ply:IsPlayer() then return end
 
 		chat:AddPlayer(ply, category)
 
@@ -659,6 +659,7 @@ net.Receive("DL_StopChat", function()
 		msg = TTTLogTranslate(GetDMGLogLang, "AdminsDisconnectedChat")
 	else
 		local admin = net.ReadEntity()
+		if not IsValid(admin) or not admin:IsPlayer() then return end
 		msg = string.format(TTTLogTranslate(GetDMGLogLang, "ChatClosedBy"), admin:Nick())
 	end
 
@@ -679,6 +680,7 @@ net.Receive("DL_LeaveChatCL", function()
 
 	local id = net.ReadUInt(32)
 	local leaver = net.ReadEntity()
+	if not IsValid(leaver) or not leaver:IsPlayer() then return end
 
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then
@@ -725,9 +727,11 @@ net.Receive("DL_ForceStayNotification", function()
 	local ply
 	if not allPlayers then
 		ply = net.ReadEntity()
+		if not IsValid(ply) or not ply:IsPlayer() then return end
 	end
 	local forced = net.ReadUInt(1) == 1
 	local admin = net.ReadEntity()
+	if not IsValid(admin) or not admin:IsPlayer() then return end
 
 	for k,v in pairs(Damagelog.CurrentChats) do
 		if v.RID == id then

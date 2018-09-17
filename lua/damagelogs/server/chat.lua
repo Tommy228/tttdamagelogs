@@ -261,7 +261,7 @@ net.Receive("DL_AddChatPlayer", function(_len, ply)
 	local id = net.ReadUInt(32)
 	local to_add = net.ReadEntity()
 
-	if not ply:CanUseRDMManager() then return end
+	if not ply:CanUseRDMManager() or not IsValid(to_add) or not to_add:IsPlayer() then return end
 
 	local report = Damagelog.Reports.Current[id]
 	if not report then return end
@@ -276,8 +276,7 @@ net.Receive("DL_CloseChat", function(_len, ply)
 
 	local id = net.ReadUInt(32)
 	local to_add = net.ReadEntity()
-
-	if not ply:CanUseRDMManager() then return end
+	if not ply:CanUseRDMManager() or not IsValid(to_add) or not to_add:IsPlayer() then return end
 
 	local report = Damagelog.Reports.Current[id]
 	if not report then return end
