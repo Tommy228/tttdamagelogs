@@ -301,7 +301,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 		reportType = DAMAGELOG_REPORT_STANDARD
 	end
 
-	message = string_gsub(string_gsub(message, "[^%g\128-\191\194-\197\208-\210]+", ""), "%s+", " ")
+	message = string_gsub(string_gsub(message, "[^%g\128-\191\194-\197\208-\210 ]+", ""), "%s+", " ")
 
 	local adminOnline = true
 
@@ -613,7 +613,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 
 	if tbl.response then return end
 
-	text = string_gsub(string_gsub(text, "[^%g\128-\191\194-\197\208-\210]+", ""), "%s+", " ")
+	text = string_gsub(string_gsub(text, "[^%g\128-\191\194-\197\208-\210 ]+", ""), "%s+", " ")
 
 	tbl.response = text
 
