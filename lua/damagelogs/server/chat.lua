@@ -26,15 +26,15 @@ Damagelog.ChatHistory = Damagelog.ChatHistory or {}
 
 local function GetFilter(chat, block)
 	local filter = {}
-	
+
 	if IsValid(chat.victim) and chat.victim ~= block then
 		table.insert(filter, chat.victim)
 	end
-	
+
 	if IsValid(chat.attacker) and chat.attacker ~= block then
 		table.insert(filter, chat.attacker)
 	end
-	
+
 	local function process(tbl)
 		for _, v in pairs(tbl) do
 			if v ~= block and IsValid(v) then
@@ -42,10 +42,10 @@ local function GetFilter(chat, block)
 			end
 		end
 	end
-	
+
 	process(chat.players)
 	process(chat.admins)
-	
+
 	return filter
 end
 
@@ -59,7 +59,7 @@ local function IsAllowed(ply, chat)
 	elseif table.HasValue(chat.players, ply) then
 		return true, COLOR_OTHER
 	end
-	
+
 	return false
 end
 
@@ -87,14 +87,14 @@ net.Receive("DL_StartChat", function(_len, ply)
 
 	if not IsValid(victim) or not IsValid(attacker) then
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "VictimReportedDisconnected"), 5, "buttons/weapon_cant_buy.wav")
-		
+
 		return
 	end
 
 	for k, v in pairs(Damagelog.Reports.Current) do
 		if v.chat_open and k == report_index then
 			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ChatAlready"), 5, "buttons/weapon_cant_buy.wav")
-			
+
 			return
 		end
 	end
@@ -123,25 +123,25 @@ net.Receive("DL_StartChat", function(_len, ply)
 	net.WriteEntity(victim)
 	net.WriteEntity(attacker)
 	net.WriteTable(report.chat_open.players)
-	
+
 	if history then
 		net.WriteUInt(1, 1)
-	
+
 		local json = util.TableToJSON(history)
 		local compressed = util.Compress(json)
-		
+
 		net.WriteUInt(#compressed, 32)
 		net.WriteData(compressed, #compressed)
 	else
 		net.WriteUInt(0, 1)
 	end
-	
+
 	net.Send(GetFilter(report.chat_open))
 
 	for _, v in ipairs(player.GetHumans()) do
 		if v:CanUseRDMManager() then
 			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string.format(TTTLogTranslate(ply.DMGLogLang, "OpenChatNotification"), ply:Nick(), report_index), 5, "")
-			
+
 			v:UpdateReport(false, report_index)
 		end
 	end
@@ -158,10 +158,10 @@ local function AddToChat(id, report, ply)
 
 	if ply:CanUseRDMManager() and not table.HasValue(report.chat_open.admins, ply) then
 		table.insert(report.chat_open.admins, ply)
-		
+
 		category = DAMAGELOG_ADMIN
 	end
-	
+
 	if ply:SteamID() == report.victim then
 		report.chat_open.victim = ply
 		category = DAMAGELOG_VICTIM
@@ -170,7 +170,7 @@ local function AddToChat(id, report, ply)
 		category = DAMAGELOG_REPORTED
 	elseif not table.HasValue(report.chat_open.admins, ply) and not table.HasValue(report.chat_open.players, ply) then
 		table.insert(report.chat_open.players, ply)
-		
+
 		category = DAMAGELOG_OTHER
 	end
 
@@ -241,15 +241,15 @@ hook.Add("PlayerDisconnected", "Damagelog_Chat", function(ply)
 		if v.chat_open then
 			if table.HasValue(v.admins, ply) then
 				table.RemoveByValue(v.admins, ply)
-				
+
 				if #v.admins == 1 then
 					net.Start("DL_StopChat")
 					net.WriteUInt(k, 32)
 					net.WriteUInt(0, 1)
 					net.Send(GetFilter(v.chat_open))
-					
+
 					v.chat_open = false
-					
+
 					for _, v2 in ipairs(player.GetHumans()) do
 						if v2:CanUseRDMManager() then
 							v2:UpdateReport(false, id)
@@ -257,7 +257,7 @@ hook.Add("PlayerDisconnected", "Damagelog_Chat", function(ply)
 					end
 				end
 			end
-			
+
 			if table.HasValue(v.players, ply) then
 				table.RemoveByValue(v.players, ply)
 			end
@@ -269,7 +269,7 @@ net.Receive("DL_AddChatPlayer", function(_len, ply)
 	local id = net.ReadUInt(32)
 	local to_add = net.ReadEntity()
 
-	if not ply:CanUseRDMManager() then return end
+	if not ply:CanUseRDMManager() or not IsValid(to_add) or not to_add:IsPlayer() then return end
 
 	local report = Damagelog.Reports.Current[id]
 	if not report then return end
@@ -283,7 +283,7 @@ net.Receive("DL_CloseChat", function(_len, ply)
 	local id = net.ReadUInt(32)
 	local to_add = net.ReadEntity()
 
-	if not ply:CanUseRDMManager() then return end
+	if not ply:CanUseRDMManager() or not IsValid(to_add) or not to_add:IsPlayer() then return end
 
 	local report = Damagelog.Reports.Current[id]
 	if not report then return end
@@ -294,7 +294,7 @@ net.Receive("DL_CloseChat", function(_len, ply)
 		net.WriteUInt(1, 1)
 		net.WriteEntity(ply)
 		net.Send(GetFilter(report.chat_open))
-		
+
 		report.chat_previousPlayers = table.Copy(report.players)
 		report.chat_open = false
 	end
@@ -317,11 +317,11 @@ net.Receive("DL_LeaveChat", function(_len, ply)
 
 	if report.chat_open then
 		if #report.chat_open.admins <= 1 then return end
-		
+
 		for k, v in pairs(report.chat_open.admins) do
 			if v == ply then
 				table.remove(report.chat_open.admins, k)
-				
+
 				break
 			end
 		end
@@ -337,9 +337,9 @@ net.Receive("DL_ForceStay", function(_len, ply)
 	local id = net.ReadUInt(32)
 
 	local allPlayers = net.ReadUInt(1) == 1
-	
+
 	local players
-	
+
 	if not allPlayers then
 		players = {net.ReadEntity()}
 	end
@@ -355,7 +355,7 @@ net.Receive("DL_ForceStay", function(_len, ply)
 
 	for _, v in pairs(players) do
 		v:SetNWInt("DL_ForcedStay", id)
-		
+
 		net.Start("DL_ForcePlayerStay")
 		net.WriteUInt(id, 32)
 		net.Send(v)
@@ -364,11 +364,11 @@ net.Receive("DL_ForceStay", function(_len, ply)
 	net.Start("DL_ForceStayNotification")
 	net.WriteUInt(id, 32)
 	net.WriteUInt(allPlayers and 1 or 0, 1)
-	
+
 	if not allPlayers then
 		net.WriteEntity(players[1])
 	end
-	
+
 	net.WriteUInt(1, 1)
 	net.WriteEntity(ply)
 	net.Send(GetFilter(report.chat_open))
@@ -378,9 +378,9 @@ net.Receive("DL_Release", function(_len, ply)
 	local id = net.ReadUInt(32)
 
 	local allPlayers = net.ReadUInt(1) == 1
-	
+
 	local players
-	
+
 	if not allPlayers then
 		players = {net.ReadEntity()}
 	end
@@ -396,7 +396,7 @@ net.Receive("DL_Release", function(_len, ply)
 
 	for _, v in pairs(players) do
 		v:SetNWInt("DL_ForcedStay", -1)
-		
+
 		net.Start("DL_ReleaseCL")
 		net.WriteUInt(id, 32)
 		net.Send(v)
@@ -405,11 +405,11 @@ net.Receive("DL_Release", function(_len, ply)
 	net.Start("DL_ForceStayNotification")
 	net.WriteUInt(id, 32)
 	net.WriteUInt(allPlayers and 1 or 0, 1)
-	
+
 	if not allPlayers then
 		net.WriteEntity(players[1])
 	end
-	
+
 	net.WriteUInt(0, 1)
 	net.WriteEntity(ply)
 	net.Send(GetFilter(report.chat_open))
@@ -427,10 +427,10 @@ net.Receive("DL_ViewChat", function(_len, ply)
 
 	net.Start("DL_ViewChatCL")
 	net.WriteUInt(id, 32)
-	
+
 	local json = util.TableToJSON(history)
 	local compressed = util.Compress(json)
-	
+
 	net.WriteUInt(#compressed, 32)
 	net.WriteData(compressed, #compressed)
 	net.Send(ply)
