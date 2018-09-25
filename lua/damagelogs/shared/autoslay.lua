@@ -160,7 +160,9 @@ if CLIENT then
 		local reason = net.ReadString()
 		local _time = net.ReadString()
 
+
 		if not IsValid(ply) or not ply:IsPlayer() or not list or not reason or not _time then return end
+
 
 		local text = aslay and " has been autoslain by " or " has been autojailed by "
 
@@ -171,7 +173,7 @@ if CLIENT then
 		local ply = net.ReadEntity()
 		local slays = net.ReadUInt(32)
 
-		if not IsValid(ply) or not slays then return end
+		if not IsValid(ply) or not ply:IsPlayer() or not slays then return end
 
 		ply.AutoslaysLeft = slays
 	end)

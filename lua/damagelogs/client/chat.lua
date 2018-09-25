@@ -531,7 +531,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 			end
 
 			Chat.RichText = RichText
-
+  
 			Sheet:AddSheet("Chatbox", ChatBox, "icon16/application_view_list.png")
 
 			local TextEntry = vgui.Create("DTextEntry", ChatBox)
@@ -727,6 +727,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 		elseif pressed_key and not input.IsMouseDown(MOUSE_LEFT) then
 			pressed_key = false
 
+
 			vgui.GetWorldPanel():SetCursor("arrow")
 		end
 	end)
@@ -737,10 +738,12 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 
 		local msg
 
+
 		if not forced then
 			msg = TTTLogTranslate(GetDMGLogLang, "AdminsDisconnectedChat")
 		else
 			local admin = net.ReadEntity()
+
 
 			if not IsValid(admin) or not admin:IsPlayer() then return end
 
@@ -820,6 +823,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 			if v.RID == id then
 				local players = allPlayers and TTTLogTranslate(GetDMGLogLang, "AllPlayersShort") or ply:Nick()
 
+
 				if forced then
 					v:AddMessage(string.format(TTTLogTranslate(GetDMGLogLang, "ForcedNotification"), admin:Nick(), players))
 				else
@@ -827,6 +831,7 @@ function Damagelog:StartChat(report, admins, victim, attacker, players, history,
 				end
 
 				break
+
 			end
 		end
 	end)

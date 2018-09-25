@@ -850,6 +850,7 @@ Damagelog.ReportsInfo:ViewLogs(tbl)
 end)
 
 net.Receive("DL_AllowReport", function()
+
 local found = net.ReadBool()
 local got_deathLogs = net.ReadUInt(1) == 1
 local deathLogs = got_deathLogs and net.ReadTable() or false
@@ -862,6 +863,7 @@ local playerCount = net.ReadUInt(8)
 for i = 1, playerCount do
 	local ply = net.ReadEntity()
 	if not IsValid(ply) or not ply:IsPlayer() then continue end
+
 
 	dnas[ply] = net.ReadUInt(1) == 1
 end
