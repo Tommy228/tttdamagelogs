@@ -4,7 +4,7 @@ local function CreateCommand()
 	local mode = Damagelog.ULX_AutoslayMode
 
 	if mode ~= 1 and mode ~= 2 then return end
-	
+
 	local aslay = mode == 1
 
 	function ulx.autoslay(calling_ply, target, rounds, reason)
@@ -16,11 +16,11 @@ local function CreateCommand()
 			for _, v in ipairs(player.GetHumans()) do
 				if v:SteamID() == target then
 					ulx.autoslay(calling_ply, v, rounds, reason)
-					
+
 					return
 				end
 			end
-			
+
 			Damagelog:SetSlays(calling_ply, target, rounds, reason, false)
 		else
 			ULib.tsayError(calling_ply, "Invalid steamid.", true)
@@ -31,11 +31,11 @@ local function CreateCommand()
 		local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '" .. target:SteamID() .. "' LIMIT 1")
 		local txt = aslay and "slays" or "jails"
 		local p = "has"
-		
+
 		if calling_ply == target then
 			p = "have"
 		end
-		
+
 		if data then
 			ulx.fancyLogAdmin(admin, "#T " .. p .. " " .. data.slays .. " " .. txt .. " left with the reason : #s", target, data.reason)
 		else
@@ -46,13 +46,13 @@ local function CreateCommand()
 	function ulx.cslaysid(calling_ply, steamid)
 		if not ULib.isValidSteamID(steamid) then
 			ULib.tsayError(calling_ply, "Invalid steamid.", true)
-			
+
 			return
 		end
-		
+
 		local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '" .. steamid .. "' LIMIT 1")
 		local txt = aslay and "slays" or "jails"
-		
+
 		if data then
 			ulx.fancyLogAdmin(admin, "#s has " .. data.slays .. " " .. txt .. " left with the reason : #s", steamid, data.reason)
 		else
@@ -78,21 +78,21 @@ local function CreateCommand()
 		ULib.cmds.takeRestOfLine
 	})
 	autoslay:defaultAccess(ULib.ACCESS_ADMIN)
-	
+
 	local help
-	
+
 	if aslay then
 		help = "Slays the target for a specified number of rounds. Set the rounds to 0 to cancel the slay."
 	else
 		help = "Jails the target for a specified number of rounds. Set the rounds to 0 to cancel the jails."
 	end
-	
+
 	autoslay:help(help)
 
 	local autoslayid = ulx.command("TTT", aslay and "ulx aslayid" or "ulx ajailid", ulx.autoslayid, aslay and "!aslayid" or "!ajailid")
 	autoslayid:addParam({
 		type = ULib.cmds.StringArg,
-		hint ="steamid"
+		hint = "steamid"
 	})
 	autoslayid:addParam({
 		type = ULib.cmds.NumArg,
@@ -110,13 +110,13 @@ local function CreateCommand()
 		ULib.cmds.takeRestOfLine
 	})
 	autoslayid:defaultAccess(ULib.ACCESS_ADMIN)
-	
+
 	if aslay then
 		help = "Slays the steamid for a specified number of rounds. Set the rounds to 0 to cancel the slay."
 	else
 		help = "Jails the steamid for a specified number of rounds. Set the rounds to 0 to cancel the jails."
 	end
-	
+
 	autoslayid:help(help)
 
 	local cslays = ulx.command("TTT", aslay and "ulx cslays" or "ulx cjails", ulx.cslays, aslay and "!cslays" or "!cjails")
@@ -135,7 +135,7 @@ hook.Add("ShouldCollide", "ShouldCollide_Ghost", function(ent1, ent2)
 		if ent1:IsPlayer() and not ent1.jail and ent2.jailWall then
 			return false
 		end
-		
+
 		if ent2:IsPlayer() and not ent2.jail and ent1.jailWall then
 			return false
 		end
@@ -149,9 +149,9 @@ if CLIENT then
 	local aslay = mode == 1
 
 	function Damagelog.SlayMessage()
-		chat.AddText(Color(255,128,0), "[Autoslay] ", Color(255,128,64), net.ReadString())
+		chat.AddText(Color(255, 128, 0), "[Autoslay] ", Color(255, 128, 64), net.ReadString())
 	end
-	
+
 	net.Receive("DL_SlayMessage", Damagelog.SlayMessage)
 
 	net.Receive("DL_AutoSlay", function()
@@ -159,20 +159,20 @@ if CLIENT then
 		local list = net.ReadString()
 		local reason = net.ReadString()
 		local _time = net.ReadString()
-		
-		if not IsValid(ply) or not list or not reason or not _time then return end
-		
+
+		if not IsValid(ply) or not ply:IsPlayer() or not list or not reason or not _time then return end
+
 		local text = aslay and " has been autoslain by " or " has been autojailed by "
-		
+
 		chat.AddText(Color(255, 62, 62), ply:Nick(), color_white, text, color_lightblue, list .. " ", color_white, _time .. " ago with the reason: '" .. reason .. "'.")
 	end)
 
 	net.Receive("DL_AutoSlaysLeft", function()
 		local ply = net.ReadEntity()
 		local slays = net.ReadUInt(32)
-		
+
 		if not IsValid(ply) or not slays then return end
-		
+
 		ply.AutoslaysLeft = slays
 	end)
 
@@ -180,52 +180,52 @@ if CLIENT then
 		local nick = net.ReadString()
 		local steamid = net.ReadString()
 		local slays = net.ReadUInt(32)
-		
+
 		if not nick or not steamid or not slays then return end
-		
+
 		local auto = aslay and " autoslay" or " autojail"
-		
-		chat.AddText(Color(255,62,62), nick .. "(" .. steamid .. ") has disconnected with " .. slays .. auto .. (slays > 1 and "s" or "") .. " left!")
+
+		chat.AddText(Color(255, 62, 62), nick .. "(" .. steamid .. ") has disconnected with " .. slays .. auto .. (slays > 1 and "s" or "") .. " left!")
 	end)
 
 	local ents = {}
-	
+
 	net.Receive("DL_SendJails", function()
 		local count = net.ReadUInt(32)
 		local walls = {}
-		
+
 		for i = 1, count do
 			table.insert(walls, net.ReadEntity())
 		end
-		
+
 		for _, v in pairs(walls) do
 			table.insert(ents, v)
 		end
 	end)
-	
+
 	hook.Add("Think", "JailWalls", function()
 		local function CheckWalls()
 			local found = false
-			
+
 			for k, v in pairs(ents) do
 				if IsValid(v) then
 					v:SetCustomCollisionCheck(true)
-					
+
 					v.jailWall = true
-					
+
 					table.remove(ents, k)
-					
+
 					found = true
-					
+
 					break
 				end
 			end
-			
+
 			if found then
 				CheckWalls()
 			end
 		end
-		
+
 		CheckWalls()
 	end)
 end
