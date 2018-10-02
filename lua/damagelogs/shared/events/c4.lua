@@ -11,7 +11,6 @@ else
 end
 
 local event = {}
-
 event.Type = "C4"
 
 function event:TTTC4Arm(bomb, ply)
@@ -58,6 +57,7 @@ end
 function event:TTTC4Explode(bomb)
 	local owner = bomb:GetOwner()
 	local ownervalid = IsValid(owner)
+	
 	self.CallEvent({
 		[1] = 6,
 		[2] = ownervalid and owner:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"),
@@ -66,10 +66,11 @@ function event:TTTC4Explode(bomb)
 end
 
 function event:Initialize()
-	for k,v in pairs(weapons.GetList()) do
+	for _, v in pairs(weapons.GetList()) do
 		if v.ClassName == "weapon_ttt_c4" then
 			local old_stick = v.BombStick
 			local old_drop = v.BombDrop
+			
 			local function LogC4(bomb)
 				event.CallEvent({
 					[1] = 4,
@@ -78,10 +79,12 @@ function event:Initialize()
 					[4] = bomb.Owner:SteamID()
 				})
 			end
+			
 			v.BombStick = function(bomb)
 				LogC4(bomb)
 				old_stick(bomb)
 			end
+			
 			v.BombDrop = function(bomb)
 				LogC4(bomb)
 				old_drop(bomb)
@@ -120,7 +123,7 @@ end
 
 function event:RightClick(line, tbl, text)
 	line:ShowTooLong(true)
-	line:ShowCopy(true, { tbl[2], tbl[4] })
+	line:ShowCopy(true, {tbl[2], tbl[4]})
 end
 
 Damagelog:AddEvent(event)

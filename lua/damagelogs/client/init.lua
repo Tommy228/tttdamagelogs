@@ -1,8 +1,10 @@
 CreateClientConVar("ttt_dmglogs_language", "english", FCVAR_ARCHIVE)
+
 GetDMGLogLang = GetConVar("ttt_dmglogs_language"):GetString()
 
 cvars.AddChangeCallback("ttt_dmglogs_language", function(convar_name, value_old, value_new)
 	GetDMGLogLang = value_new
+	
 	net.Start("DL_SendLang")
 	net.WriteString(value_new)
 	net.SendToServer()
@@ -42,9 +44,10 @@ local color_lightblue = Color(98, 176, 255)
 local outdated = false
 
 hook.Add("InitPostEntity", "Damagelog_InitPostHTTP", function()
-	if LocalPlayer():IsAdmin() or LocalPlayer():IsSuperAdmin() then
-		http.Fetch("https://raw.githubusercontent.com/Tommy228/TTTDamagelogs/master/version.md", function(version)
+	local client = LocalPlayer()
 
+	if client:IsAdmin() or client:IsSuperAdmin() then
+		http.Fetch("https://raw.githubusercontent.com/Tommy228/TTTDamagelogs/master/version.md", function(version)
 			local cur_version = string.Explode(".", Damagelog.VERSION)
 			local tbl = string.Explode(".", version)
 
@@ -62,6 +65,7 @@ hook.Add("InitPostEntity", "Damagelog_InitPostHTTP", function()
 			end
 		end)
 	end
+	
 	net.Start("DL_SendLang")
 	net.WriteString(GetDMGLogLang)
 	net.SendToServer()
@@ -83,10 +87,11 @@ function Damagelog:OpenMenu()
 	self.Menu:MakePopup()
 	self.Menu:SetKeyboardInputEnabled(false)
 	self.Menu:Center()
+	
 	self.Menu.AboutPos = 0
 	self.Menu.AboutPosMax = 35
 	self.Menu.AboutState = false
-
+	
 	self.Menu.About = function(self)
 		self.AboutState = not self.AboutState
 	end
@@ -137,12 +142,15 @@ function Damagelog:OpenMenu()
 	self.Tabs = vgui.Create("DPropertySheet", self.Menu)
 	self.Tabs:SetPos(5, show_outdated and 60 or 30)
 	self.Tabs:SetSize(x - 10, show_outdated and y - 65 or y - 35)
+	
 	self:DrawDamageTab(x, y)
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
+	
 	if Damagelog.RDM_Manager_Enabled then
 		self:DrawRDMManager(x, y)
 	end
+	
 	self.About = vgui.Create("DButton", self.Menu)
 	self.About:SetPos(x - 60, show_outdated and 57 or 27)
 	self.About:SetSize(55, 19)
@@ -153,6 +161,7 @@ function Damagelog:OpenMenu()
 		self.Donate:SetPos(x - 120, show_outdated and 57 or 27)
 		self.Donate:SetSize(55, 19)
 		self.Donate:SetText(TTTLogTranslate(GetDMGLogLang, "Donate"))
+		
 		self.Donate.DoClick = function()
 			gui.OpenURL("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSJDH4CJ4N3BQ")
 		end
@@ -194,14 +203,22 @@ hook.Add("Think", "Think_Damagelog", function()
 end)
 
 function Damagelog:StrRole(role)
-	if role == ROLE_TRAITOR then
-		return TTTLogTranslate(GetDMGLogLang, "traitor")
-	elseif role == ROLE_DETECTIVE then
-		return TTTLogTranslate(GetDMGLogLang, "detective")
-	elseif role == "disconnected" then
-		return TTTLogTranslate(GetDMGLogLang, "disconnected")
+	if not ROLES then
+		if role == ROLE_TRAITOR then
+			return TTTLogTranslate(GetDMGLogLang, "traitor")
+		elseif role == ROLE_DETECTIVE then
+			return TTTLogTranslate(GetDMGLogLang, "detective")
+		elseif role == "disconnected" then
+			return TTTLogTranslate(GetDMGLogLang, "disconnected")
+		else
+			return TTTLogTranslate(GetDMGLogLang, "innocent")
+		end
 	else
-		return TTTLogTranslate(GetDMGLogLang, "innocent")
+		if role == "disconnected" then
+			return TTTLogTranslate(GetDMGLogLang, "disconnected")
+		else
+			return TTTLogTranslate(GetDMGLogLang, GetRoleByIndex(role).name)
+		end
 	end
 end
 
@@ -215,18 +232,24 @@ end)
 
 net.Receive("DL_Ded", function()
 	if Damagelog.RDM_Manager_Enabled and GetConVar("ttt_dmglogs_rdmpopups"):GetBool() and net.ReadUInt(1, 1) == 1 then
-		if LocalPlayer().IsGhost and LocalPlayer():IsGhost() then return end
+		local client = LocalPlayer()
+	
+		if client.IsGhost and client:IsGhost() then return end
+		
 		local death_reason = net.ReadString()
 		if not death_reason then return end
+		
 		local frame = vgui.Create("DFrame")
 		frame:SetSize(250, 120)
 		frame:SetTitle(TTTLogTranslate(GetDMGLogLang, "PopupNote"))
 		frame:ShowCloseButton(false)
 		frame:Center()
+		
 		local reason = vgui.Create("DLabel", frame)
 		reason:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "KilledBy"), death_reason))
 		reason:SizeToContents()
 		reason:SetPos(5, 32)
+		
 		local report = vgui.Create("DButton", frame)
 		report:SetPos(5, 55)
 		report:SetSize(240, 25)
@@ -235,6 +258,7 @@ net.Receive("DL_Ded", function()
 		report.DoClick = function()
 			net.Start("DL_StartReport")
 			net.SendToServer()
+			
 			frame:Close()
 		end
 
@@ -242,6 +266,7 @@ net.Receive("DL_Ded", function()
 		report_icon:SetMaterial("materials/icon16/report_go.png")
 		report_icon:SetPos(1, 5)
 		report_icon:SizeToContents()
+		
 		local close = vgui.Create("DButton", frame)
 		close:SetPos(5, 85)
 		close:SetSize(240, 25)
@@ -255,7 +280,9 @@ net.Receive("DL_Ded", function()
 		close_icon:SetPos(2, 5)
 		close_icon:SetMaterial("materials/icon16/cross.png")
 		close_icon:SizeToContents()
+		
 		frame:MakePopup()
+		
 		chat.AddText(color_red, "[RDM Manager] ", COLOR_WHITE, TTTLogTranslate(GetDMGLogLang, "OpenReportMenu"), color_lightblue, " ", Damagelog.RDM_Manager_Command, COLOR_WHITE, " ", TTTLogTranslate(GetDMGLogLang, "Command"), ".")
 	end
 end)

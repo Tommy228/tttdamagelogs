@@ -6,7 +6,6 @@ else
 end
 
 local event = {}
-
 event.Type = "DNA"
 
 function event:TTTFoundDNA(ply, dna_owner, ent)
@@ -14,6 +13,7 @@ function event:TTTFoundDNA(ply, dna_owner, ent)
 	if name == "prop_ragdoll" then
 		name = CORPSE.GetPlayerNick(ent, TTTLogTranslate(GetDMGLogLang, "PlayerDisconnected")) .. TTTLogTranslate(GetDMGLogLang, "sbody") -- Think of a better translation way since it's always english
 	end
+	
 	self.CallEvent({
 		[1] = ply:GetDamagelogID(),
 		[2] = dna_owner:GetDamagelogID(),
@@ -25,6 +25,7 @@ function event:ToString(v, roles)
 	local ply = Damagelog:InfoFromID(roles, v[1])
 	local dna_owner = Damagelog:InfoFromID(roles, v[2])
 	local ent = Damagelog:GetWeaponName(v[3]) or v[3]
+	
 	return string.format(TTTLogTranslate(GetDMGLogLang, "DNAretrieved"), ply.nick, Damagelog:StrRole(ply.role), dna_owner.nick, Damagelog:StrRole(dna_owner.role), ent)
 end
 
@@ -36,6 +37,7 @@ function event:Highlight(line, tbl, text)
 	if table.HasValue(Damagelog.Highlighted, tbl[1]) or table.HasValue(Damagelog.Highlighted, tbl[2]) then
 		return true
 	end
+	
 	return false
 end
 
@@ -45,9 +47,11 @@ end
 
 function event:RightClick(line, tbl, roles, text)
 	line:ShowTooLong(true)
+	
 	local ply = Damagelog:InfoFromID(roles, tbl[1])
 	local dna_owner = Damagelog:InfoFromID(roles, tbl[2])
-	line:ShowCopy(true, { ply.nick, util.SteamIDFrom64(ply.steamid64) }, { dna_owner.nick, util.SteamIDFrom64(dna_owner.steamid64) })
+	
+	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)}, {dna_owner.nick, util.SteamIDFrom64(dna_owner.steamid64)})
 end
 
 Damagelog:AddEvent(event)

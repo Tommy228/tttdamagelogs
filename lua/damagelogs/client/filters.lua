@@ -11,6 +11,7 @@ end
 
 function Damagelog:SaveFilters()
 	local temp = table.Copy(self.filter_settings)
+	
 	file.Write("damagelog/filters_new.txt", util.TableToJSON(temp))
 end
 
@@ -22,7 +23,8 @@ DAMAGELOG_FILTER_PLAYER = 2
 
 function Damagelog:AddFilter(name, filter_type, default_value)
 	self.filters[name] = filter_type
-	if self.filter_settings[name] == nil then
+	
+	if not self.filter_settings[name] then
 		self.filter_settings[name] = default_value
 	end
 end
