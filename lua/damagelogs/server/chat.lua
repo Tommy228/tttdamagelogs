@@ -223,9 +223,9 @@ net.Receive("DL_SendChatMessage", function(_len, ply)
 	if not allowed then return end
 
 	table.insert(Damagelog.ChatHistory[id], {
-		nick = ply:Nick(),
-		color = {r = color.r, g = color.g, b = color.b, a = color.a},
-		msg = message
+			nick = ply:Nick(),
+			color = {r = color.r, g = color.g, b = color.b, a = color.a},
+			msg = message
 	})
 
 	net.Start("DL_BroadcastMessage")
@@ -252,7 +252,7 @@ hook.Add("PlayerDisconnected", "Damagelog_Chat", function(ply)
 
 					for _, v2 in ipairs(player.GetHumans()) do
 						if v2:CanUseRDMManager() then
-							v2:UpdateReport(false, id)
+							v2:UpdateReport(false, k)
 						end
 					end
 				end

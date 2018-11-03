@@ -4,7 +4,7 @@ GetDMGLogLang = GetConVar("ttt_dmglogs_language"):GetString()
 
 cvars.AddChangeCallback("ttt_dmglogs_language", function(convar_name, value_old, value_new)
 	GetDMGLogLang = value_new
-	
+
 	net.Start("DL_SendLang")
 	net.WriteString(value_new)
 	net.SendToServer()
@@ -65,7 +65,7 @@ hook.Add("InitPostEntity", "Damagelog_InitPostHTTP", function()
 			end
 		end)
 	end
-	
+
 	net.Start("DL_SendLang")
 	net.WriteString(GetDMGLogLang)
 	net.SendToServer()
@@ -87,41 +87,41 @@ function Damagelog:OpenMenu()
 	self.Menu:MakePopup()
 	self.Menu:SetKeyboardInputEnabled(false)
 	self.Menu:Center()
-	
+
 	self.Menu.AboutPos = 0
 	self.Menu.AboutPosMax = 35
 	self.Menu.AboutState = false
-	
-	self.Menu.About = function(self)
-		self.AboutState = not self.AboutState
+
+	self.Menu.About = function(slf)
+		slf.AboutState = not slf.AboutState
 	end
 
 	local old_think = self.Menu.Think
 
-	self.Menu.Think = function(self)
-		self.AboutMoving = true
+	self.Menu.Think = function(slf)
+		slf.AboutMoving = true
 
-		if self.AboutState and self.AboutPos < self.AboutPosMax then
-			self.AboutPos = self.AboutPos + 15
-		elseif not self.AboutState and self.AboutPos > 0 then
-			self.AboutPos = self.AboutPos - 15
+		if slf.AboutState and slf.AboutPos < slf.AboutPosMax then
+			slf.AboutPos = slf.AboutPos + 15
+		elseif not slf.AboutState and slf.AboutPos > 0 then
+			slf.AboutPos = slf.AboutPos - 15
 		else
-			self.AboutMoving = false
+			slf.AboutMoving = false
 		end
 
 		if old_think then
-			old_think(self)
+			old_think(slf)
 		end
 	end
 
-	self.Menu.PaintOver = function(self, w, h)
-		local _x, _y, _w, _h = x - 200, show_outdated and 80 or 50, 195, self.AboutPos
+	self.Menu.PaintOver = function(slf, w, h)
+		local _x, _y, _w, _h = x - 200, show_outdated and 80 or 50, 195, slf.AboutPos
 		surface.SetDrawColor(color_black)
 		surface.DrawRect(_x, _y, _w, _h)
 		surface.SetDrawColor(color_lightyellow)
 		surface.DrawRect(_x + 1, _y + 1, _w - 2, _h - 2)
 
-		if self.AboutPos >= 35 then
+		if slf.AboutPos >= 35 then
 			surface.SetFont("DermaDefault")
 			surface.SetTextColor(color_black)
 			surface.SetTextPos(_x + 5, _y + 5)
@@ -142,15 +142,15 @@ function Damagelog:OpenMenu()
 	self.Tabs = vgui.Create("DPropertySheet", self.Menu)
 	self.Tabs:SetPos(5, show_outdated and 60 or 30)
 	self.Tabs:SetSize(x - 10, show_outdated and y - 65 or y - 35)
-	
+
 	self:DrawDamageTab(x, y)
 	self:DrawShootsTab(x, y)
 	self:DrawOldLogs(x, y)
-	
+
 	if Damagelog.RDM_Manager_Enabled then
 		self:DrawRDMManager(x, y)
 	end
-	
+
 	self.About = vgui.Create("DButton", self.Menu)
 	self.About:SetPos(x - 60, show_outdated and 57 or 27)
 	self.About:SetSize(55, 19)
@@ -161,7 +161,7 @@ function Damagelog:OpenMenu()
 		self.Donate:SetPos(x - 120, show_outdated and 57 or 27)
 		self.Donate:SetSize(55, 19)
 		self.Donate:SetText(TTTLogTranslate(GetDMGLogLang, "Donate"))
-		
+
 		self.Donate.DoClick = function()
 			gui.OpenURL("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YSJDH4CJ4N3BQ")
 		end
@@ -233,23 +233,23 @@ end)
 net.Receive("DL_Ded", function()
 	if Damagelog.RDM_Manager_Enabled and GetConVar("ttt_dmglogs_rdmpopups"):GetBool() and net.ReadUInt(1, 1) == 1 then
 		local client = LocalPlayer()
-	
+
 		if client.IsGhost and client:IsGhost() then return end
-		
+
 		local death_reason = net.ReadString()
 		if not death_reason then return end
-		
+
 		local frame = vgui.Create("DFrame")
 		frame:SetSize(250, 120)
 		frame:SetTitle(TTTLogTranslate(GetDMGLogLang, "PopupNote"))
 		frame:ShowCloseButton(false)
 		frame:Center()
-		
+
 		local reason = vgui.Create("DLabel", frame)
 		reason:SetText(string.format(TTTLogTranslate(GetDMGLogLang, "KilledBy"), death_reason))
 		reason:SizeToContents()
 		reason:SetPos(5, 32)
-		
+
 		local report = vgui.Create("DButton", frame)
 		report:SetPos(5, 55)
 		report:SetSize(240, 25)
@@ -258,7 +258,7 @@ net.Receive("DL_Ded", function()
 		report.DoClick = function()
 			net.Start("DL_StartReport")
 			net.SendToServer()
-			
+
 			frame:Close()
 		end
 
@@ -266,7 +266,7 @@ net.Receive("DL_Ded", function()
 		report_icon:SetMaterial("materials/icon16/report_go.png")
 		report_icon:SetPos(1, 5)
 		report_icon:SizeToContents()
-		
+
 		local close = vgui.Create("DButton", frame)
 		close:SetPos(5, 85)
 		close:SetSize(240, 25)
@@ -280,9 +280,9 @@ net.Receive("DL_Ded", function()
 		close_icon:SetPos(2, 5)
 		close_icon:SetMaterial("materials/icon16/cross.png")
 		close_icon:SizeToContents()
-		
+
 		frame:MakePopup()
-		
+
 		chat.AddText(color_red, "[RDM Manager] ", COLOR_WHITE, TTTLogTranslate(GetDMGLogLang, "OpenReportMenu"), color_lightblue, " ", Damagelog.RDM_Manager_Command, COLOR_WHITE, " ", TTTLogTranslate(GetDMGLogLang, "Command"), ".")
 	end
 end)

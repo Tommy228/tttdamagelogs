@@ -12,9 +12,9 @@ local function post(embed)
 
 	if limit == 0 and now < reset then
 		local function tcb()
-			post(data)
+			post(embed)
 		end
-		
+
 		timer.Simple(reset - now, tcb)
 	end
 
@@ -24,11 +24,11 @@ local function post(embed)
 	end
 
 	HTTP({
-		method = "POST",
-		url = url:GetString(),
-		body = util.TableToJSON({embeds = {embed}}),
-		type = "application/json",
-		success = cb
+			method = "POST",
+			url = url:GetString(),
+			body = util.TableToJSON({embeds = {embed}}),
+			type = "application/json",
+			success = cb
 	})
 end
 
@@ -57,8 +57,8 @@ function Damagelog:DiscordMessage(report, adminOnline)
 		color = adminOnline and 0xffff00 or 0xff0000
 	}
 
-	if not noadmins then 
-		data.footer = {text = TTTLogTranslate(nil, adminOnline and "webhook_AdminsOnline" or "webhook_NoAdminsOnline")} 
+	if not noadmins then
+		data.footer = {text = TTTLogTranslate(nil, adminOnline and "webhook_AdminsOnline" or "webhook_NoAdminsOnline")}
 	end
 
 	post(data)
