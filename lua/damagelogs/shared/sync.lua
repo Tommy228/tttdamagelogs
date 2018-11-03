@@ -8,11 +8,11 @@ local ENT = {
 		self:NetworkVar("Bool", 0, "LastRoundMapExists")
 		self:NetworkVar("Int", 1, "PendingReports")
 	end,
-	UpdateTransmitState = function() 
-		return TRANSMIT_ALWAYS 
+	UpdateTransmitState = function()
+		return TRANSMIT_ALWAYS
 	end,
-	Draw = function() 
-	
+	Draw = function()
+
 	end,
 	Initialize = function(self)
 		self:DrawShadow(false)
@@ -36,9 +36,9 @@ local CleanUpMap = game.CleanUpMap
 
 function game.CleanUpMap(send_to_clients, filters)
 	filters = filters or {}
-	
+
 	table.insert(filters, "dmglog_sync_ent")
-	
+
 	local res = CleanUpMap(send_to_clients, filters)
 	return res
 end

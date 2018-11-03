@@ -13,7 +13,7 @@ local table = table
 hook.Add("TTTBeginRound", "TTTBeginRound_SpecDMRecord", function()
 	table.Empty(magneto_ents)
 	table.Empty(Damagelog.Records)
-	
+
 	for _, ply in ipairs(player.GetHumans()) do
 		ply.SpectatingLog = false
 	end
@@ -37,10 +37,10 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 	for _, v in ipairs(player.GetHumans()) do
 		if not v:IsActive() then
 			local rag = v.server_ragdoll
-			
+
 			if IsValid(rag) then
 				local pos, ang = rag:GetPos(), rag:GetAngles()
-				
+
 				tbl[v:GetDamagelogID()] = {
 					corpse = true,
 					pos = pos,
@@ -50,7 +50,7 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 			end
 		else
 			local wep = v:GetActiveWeapon()
-			
+
 			tbl[v:GetDamagelogID()] = {
 				pos = v:GetPos(),
 				ang = v:GetAngles(),
@@ -59,26 +59,26 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 				wep = IsValid(wep) and wep:GetClass() or "<no wep>",
 				role = v:GetRole()
 			}
-			
+
 			if IsValid(wep) and wep:GetClass() == "weapon_zm_carry" and IsValid(wep.EntHolding) then
 				local found = false
-				
+
 				for k, v2 in pairs(magneto_ents) do
 					if v2.ent == wep.EntHolding then
 						found = k
-						
+
 						break
 					end
 				end
-				
+
 				if found then
 					magneto_ents[found].last_saw = CurTime()
 					magneto_ents[found].record = true
 				else
 					table.insert(magneto_ents, {
-						ent = wep.EntHolding,
-						record = true,
-						last_saw = CurTime()
+							ent = wep.EntHolding,
+							record = true,
+							last_saw = CurTime()
 					})
 				end
 			end
@@ -88,10 +88,10 @@ timer.Create("SpecDM_Recording", 0.2, 0, function()
 	for _, v in pairs(magneto_ents) do
 		if v.record and IsValid(v.ent) then
 			table.insert(tbl, v.ent:EntIndex(), {
-				prop = true,
-				model = v.ent:GetModel(),
-				pos = v.ent:GetPos(),
-				ang = v.ent:GetAngles()
+					prop = true,
+					model = v.ent:GetModel(),
+					pos = v.ent:GetPos(),
+					ang = v.ent:GetAngles()
 			})
 		end
 	end
@@ -103,14 +103,14 @@ net.Receive("DL_AskDeathScene", function(_, ply)
 	local ID = net.ReadUInt(32)
 	local ply1 = net.ReadUInt(32)
 	local ply2 = net.ReadUInt(32)
-	
+
 	local scene = Damagelog.Death_Scenes[ID]
 	local roles = Damagelog.Roles[Damagelog.SceneRounds[ID]]
-	
+
 	if scene and roles then
 		local sceneString = util.TableToJSON(scene)
 		sceneString = util.Compress(sceneString)
-		
+
 		net.Start("DL_SendDeathScene")
 		net.WriteUInt(ply1, 32)
 		net.WriteUInt(ply2, 32)
@@ -123,7 +123,7 @@ end)
 
 hook.Add("Initialize", "DamagelogRecording", function()
 	local old_think = GAMEMODE.KeyPress
-	
+
 	function GAMEMODE:KeyPress(ply, key)
 		if not (ply.SpectatingLog and (key == IN_ATTACK or key == IN_ATTACK2)) then
 			return old_think(self, ply, key)

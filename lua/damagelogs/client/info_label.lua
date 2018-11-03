@@ -1,16 +1,16 @@
 local PANEL = {}
-local GRADIENT = surface.GetTextureID("gui/gradient_down")
+--local GRADIENT = surface.GetTextureID("gui/gradient_down")
 local color_halfwhite = Color(255, 255, 255, 50)
 
 function PANEL:Init()
 	self:SetPos(4, 4)
 	self:SetSize(self:GetWide() - 8, 24)
 	self:SetBackgroundColor(Color(139, 174, 179, 255))
-	
+
 	self.icon = vgui.Create("DImage", self)
 	self.icon:SetImage("icon16/comment.png")
 	self.icon:SizeToContents()
-	
+
 	self.label = vgui.Create("DLabel", self)
 	self.label:SetText("")
 	self.label:SetTextColor(color_white)
@@ -19,7 +19,7 @@ end
 
 function PANEL:PerformLayout(w, h)
 	self.icon:SetPos(4, 4)
-	
+
 	if self.textToLeft then
 		if self.icon:IsVisible() then
 			self.label:SetPos(self.icon.x + 8, h / 2 - self.label:GetTall() / 2)
@@ -29,7 +29,7 @@ function PANEL:PerformLayout(w, h)
 	else
 		self.label:SetPos(w / 2 - self.label:GetWide() / 2, h / 2 - self.label:GetTall() / 2)
 	end
-	
+
 	derma.SkinHook("Layout", "Panel", self)
 end
 
@@ -37,24 +37,24 @@ function PANEL:Paint(w, h)
 	if self:GetPaintBackground() then
 		local width, height = self:GetSize()
 		local x, y = 0, 0
-		
+
 		if self:IsDepressed() then
 			height = height - 4
 			width = width - 4
 			x = x + 2
 			y = y + 2
 		end
-		
+
 		local color = self:GetBackgroundColor()
-		
+
 		if self:IsButton() and self:IsHovered() then
 			color = color_halfwhite
 		end
-		
+
 		local cornerSize = 4
-		
+
 		draw.RoundedBox(cornerSize, x, y, width, height, Color(color.r, color.g, color.b, color.a * 0.75))
-		
+
 		if x + cornerSize < x + width and y + cornerSize < y + height then
 			surface.SetDrawColor(color.r, color.g, color.b, color.a)
 		end

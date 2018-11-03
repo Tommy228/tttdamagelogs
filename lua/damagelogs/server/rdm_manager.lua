@@ -32,9 +32,9 @@ Damagelog.Reports = Damagelog.Reports or {
 
 Damagelog.getmreports = {
 	id = {
-		index,
-		victim,
-		message
+		index = "",
+		victim = "",
+		message = ""
 	}
 }
 
@@ -201,9 +201,9 @@ function Damagelog:GetPlayerReportsList(ply)
 	for _, v in pairs(Damagelog.Reports.Previous) do
 		if v.victim == steamid then
 			table_insert(previous, {
-				index = v.index,
-				attackerName = v.attacker_nick,
-				attackerID = v.attacker
+					index = v.index,
+					attackerName = v.attacker_nick,
+					attackerID = v.attacker
 			})
 		end
 	end
@@ -316,12 +316,10 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 			end
 		end
 
-		if not Damagelog.NoStaffReports then
-			if not adminOnline then
-				ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
+		if not Damagelog.NoStaffReports and not adminOnline then
+			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
 
-				return
-			end
+			return
 		end
 
 		if not ply.CanReport then
@@ -342,13 +340,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 			end
 		end
 
-		if not Damagelog.MoreReportsPerRound then
-			if ply:RemainingReports() <= 0 then return end
-		end
+		if not Damagelog.MoreReportsPerRound and ply:RemainingReports() <= 0 then return end
 
-		if not Damagelog.ReportsBeforePlaying then
-			if not ply.CanReport then return end
-		end
+		if not Damagelog.ReportsBeforePlaying and not ply.CanReport then return end
 
 		if not attacker:GetNWBool("PlayedSRound", true) then
 			ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ReportSpectator"), 5, "buttons/weapon_cant_buy.wav")
@@ -619,7 +613,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 
 	for _, v in ipairs(player_GetHumans()) do
 		if v:CanUseRDMManager() then
-			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "HasAnsweredReport"), (v:IsActive() and TTTLogTranslate(v.DMGLogLang, "TheReportedPlayer") or ply:Nick()), index), 5, "damagelogs/vote_yes.wav")
+			v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(v.DMGLogLang, "HasAnsweredReport"), v:IsActive() and TTTLogTranslate(v.DMGLogLang, "TheReportedPlayer") or ply:Nick(), index), 5, "damagelogs/vote_yes.wav")
 			v:UpdateReport(previous, index)
 		end
 	end

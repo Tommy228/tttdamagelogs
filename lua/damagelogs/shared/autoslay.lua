@@ -63,19 +63,19 @@ local function CreateCommand()
 	local autoslay = ulx.command("TTT", aslay and "ulx aslay" or "ulx ajail", ulx.autoslay, aslay and "!aslay" or "!ajail")
 	autoslay:addParam({type = ULib.cmds.PlayerArg})
 	autoslay:addParam({
-		type = ULib.cmds.NumArg,
-		min = 0,
-		default = 1,
-		hint = "rounds (0 to cancel slay)",
-		ULib.cmds.optional,
-		ULib.cmds.round
+			type = ULib.cmds.NumArg,
+			min = 0,
+			default = 1,
+			hint = "rounds (0 to cancel slay)",
+			ULib.cmds.optional,
+			ULib.cmds.round
 	})
 	autoslay:addParam({
-		type = ULib.cmds.StringArg,
-		hint = aslay and "slay reason" or "jail reason",
-		default = Damagelog.Autoslay_DefaultReason,
-		ULib.cmds.optional,
-		ULib.cmds.takeRestOfLine
+			type = ULib.cmds.StringArg,
+			hint = aslay and "slay reason" or "jail reason",
+			default = Damagelog.Autoslay_DefaultReason,
+			ULib.cmds.optional,
+			ULib.cmds.takeRestOfLine
 	})
 	autoslay:defaultAccess(ULib.ACCESS_ADMIN)
 
@@ -91,23 +91,23 @@ local function CreateCommand()
 
 	local autoslayid = ulx.command("TTT", aslay and "ulx aslayid" or "ulx ajailid", ulx.autoslayid, aslay and "!aslayid" or "!ajailid")
 	autoslayid:addParam({
-		type = ULib.cmds.StringArg,
-		hint = "steamid"
+			type = ULib.cmds.StringArg,
+			hint = "steamid"
 	})
 	autoslayid:addParam({
-		type = ULib.cmds.NumArg,
-		min = 0,
-		default = 1,
-		hint = aslay and "rounds (0 to cancel slay)" or "rounds (0 to cancel jails)",
-		ULib.cmds.optional,
-		ULib.cmds.round
+			type = ULib.cmds.NumArg,
+			min = 0,
+			default = 1,
+			hint = aslay and "rounds (0 to cancel slay)" or "rounds (0 to cancel jails)",
+			ULib.cmds.optional,
+			ULib.cmds.round
 	})
 	autoslayid:addParam({
-		type = ULib.cmds.StringArg,
-		hint = aslay and "slay reason" or "jail reason",
-		default = Damagelog.Autoslay_DefaultReason,
-		ULib.cmds.optional,
-		ULib.cmds.takeRestOfLine
+			type = ULib.cmds.StringArg,
+			hint = aslay and "slay reason" or "jail reason",
+			default = Damagelog.Autoslay_DefaultReason,
+			ULib.cmds.optional,
+			ULib.cmds.takeRestOfLine
 	})
 	autoslayid:defaultAccess(ULib.ACCESS_ADMIN)
 
@@ -124,8 +124,8 @@ local function CreateCommand()
 
 	local cslaysid = ulx.command("TTT", aslay and "ulx cslaysid" or "ulx cjailsid", ulx.cslaysid, aslay and "!cslaysid" or "!cjailsid")
 	cslaysid:addParam({
-		type = ULib.cmds.StringArg,
-		hint = "steamid"
+			type = ULib.cmds.StringArg,
+			hint = "steamid"
 	})
 end
 hook.Add("Initialize", "AutoSlay", CreateCommand)

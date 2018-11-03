@@ -39,8 +39,8 @@ hook.Add("Initialize", "GetSpecDMHook", function()
 end)
 
 surface.CreateFont("DL_Shots_Title", {
-	font = "DermaLarge",
-	size = 18
+		font = "DermaLarge",
+		size = 18
 })
 
 local function CreateShotsPanel()
@@ -48,15 +48,15 @@ local function CreateShotsPanel()
 
 	local Frame = vgui.Create("DPanel")
 	Frame:SetSize(w, h)
-	
-	Frame.PaintOver = function(self, w, h)
+
+	Frame.PaintOver = function(self, w2, h2)
 		surface.SetDrawColor(color_black)
-		surface.DrawLine(0, 0, w - 1, 0)
-		surface.DrawLine(w - 1, 0, w - 1, h - 1)
-		surface.DrawLine(w - 1, h - 1, 0, h - 1)
-		surface.DrawLine(0, h - 1, 0, 0)
+		surface.DrawLine(0, 0, w2 - 1, 0)
+		surface.DrawLine(w2 - 1, 0, w2 - 1, h2 - 1)
+		surface.DrawLine(w2 - 1, h2 - 1, 0, h2 - 1)
+		surface.DrawLine(0, h2 - 1, 0, 0)
 	end
-	
+
 	Frame:SetPos(ScrW() - w)
 	Frame:CenterVertical()
 
@@ -64,7 +64,7 @@ local function CreateShotsPanel()
 	Close:SetText("X")
 	Close:SetSize(20, 20)
 	Close:SetPos(w - 25, 5)
-	
+
 	Close.DoClick = function()
 		Frame:SetVisible(false)
 	end
@@ -87,69 +87,67 @@ local function CreateShotsPanel()
 	local Info = vgui.Create("DListView", Frame)
 	Info:StretchToParent(10, 60, 10, 10)
 	Info:AddColumn("")
-	
-	Info.UpdateProgress = function(Info, progress)
+
+	Info.UpdateProgress = function(slf, progress)
 		local current_second = math.Round(progress * 0.2, 1) + 1
-		
-		for k, v in ipairs(Info:GetLines()) do
-			local second = Info.LinesInfo[k]
+
+		for k, v in ipairs(slf:GetLines()) do
+			local second = slf.LinesInfo[k]
 			if second then
 				local diff = current_second - second
-				
+
 				v:SetSelected(diff < 0.2 and diff > 0)
 			end
 		end
 	end
-	
+
 	Info.LinesInfo = {}
 
-	Frame.SetInfo = function(Frame)
+	Frame.SetInfo = function(_)
 		if not current_scene then return end
-		
+
 		Info:Clear()
-		
+
 		table.Empty(Info.LinesInfo)
-		
+
 		local showAll = GetConVar("ttt_dmglogs_ds_showothers"):GetBool()
 		local size = #current_scene
 		local current_second = 1
-		
-		for i = 1, size do
+
+		for i2 = 1, size do
 			local moment = current_scene[i]
-			
+
 			current_second = current_second + 0.2
-			
+
 			for id, tbl in ipairs(moment) do
-				if tbl.shot then
-					if showAll or id == victim or id == attacker then
-						local nick = Damagelog:InfoFromID(roles, id).nick
-						local wep = Damagelog:GetWeaponName(tbl.wep) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
-						local line = Info:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), current_second .. "s", nick, wep))
-						
-						if id == victim then
-							line.col = Color(20, 150, 20)
-						elseif id == attacker then
-							line.col = Color(200, 20, 20)
-						else
-							line.col = color_black
-						end
-						
-						line.PaintOver = function(line)
-							if line:IsLineSelected() then
-								line.Columns[1]:SetTextColor(color_white)
-							else
-								line.Columns[1]:SetTextColor(line.col)
-							end
-						end
-						
-						table.insert(Info.LinesInfo, current_second)
+				if tbl.shot and (showAll or id == victim or id == attacker) then
+					local nick = Damagelog:InfoFromID(roles, id).nick
+					local wep = Damagelog:GetWeaponName(tbl.wep) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
+					local line = Info:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), current_second .. "s", nick, wep))
+
+					if id == victim then
+						line.col = Color(20, 150, 20)
+					elseif id == attacker then
+						line.col = Color(200, 20, 20)
+					else
+						line.col = color_black
 					end
+
+					line.PaintOver = function(slf)
+						if slf:IsLineSelected() then
+							slf.Columns[1]:SetTextColor(color_white)
+						else
+							slf.Columns[1]:SetTextColor(slf.col)
+						end
+					end
+
+					table.insert(Info.LinesInfo, current_second)
 				end
 			end
 		end
 	end
 
-	Frame.UpdateProgress = function(Frame, progress)
+	Frame.UpdateProgress = function(_, progress)
 		Info:UpdateProgress(progress)
 	end
 
@@ -186,24 +184,24 @@ function Damagelog:CreateDSPanel()
 	self.DSPanel:SetPos(nil, ScrH() - (h + 20))
 	self.DSPanel:CenterHorizontal()
 
-	self.DSPanel.PaintOver = function(self, w, h)
+	self.DSPanel.PaintOver = function(_, w2, h2)
 		surface.SetDrawColor(color_black)
-		surface.DrawLine(0, 0, w - 1, 0)
-		surface.DrawLine(w - 1, 0, w - 1, h - 1)
-		surface.DrawLine(w - 1, h - 1, 0, h - 1)
-		surface.DrawLine(0, h - 1, 0, 0)
-		
+		surface.DrawLine(0, 0, w2 - 1, 0)
+		surface.DrawLine(w2 - 1, 0, w2 - 1, h2 - 1)
+		surface.DrawLine(w2 - 1, h2 - 1, 0, h2 - 1)
+		surface.DrawLine(0, h2 - 1, 0, 0)
+
 		surface.SetDrawColor(color_grey)
-		surface.DrawLine(120, 10, 120, h - 10)
+		surface.DrawLine(120, 10, 120, h2 - 10)
 	end
 
 	local margin = 5
 	local w_button, h_button = 100, h / 3 - (4 * margin) / 3
-	
+
 	local free, spectate_victim
-	
+
 	local spectate_attacker = vgui.Create("DButton", self.DSPanel)
-	
+
 	spectate_attacker:SetPos(margin, margin)
 	spectate_attacker:SetSize(w_button, h_button)
 	spectate_attacker:SetText(TTTLogTranslate(GetDMGLogLang, "SpectateAttacker"))
@@ -211,7 +209,7 @@ function Damagelog:CreateDSPanel()
 
 	spectate_attacker.DoClick = function()
 		current_spec = attacker
-		
+
 		spectate_victim:SetEnabled(true)
 		free:SetEnabled(true)
 		spectate_attacker:SetEnabled(false)
@@ -224,7 +222,7 @@ function Damagelog:CreateDSPanel()
 
 	spectate_victim.DoClick = function()
 		current_spec = victim
-		
+
 		spectate_victim:SetEnabled(false)
 		free:SetEnabled(true)
 		spectate_attacker:SetEnabled(true)
@@ -237,7 +235,7 @@ function Damagelog:CreateDSPanel()
 
 	free.DoClick = function()
 		current_spec = 0
-		
+
 		spectate_victim:SetEnabled(true)
 		free:SetEnabled(false)
 		spectate_attacker:SetEnabled(true)
@@ -248,18 +246,18 @@ function Damagelog:CreateDSPanel()
 	note:SetTextColor(color_black)
 	note:SetPos(140, 10)
 	note:SizeToContents()
-	
+
 	self.DS_Progress = vgui.Create("DSlider", self.DSPanel)
 	self.DS_Progress:SetPos(140, 38)
 	self.DS_Progress:SetSize(w - 160, 20)
-	
+
 	Derma_Hook(self.DS_Progress, "Paint", "Paint", "NumSlider")
-	
+
 	local play = vgui.Create("DButton", self.DSPanel)
 	play:SetPos(140, h - 35)
 	play:SetSize(25, 25)
 	play:SetText("")
-	
+
 	play.Icon = vgui.Create("DImage", play)
 	play.Icon:SetSize(16, 16)
 	play.Icon:Center()
@@ -268,22 +266,22 @@ function Damagelog:CreateDSPanel()
 	play.DoClick = function()
 		if paused then
 			play.Icon:SetImage("icon16/control_pause_blue.png")
-			
+
 			paused = false
 		else
 			play.Icon:SetImage("icon16/control_play_blue.png")
-			
+
 			paused = true
 		end
 	end
 
 	self.DS_Play = play
-	
+
 	local replay = vgui.Create("DButton", self.DSPanel)
 	replay:SetPos(170, h - 35)
 	replay:SetSize(25, 25)
 	replay:SetText("")
-	
+
 	replay.Icon = vgui.Create("DImage", replay)
 	replay.Icon:SetSize(16, 16)
 	replay.Icon:Center()
@@ -293,7 +291,7 @@ function Damagelog:CreateDSPanel()
 	showShots:SetPos(200, h - 35)
 	showShots:SetSize(25, 25)
 	showShots:SetText("")
-	
+
 	showShots.Icon = vgui.Create("DImage", showShots)
 	showShots.Icon:SetSize(16, 16)
 	showShots.Icon:Center()
@@ -325,10 +323,10 @@ net.Receive("DL_SendDeathScene", function()
 	victim = net.ReadUInt(32)
 	attacker = net.ReadUInt(32)
 	roles = net.ReadTable()
-	
+
 	local sceneSize = net.ReadUInt(32)
 	local sceneString = net.ReadData(sceneSize)
-	
+
 	sceneString = util.Decompress(sceneString)
 	current_scene = util.JSONToTable(sceneString)
 
@@ -362,10 +360,10 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 		for k, v in pairs(models) do
 			if IsValid(v) then
 				render.SuppressEngineLighting(true)
-				
+
 				local color = Color(125, 125, 255)
 				local shot_mat = neutral_mat
-				
+
 				cam.IgnoreZ(true)
 
 				if k == attacker then
@@ -377,9 +375,9 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 				end
 
 				render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
-				
+
 				v:DrawModel()
-				
+
 				render.SetColorModulation(1, 1, 1)
 				cam.IgnoreZ(false)
 
@@ -402,9 +400,9 @@ hook.Add("RenderScreenspaceEffects", "DeathScene_Damagelog", function()
 				render.SuppressEngineLighting(true)
 				render.SetColorModulation(0.6, 0.4, 0)
 				cam.IgnoreZ(true)
-				
+
 				v:DrawModel()
-				
+
 				render.SetColorModulation(1, 1, 1)
 				cam.IgnoreZ(false)
 				render.SuppressEngineLighting(false)
@@ -421,10 +419,10 @@ hook.Add("HUDPaint", "Scene_Record", function()
 
 		for id, model in pairs(models) do
 			local nick = Damagelog:InfoFromID(roles, id).nick
-			
+
 			if model.corpse then
 				local pos = model.pos:ToScreen()
-				
+
 				if not IsOffScreen(pos) then
 					if model.found then
 						surface.SetTextColor(Color(255, 200, 15))
@@ -434,14 +432,14 @@ hook.Add("HUDPaint", "Scene_Record", function()
 
 					local text = nick .. TTTLogTranslate(GetDMGLogLang, "scorpse") .. (model.found and "(ID)" or "(UnID)")
 					local w = surface.GetTextSize(text)
-					
+
 					surface.SetTextPos(pos.x - w / 2, pos.y)
 					surface.DrawText(text)
 				end
 			else
 				local pos = model:GetPos() + Vector(0, 0, 100)
 				pos = pos:ToScreen()
-				
+
 				if not IsOffScreen(pos) then
 					local wep = model.wep
 
@@ -457,17 +455,17 @@ hook.Add("HUDPaint", "Scene_Record", function()
 					end
 
 					local w = surface.GetTextSize(wep)
-					
+
 					surface.SetTextColor(color_white)
 					surface.SetTextPos(pos.x - w / 2, pos.y)
 					surface.DrawText(wep)
-					
+
 					local _, healthcolor = util.HealthToString(model.hp or 100)
-					
+
 					nick = nick .. " [" .. Damagelog:StrRole(model.role) .. "]"
-					
+
 					local w2, h2 = surface.GetTextSize(nick)
-					
+
 					surface.SetTextColor(healthcolor)
 					surface.SetTextPos(pos.x - w2 / 2, pos.y - h2 - 5)
 					surface.DrawText(nick)
@@ -533,9 +531,9 @@ hook.Add("Think", "Think_Record", function()
 
 		Damagelog.DS_Progress:SetSlideX(progress / #current_scene)
 		Damagelog.DS_Progress:SetSlideY(0.5)
-		
+
 		last_curtime = CurTime()
-		
+
 		local scene = current_scene[math.floor(i)]
 		local next_scene = current_scene[math.ceil(i)]
 
@@ -553,7 +551,7 @@ hook.Add("Think", "Think_Record", function()
 			for k, v in pairs(props) do
 				if not scene[k] then
 					v:Remove()
-					
+
 					props[k] = nil
 				end
 			end
@@ -593,7 +591,7 @@ hook.Add("Think", "Think_Record", function()
 
 				if next_scene and next_scene[k] then
 					local percent = math.ceil(i) - i
-					
+
 					vector = LerpVector(percent, next_scene[k].pos, v.pos)
 					angle = LerpAngle(percent, next_scene[k].ang, v.ang)
 				end
@@ -613,7 +611,7 @@ hook.Add("Think", "Think_Record", function()
 					if not v.corpse then
 						models[k] = ClientsideModel(mdl, RENDERGROUP_TRANSLUCENT)
 						models[k]:AddEffects(EF_NODRAW)
-						
+
 						models[k].role = v.role
 					else
 						models[k] = {
@@ -632,7 +630,7 @@ hook.Add("Think", "Think_Record", function()
 
 					if next_scene and next_scene[k] and next_scene[k].pos and next_scene[k].ang then
 						local percent = math.ceil(i) - i
-						
+
 						vector = LerpVector(percent, next_scene[k].pos, v.pos)
 						angle = LerpAngle(percent, next_scene[k].ang, v.ang)
 					end
@@ -656,7 +654,7 @@ hook.Add("Think", "Think_Record", function()
 					models[k].move_y = vector.y
 					models[k].spin = angle.z
 					models[k].move_yaw = v.move_yaw
-					
+
 					models[k]:SetPos(vector)
 					models[k]:SetAngles(angle)
 				end
@@ -667,7 +665,7 @@ hook.Add("Think", "Think_Record", function()
 			for k, v in pairs(scene) do
 				if v.shot then
 					local playedSound = v.wep == "weapon_zm_improvised" and "Weapon_Crowbar.Single" or v.shot
-					
+
 					models[k]:EmitSound(playedSound, 100, 100)
 				end
 
@@ -697,7 +695,7 @@ end
 
 function Damagelog:StopRecording()
 	self.DSPanel:Remove()
-	
+
 	net.Start("DL_UpdateLogEnt")
 	net.WriteUInt(0, 1)
 	net.SendToServer()
@@ -716,11 +714,11 @@ function Damagelog:StopRecording()
 
 	table.Empty(models)
 	table.Empty(props)
-	
+
 	current_scene = nil
-	
+
 	i = 1
-	
+
 	playedsounds = {}
 
 	if ttt_specdm_hook then
@@ -743,8 +741,8 @@ function Damagelog:StopRecording()
 end
 
 hook.Add("OnContextMenuOpen", "Recording", function()
-	if current_scene then 
-		return false 
+	if current_scene then
+		return false
 	end
 end)
 
@@ -753,16 +751,16 @@ local ViewHullMaxs = Vector(8, 8, 8)
 
 local function GetThirdPersonCameraPos(origin, angles)
 	origin = origin + Vector(0, 0, 50)
-	
+
 	local allplayers = player.GetAll()
 
 	local tr = util.TraceHull({
-		start = origin,
-		endpos = origin + angles:Forward() * -92,
-		mask = MASK_SHOT,
-		filter = allplayers,
-		mins = ViewHullMins,
-		maxs = ViewHullMaxs
+			start = origin,
+			endpos = origin + angles:Forward() * -92,
+			mask = MASK_SHOT,
+			filter = allplayers,
+			mins = ViewHullMins,
+			maxs = ViewHullMaxs
 	})
 
 	return tr.HitPos + tr.HitNormal * 3, angles
