@@ -90,8 +90,8 @@ local function TakeAction()
 	if not report then return end
 
 	local current = not report.previous
-	local attacker = player.GetBySteamID(report.attacker)
-	local victim = player.GetBySteamID(report.victim)
+	local attacker = player.GetBySteamID64(report.attacker)
+	local victim = player.GetBySteamID64(report.victim)
 	local menuPanel = DermaMenu()
 
 	menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "RDMSetConclusion"), function()
@@ -763,7 +763,7 @@ function Damagelog:DrawRDMManager(x, y)
 		end
 		SetState.DoClick = function()
 			local menu = DermaMenu()
-			--local attacker = player.GetBySteamID(Damagelog.SelectedReport.attacker)
+			--local attacker = player.GetBySteamID64(Damagelog.SelectedReport.attacker)
 
 			DrawStatusMenuOption(RDM_MANAGER_WAITING, menu)
 			DrawStatusMenuOption(RDM_MANAGER_PROGRESS, menu)

@@ -17,8 +17,8 @@ function event:TTTC4Arm(bomb, ply)
 	event.CallEvent({
 			[1] = 1,
 			[2] = ply:Nick(),
-			[3] = ply:GetRole(),
-			[4] = ply:SteamID(),
+			[3] = not TTT2 and ply:GetRole() or TTT2 and ply:GetSubRole(),
+			[4] = ply:SteamID64(),
 			[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
 	})
 end
@@ -27,8 +27,8 @@ function event:TTTC4Disarm(bomb, result, ply)
 	event.CallEvent({
 			[1] = 2,
 			[2] = ply:Nick(),
-			[3] = ply:GetRole(),
-			[4] = ply:SteamID(),
+			[3] = not TTT2 and ply:GetRole() or TTT2 and ply:GetSubRole(),
+			[4] = ply:SteamID64(),
 			[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"),
 			[6] = result
 	})
@@ -38,8 +38,8 @@ function event:TTTC4Destroyed(bomb, ply)
 	event.CallEvent({
 			[1] = 5,
 			[2] = ply:Nick(),
-			[3] = ply:GetRole(),
-			[4] = ply:SteamID(),
+			[3] = not TTT2 and ply:GetRole() or TTT2 and ply:GetSubRole(),
+			[4] = ply:SteamID64(),
 			[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
 	})
 end
@@ -48,8 +48,8 @@ function event:TTTC4Pickup(bomb, ply)
 	event.CallEvent({
 			[1] = 3,
 			[2] = ply:Nick(),
-			[3] = ply:GetRole(),
-			[4] = ply:SteamID(),
+			[3] = not TTT2 and ply:GetRole() or TTT2 and ply:GetSubRole(),
+			[4] = ply:SteamID64(),
 			[5] = IsValid(bomb:GetOwner()) and bomb:GetOwner():Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected")
 	})
 end
@@ -61,7 +61,7 @@ function event:TTTC4Explode(bomb)
 	self.CallEvent({
 			[1] = 6,
 			[2] = ownervalid and owner:Nick() or TTTLogTranslate(GetDMGLogLang, "ChatDisconnected"),
-			[3] = ownervalid and owner:GetRole() or - 1
+			[3] = ownervalid and (not TTT2 and owner:GetRole() or TTT2 and owner:GetSubRole()) or - 1
 	})
 end
 
@@ -75,8 +75,8 @@ function event:Initialize()
 				event.CallEvent({
 						[1] = 4,
 						[2] = bomb.Owner:Nick(),
-						[3] = bomb.Owner:GetRole(),
-						[4] = bomb.Owner:SteamID()
+						[3] = not TTT2 and bomb.Owner:GetRole() or TTT2 and bomb.Owner:GetSubRole(),
+						[4] = bomb.Owner:SteamID64()
 				})
 			end
 

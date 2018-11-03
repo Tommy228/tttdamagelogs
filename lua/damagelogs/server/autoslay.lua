@@ -63,7 +63,7 @@ end)
 
 function Damagelog:GetName(steamid)
 	for _, v in ipairs(player.GetHumans()) do
-		if v:SteamID() == steamid then
+		if v:SteamID64() == steamid then
 			return v:Nick()
 		end
 	end
@@ -143,7 +143,7 @@ end
 
 local function NetworkSlays(steamid, number)
 	for _, v in ipairs(player.GetHumans()) do
-		if v:SteamID() == steamid then
+		if v:SteamID64() == steamid then
 			v.AutoslaysLeft = number
 
 			net.Start("DL_AutoslaysLeft")
@@ -179,7 +179,7 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			local adminid
 
 			if IsValid(admin) and type(admin) == "Player" then
-				adminid = admin:SteamID()
+				adminid = admin:SteamID64()
 			else
 				adminid = "Console"
 			end
@@ -247,7 +247,7 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			local admins
 
 			if IsValid(admin) and type(admin) == "Player" then
-				admins = util.TableToJSON({admin:SteamID()})
+				admins = util.TableToJSON({admin:SteamID64()})
 			else
 				admins = util.TableToJSON({"Console"})
 			end
@@ -298,7 +298,7 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				v:SetNWBool("PlayedSRound", true)
 			end)
 
-			local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '" .. v:SteamID() .. "' LIMIT 1")
+			local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '" .. v:SteamID64() .. "' LIMIT 1")
 			if data then
 				if aslay then
 					timer.Simple(0.5, function()
@@ -363,13 +363,13 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 
 				slays = slays - 1
 				if slays <= 0 then
-					sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '" .. v:SteamID() .. "';")
+					sql.Query("DELETE FROM damagelog_autoslay WHERE ply = '" .. v:SteamID64() .. "';")
 
 					NetworkSlays(steamid, 0)
 
 					v.AutoslaysLeft = 0
 				else
-					sql.Query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '" .. v:SteamID() .. "';")
+					sql.Query("UPDATE damagelog_autoslay SET slays = slays - 1 WHERE ply = '" .. v:SteamID64() .. "';")
 
 					NetworkSlays(steamid, slays - 1)
 
@@ -388,15 +388,15 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				net.Broadcast()
 
 				if IsValid(v.server_ragdoll) then
-					local ply = player.GetBySteamID(v.server_ragdoll.sid)
+					local ply = player.GetBySteamID64(v.server_ragdoll.sid)
 
 					if not IsValid(ply) then return end
 
 					ply:SetCleanRound(false)
 					ply:SetNWBool("body_found", true)
 
-					if not ROLES and ply:GetRole() == ROLE_TRAITOR
-					or ROLES and ply:HasTeamRole(TEAM_TRAITOR) then
+					if not TTT2 and ply:GetRole() == ROLE_TRAITOR
+					or TTT2 and ply:HasTeam(TEAM_TRAITOR) then
 						SendConfirmedTraitors(GetInnocentFilter(false))
 					end
 
@@ -413,7 +413,7 @@ hook.Add("PlayerDisconnected", "Autoslay_Message", function(ply)
 	if tonumber(ply.AutoslaysLeft) and ply.AutoslaysLeft > 0 then
 		net.Start("DL_PlayerLeft")
 		net.WriteString(ply:Nick())
-		net.WriteString(ply:SteamID())
+		net.WriteString(ply:SteamID64())
 		net.WriteUInt(ply.AutoslaysLeft, 32)
 		net.Broadcast()
 	end
@@ -421,7 +421,7 @@ end)
 
 if Damagelog.ULX_Autoslay_ForceRole then
 	hook.Add("Initialize", "Autoslay_ForceRole", function()
-		if not ROLES then
+		if not TTT2 then -- TODO do it for TTT2 as well
 			local function GetTraitorCount(ply_count)
 				local traitor_count = math.floor(ply_count * GetConVar("ttt_traitor_pct"):GetFloat())
 				traitor_count = math.Clamp(traitor_count, 1, GetConVar("ttt_traitor_max"):GetInt())
@@ -454,7 +454,7 @@ if Damagelog.ULX_Autoslay_ForceRole then
 
 				for _, v in ipairs(player.GetHumans()) do
 					if IsValid(v) and (not v:IsSpec()) and not (v.AutoslaysLeft and tonumber(v.AutoslaysLeft) > 0) then
-						local r = GAMEMODE.LastRole[v:SteamID()] or v:GetRole() or ROLE_INNOCENT
+						local r = GAMEMODE.LastRole[v:SteamID64()] or v:GetRole() or ROLE_INNOCENT
 
 						table.insert(prev_roles[r], v)
 						table.insert(choices, v)
@@ -517,7 +517,7 @@ if Damagelog.ULX_Autoslay_ForceRole then
 				for _, ply in ipairs(player.GetHumans()) do
 					ply:SetDefaultCredits()
 
-					GAMEMODE.LastRole[ply:SteamID()] = ply:GetRole()
+					GAMEMODE.LastRole[ply:SteamID64()] = ply:GetRole()
 				end
 			end
 		end

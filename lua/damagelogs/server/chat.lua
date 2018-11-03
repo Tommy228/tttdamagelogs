@@ -76,9 +76,9 @@ net.Receive("DL_StartChat", function(_len, ply)
 	local attacker
 
 	for _, v in ipairs(player.GetHumans()) do
-		if v:SteamID() == report.victim then
+		if v:SteamID64() == report.victim then
 			victim = v
-		elseif v:SteamID() == report.attacker then
+		elseif v:SteamID64() == report.attacker then
 			attacker = v
 		elseif attacker and victim then
 			break
@@ -162,10 +162,10 @@ local function AddToChat(id, report, ply)
 		category = DAMAGELOG_ADMIN
 	end
 
-	if ply:SteamID() == report.victim then
+	if ply:SteamID64() == report.victim then
 		report.chat_open.victim = ply
 		category = DAMAGELOG_VICTIM
-	elseif ply:SteamID() == report.attacker then
+	elseif ply:SteamID64() == report.attacker then
 		report.chat_open.attacker = ply
 		category = DAMAGELOG_REPORTED
 	elseif not table.HasValue(report.chat_open.admins, ply) and not table.HasValue(report.chat_open.players, ply) then

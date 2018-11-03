@@ -699,7 +699,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 			button:SetNick(report.attackerName)
 
 			for _, v in ipairs(player.GetHumans()) do
-				if v:SteamID() == report.attackerID then
+				if v:SteamID64() == report.attackerID then
 					button:SetAvatarPlayer(v)
 
 					break
@@ -770,7 +770,7 @@ function Damagelog:ReportWindow(found, deathLogs, previousReports, currentReport
 				button:SetNick(report.attackerName)
 
 				for _, v in ipairs(player.GetHumans()) do
-					if v:SteamID() == report.attackerID then
+					if v:SteamID64() == report.attackerID then
 						button:SetAvatarPlayer(v)
 
 						break

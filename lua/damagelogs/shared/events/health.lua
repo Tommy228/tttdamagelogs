@@ -13,28 +13,28 @@ event.Type = "HEAL"
 
 function event:TTTPlayerUsedHealthStation(ply, ent, healed)
 	if not (ply.IsGhost and ply:IsGhost()) and ply:IsPlayer() then
-		if usages[ply:SteamID()] == nil then
-			local timername = "HealTimer_" .. tostring(ply:SteamID())
+		if usages[ply:SteamID64()] == nil then
+			local timername = "HealTimer_" .. tostring(ply:SteamID64())
 
 			timer.Create(timername, 5, 0, function()
 				if not IsValid(ply) then
 					timer.Remove(timername)
-				elseif usages[ply:SteamID()] > 0 then
-					self:Store(ply, ent, usages[ply:SteamID()])
+				elseif usages[ply:SteamID64()] > 0 then
+					self:Store(ply, ent, usages[ply:SteamID64()])
 
-					usages[ply:SteamID()] = 0
+					usages[ply:SteamID64()] = 0
 				else
-					usages[ply:SteamID()] = nil
+					usages[ply:SteamID64()] = nil
 
-					self:RemoveTimer(ply:SteamID())
+					self:RemoveTimer(ply:SteamID64())
 				end
 			end)
 
 			self:Store(ply, ent, healed)
 
-			usages[ply:SteamID()] = 0
+			usages[ply:SteamID64()] = 0
 		else
-			usages[ply:SteamID()] = usages[ply:SteamID()] + healed
+			usages[ply:SteamID64()] = usages[ply:SteamID64()] + healed
 		end
 	end
 end

@@ -208,7 +208,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 				if role < 0 then
 					v:SetTextColor(role_colors["disconnected"])
 				else
-					if not ROLES then
+					if not TTT2 then
 						v:SetTextColor(role_colors[role])
 					else
 						v:SetTextColor(GetRoleByIndex(role).color)

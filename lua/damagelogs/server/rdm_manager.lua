@@ -48,9 +48,9 @@ if not Damagelog.Reports.Previous then
 	end
 end
 
-local function GetBySteamID(steamid)
+local function GetBySteamID64(steamid)
 	for _, v in ipairs(player_GetHumans()) do
-		if v:SteamID() == steamid then
+		if v:SteamID64() == steamid then
 			return v
 		end
 	end
@@ -146,7 +146,7 @@ net.Receive("DL_StartReport", function(length, ply)
 end)
 
 function Damagelog:SendLogToVictim(tbl)
-	local victim = player.GetBySteamID(tbl.victim)
+	local victim = player.GetBySteamID64(tbl.victim)
 
 	if not IsValid(victim) then return end
 
@@ -165,7 +165,7 @@ function Damagelog:GetMReports(ply)
 	else
 		for _, v in pairs(Damagelog.Reports.Current) do
 			if #v.victim > 0 then
-				if v.victim ~= ply:SteamID() then return end
+				if v.victim ~= ply:SteamID64() then return end
 
 				found = true
 
@@ -187,7 +187,7 @@ net.Receive("DL_AskOwnReportInfo", function(length, ply)
 
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 
-	if tbl.victim ~= ply:SteamID() then return end
+	if tbl.victim ~= ply:SteamID64() then return end
 
 	net.Start("DL_SendOwnReportInfo")
 	net.WriteTable(tbl)
@@ -195,7 +195,7 @@ net.Receive("DL_AskOwnReportInfo", function(length, ply)
 end)
 
 function Damagelog:GetPlayerReportsList(ply)
-	local steamid = ply:SteamID()
+	local steamid = ply:SteamID64()
 	local previous = {}
 
 	for _, v in pairs(Damagelog.Reports.Previous) do
@@ -369,9 +369,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	table_insert(ply.Reported, attacker)
 
 	local newReport = {
-		victim = ply:SteamID(),
+		victim = ply:SteamID64(),
 		victim_nick = ply:Nick(),
-		attacker = attacker:SteamID(),
+		attacker = attacker:SteamID64(),
 		attacker_nick = attacker:Nick(),
 		message = message,
 		response = false,
@@ -388,7 +388,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 	local index = table_insert(Damagelog.Reports.Current, newReport)
 
 	Damagelog.getmreports.id[1] = {}
-	Damagelog.getmreports.id[1].victim = ply:SteamID()
+	Damagelog.getmreports.id[1].victim = ply:SteamID64()
 	Damagelog.getmreports.id[1].index = index
 
 	Damagelog.Reports.Current[index].index = index
@@ -510,7 +510,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 		msg = ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "DealingReport") .. " #" .. index .. "."
 
 		for _, v in ipairs(player_GetHumans()) do
-			if v:SteamID() == tbl.victim then
+			if v:SteamID64() == tbl.victim then
 				v:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, ply:Nick() .. " " .. TTTLogTranslate(ply.DMGLogLang, "HandlingYourReport"), 5, "damagelogs/vote_yes.wav")
 			end
 		end
@@ -578,7 +578,7 @@ hook_Add("PlayerAuthed", "RDM_Manager", function(ply)
 
 	for _, tbl in pairs(Damagelog.Reports) do
 		for _, v in pairs(tbl) do
-			if v.attacker == ply:SteamID() and not v.response and not v.chat_opened then
+			if v.attacker == ply:SteamID64() and not v.response and not v.chat_opened then
 				ply:SendReport(v)
 			end
 		end
@@ -603,7 +603,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 	local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 	if not tbl then return end
 
-	if ply:SteamID() ~= tbl.attacker then return end
+	if ply:SteamID64() ~= tbl.attacker then return end
 
 	if tbl.response then return end
 
@@ -618,7 +618,7 @@ net.Receive("DL_SendAnswer", function(_, ply)
 		end
 	end
 
-	local victim = GetBySteamID(tbl.victim)
+	local victim = GetBySteamID64(tbl.victim)
 
 	if IsValid(victim) then
 		net.Start("DL_SendForgive")
@@ -645,7 +645,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 
 	if tbl.chat_opened then return end
 
-	if ply:SteamID() ~= tbl.victim then return end
+	if ply:SteamID64() ~= tbl.victim then return end
 
 	if forgive then
 		tbl.canceled = true
@@ -690,7 +690,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 		ply:Damagelog_Notify(DAMAGELOG_NOTIFY_INFO, string_format(TTTLogTranslate(ply.DMGLogLang, "YouDecidedNotForgive"), tbl.attacker_nick), 5, "damagelogs/vote_no.wav")
 	end
 
-	local attacker = GetBySteamID(tbl.attacker)
+	local attacker = GetBySteamID64(tbl.attacker)
 
 	if IsValid(attacker) then
 		if forgive then
@@ -727,7 +727,7 @@ net.Receive("DL_ForceRespond", function(_len, ply)
 	if not tbl then return end
 
 	if not tbl.response then
-		local attacker = GetBySteamID(tbl.attacker)
+		local attacker = GetBySteamID64(tbl.attacker)
 
 		if IsValid(attacker) then
 			net.Start("DL_Death")

@@ -8,13 +8,13 @@ local function CreateCommand()
 	local aslay = mode == 1
 
 	function ulx.autoslay(calling_ply, target, rounds, reason)
-		Damagelog:SetSlays(calling_ply, target:SteamID(), rounds, reason, target)
+		Damagelog:SetSlays(calling_ply, target:SteamID64(), rounds, reason, target)
 	end
 
 	function ulx.autoslayid(calling_ply, target, rounds, reason)
 		if ULib.isValidSteamID(target) then
 			for _, v in ipairs(player.GetHumans()) do
-				if v:SteamID() == target then
+				if v:SteamID64() == target then
 					ulx.autoslay(calling_ply, v, rounds, reason)
 
 					return
@@ -28,7 +28,7 @@ local function CreateCommand()
 	end
 
 	function ulx.cslays(calling_ply, target)
-		local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '" .. target:SteamID() .. "' LIMIT 1")
+		local data = sql.QueryRow("SELECT * FROM damagelog_autoslay WHERE ply = '" .. target:SteamID64() .. "' LIMIT 1")
 		local txt = aslay and "slays" or "jails"
 		local p = "has"
 

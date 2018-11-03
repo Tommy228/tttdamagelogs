@@ -187,7 +187,7 @@ function Damagelog:DrawOldLogs()
 	self.PlayerList = vgui.Create("DListView")
 	self.PlayerList:SetHeight(130)
 	self.PlayerList:AddColumn(TTTLogTranslate(GetDMGLogLang, "Player"))
-	self.PlayerList:AddColumn(TTTLogTranslate(GetDMGLogLang, "SteamID"))
+	self.PlayerList:AddColumn(TTTLogTranslate(GetDMGLogLang, "SteamID64"))
 	self.PlayerList:AddColumn(TTTLogTranslate(GetDMGLogLang, "Role"))
 
 	player_info:AddItem(self.PlayerList)

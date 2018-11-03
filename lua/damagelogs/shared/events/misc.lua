@@ -18,7 +18,7 @@ event.Type = "MISC"
 function event:TTTToggleDisguiser(ply, state)
 	if ply.NoDisguise then return end
 
-	local timername = "DisguiserTimer_"..tostring(ply:SteamID())
+	local timername = "DisguiserTimer_"..tostring(ply:SteamID64())
 
 	if not timer.Exists(timername) then
 		ply.DisguiseUses = 1

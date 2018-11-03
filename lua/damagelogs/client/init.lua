@@ -203,7 +203,7 @@ hook.Add("Think", "Think_Damagelog", function()
 end)
 
 function Damagelog:StrRole(role)
-	if not ROLES then
+	if not TTT2 then
 		if role == ROLE_TRAITOR then
 			return TTTLogTranslate(GetDMGLogLang, "traitor")
 		elseif role == ROLE_DETECTIVE then

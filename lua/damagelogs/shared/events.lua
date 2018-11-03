@@ -76,10 +76,10 @@ function Damagelog:IsTeamkill(attacker, victim)
 		return false
 	end
 
-	local role1 = attacker:GetRole()
-	local role2 = victim:GetRole()
+	local role1 = not TTT2 and attacker:GetRole() or TTT2 and attacker:GetSubRole()
+	local role2 = not TTT2 and victim:GetRole() or TTT2 and victim:GetSubRole()
 
-	if not ROLES then
+	if not TTT2 then
 		if role1 == role2 then
 			return true
 		elseif role1 == ROLE_DETECTIVE and role2 == ROLE_INNOCENT then
@@ -88,16 +88,7 @@ function Damagelog:IsTeamkill(attacker, victim)
 			return true
 		end
 	else
-		local rda = attacker:GetRoleData()
-		local rdv = victim:GetRoleData()
-
-		local rdaTeam = hook.Run("TTT2_ModifyRole", attacker) or rda
-		rdaTeam = rdaTeam.team
-
-		local rdvTeam = hook.Run("TTT2_ModifyRole", victim) or rdv
-		rdvTeam = rdvTeam.team
-
-		if rdaTeam and rdaTeam == rdvTeam and (not rdv.unknownTeam or rdaTeam == TEAM_TRAITOR) then
+		if victim:IsInTeam(attacker) then
 			return true
 		end
 	end
