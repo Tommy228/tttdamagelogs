@@ -201,7 +201,7 @@ local role_colors = {
 
 function Damagelog:AddRoleLine(listview, nick, role)
 	if role ~= -3 then -- TODO what is with role == -1 and -2 ? or "disconnected" ?
-		local item = listview:AddLine(nick, self:StrRole(role), "")
+		local item = listview:AddLine(nick, role < 0 and "disconnected" or self:StrRole(role), "")
 
 		function item:PaintOver()
 			for _, v in pairs(item.Columns) do
@@ -209,7 +209,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 					v:SetTextColor(role_colors["disconnected"])
 				else
 					if not TTT2 then
-						v:SetTextColor(role_colors[role])
+						v:SetTextColor(role_colors[role + 1])
 					else
 						v:SetTextColor(GetRoleByIndex(role).color)
 					end

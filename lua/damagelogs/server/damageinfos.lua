@@ -64,6 +64,20 @@ function Damagelog:SendDamageInfos(ply, t, att, victim, round)
 	local results = {}
 	local found = false
 	local data
+	local vData = self:InfoFromID(self.Roles[round], victim)
+	local aData = self:InfoFromID(self.Roles[round], att)
+
+	local vic = player.GetBySteamID64(victim)
+
+	if IsValid(vic) then
+		vData.role = not TTT2 and vic:GetRole() or TTT2 and vic:GetSubRole()
+	end
+
+	local at = player.GetBySteamID64(att)
+
+	if IsValid(at) then
+		aData.role = not TTT2 and at:GetRole() or TTT2 and at:GetSubRole()
+	end
 
 	if round == -1 then
 		data = Damagelog.PreviousMap.ShootTable
@@ -90,8 +104,8 @@ function Damagelog:SendDamageInfos(ply, t, att, victim, round)
 	end
 
 	local beg = t - 10
-	local victimNick = self:InfoFromID(self.Roles[round], victim).nick
-	local attNick = self:InfoFromID(self.Roles[round], att).nick
+	local victimNick = vData.nick
+	local attNick = aData.nick
 
 	net.Start("DL_SendDamageInfos")
 	net.WriteUInt(beg, 32)

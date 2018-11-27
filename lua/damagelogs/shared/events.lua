@@ -76,10 +76,10 @@ function Damagelog:IsTeamkill(attacker, victim)
 		return false
 	end
 
-	local role1 = not TTT2 and attacker:GetRole() or TTT2 and attacker:GetSubRole()
-	local role2 = not TTT2 and victim:GetRole() or TTT2 and victim:GetSubRole()
-
 	if not TTT2 then
+		local role1 = attacker:GetRole()
+		local role2 = victim:GetRole()
+
 		if role1 == role2 then
 			return true
 		elseif role1 == ROLE_DETECTIVE and role2 == ROLE_INNOCENT then

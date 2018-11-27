@@ -378,7 +378,9 @@ function Damagelog:DrawDamageTab(x, y)
 
 		if PlayedRounds <= 0 then
 			self.SelectedRound = -1
+
 			askLogs()
+
 			self.Round:ChooseOptionID(1)
 		end
 	end
@@ -462,6 +464,7 @@ net.Receive("DL_SendDamagelog", function()
 	}
 	round.roles = roles
 
+	-- TODO sometimes there are issues
 	for i = 1, count do
 		table.insert(round.logs, net.ReadTable())
 	end
