@@ -520,6 +520,12 @@ if Damagelog.ULX_Autoslay_ForceRole then
 					GAMEMODE.LastRole[ply:SteamID64()] = ply:GetRole()
 				end
 			end
+		else
+			hook.Add("TTT2DisableRoleSelection", "TTT2ULXAutoslay", function(ply)
+				if ply.AutoslaysLeft and tonumber(ply.AutoslaysLeft) > 0 then
+					return true
+				end
+			end)
 		end
 	end)
 end
