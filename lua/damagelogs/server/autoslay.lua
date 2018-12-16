@@ -388,8 +388,12 @@ hook.Add("TTTBeginRound", "Damagelog_AutoSlay", function()
 				net.Broadcast()
 
 				if IsValid(v.server_ragdoll) then
-					local ply = player.GetBySteamID64(v.server_ragdoll.sid64)
-
+					local ply
+					if TTT2 then
+						ply = player.GetBySteamID64(v.server_ragdoll.sid64)
+					else
+						ply = player.GetBySteamID(v.server_ragdoll.sid)
+					end
 					if not IsValid(ply) then return end
 
 					ply:SetCleanRound(false)
