@@ -223,17 +223,17 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 				
 				if target then
 					if aslay then
-						msg = " autoslays to #T for the reason : '#s'. He was previously autoslain "
+						msg = " autoslays to #T (#s). He was previously autoslain "
 					else
-						msg = " autojails to #T for the reason : '#s'. He was previously autojailed "
+						msg = " autojails to #T (#s). He was previously autojailed "
 					end
 					
 					ulx.fancyLogAdmin(admin, "#A " .. (difference > 0 and "added " or "removed ") .. math.abs(difference) .. msg .. old_slays .. " time(s) by #s.", target, reason, list)
 				else
 					if aslay then
-						msg = " autoslays to #s for the reason : '#s'. He was previously autoslain "
+						msg = " autoslays to #s (#s). He was previously autoslain "
 					else
-						msg = " autojails to #s for the reason : '#s'. He was previously autojailed "
+						msg = " autojails to #s (#s). He was previously autojailed "
 					end
 					
 					ulx.fancyLogAdmin(admin, "#A " .. (difference > 0 and "added " or "removed ") .. math.abs(difference) .. msg .. old_slays .. " time(s) by #s.", steamid, reason, list)
@@ -256,17 +256,17 @@ function Damagelog:SetSlays(admin, steamid, slays, reason, target)
 			
 			if target then
 				if aslay then
-					msg = " autoslays to #T with the reason : '#s'"
+					msg = " autoslays to #T (#s)"
 				else
-					msg = " autojails to #T with the reason : '#s'"
+					msg = " autojails to #T (#s)"
 				end
 				
 				ulx.fancyLogAdmin(admin, "#A added "..slays..msg, target, reason)
 			else
 				if aslay then
-					msg = " autoslays to #s with the reason : '#s'"
+					msg = " autoslays to #s (#s)"
 				else
-					msg = " autojails to #s with the reason : '#s'"
+					msg = " autojails to #s (#s)"
 				end
 				
 				ulx.fancyLogAdmin(admin, "#A added "..slays..msg, steamid, reason)
