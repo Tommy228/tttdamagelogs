@@ -70,12 +70,12 @@ function event:TTTEndRound()
 	end
 end
 
-function event:ToString(tbl, roles)
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+function event:ToString(tbl, rls)
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 	local healerNick
 
 	if tbl[3] then
-		local healer = Damagelog:InfoFromID(roles, tbl[4])
+		local healer = Damagelog:InfoFromID(rls, tbl[4])
 
 		healerNick = healer.nick .. " [" .. Damagelog:StrRole(healer.role) .. "]"
 	else
@@ -101,13 +101,13 @@ function event:GetColor(tbl)
 	return Damagelog:GetColor("color_heal")
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 
 	if tbl[3] then
-		local healer = Damagelog:InfoFromID(roles, tbl[4])
+		local healer = Damagelog:InfoFromID(rls, tbl[4])
 
 		line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)}, {healer.nick, util.SteamIDFrom64(healer.steamid64)})
 	else

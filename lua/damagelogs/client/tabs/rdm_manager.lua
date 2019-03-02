@@ -156,15 +156,15 @@ local function TakeAction()
 
 	menuPanel:AddOption(TTTLogTranslate(GetDMGLogLang, "ShowDeathScene"), function()
 		local found = false
-		local roles = Damagelog.Roles[report.round]
+		local rls = Damagelog.Roles[report.round]
 		local victimID = util.SteamIDTo64(report.victim)
 		local attackerID = util.SteamIDTo64(report.attacker)
 
 		for _, v in pairs(report.logs or {}) do
 			if IsValid(Damagelog.events[v.id]) and Damagelog.events[v.id].type == "KILL" then
 				local infos = v.infos
-				local ent = Damagelog:InfoFromID(roles, infos[1])
-				local att = Damagelog:InfoFromID(roles, infos[2])
+				local ent = Damagelog:InfoFromID(rls, infos[1])
+				local att = Damagelog:InfoFromID(rls, infos[2])
 
 				if ent.steamid64 == victimID and att.steamid64 == attackerID then
 					net.Start("DL_AskDeathScene")

@@ -105,16 +105,16 @@ net.Receive("DL_AskDeathScene", function(_, ply)
 	local ply2 = net.ReadUInt(32)
 
 	local scene = Damagelog.Death_Scenes[ID]
-	local roles = Damagelog.Roles[Damagelog.SceneRounds[ID]]
+	local rls = Damagelog.Roles[Damagelog.SceneRounds[ID]]
 
-	if scene and roles then
+	if scene and rls then
 		local sceneString = util.TableToJSON(scene)
 		sceneString = util.Compress(sceneString)
 
 		net.Start("DL_SendDeathScene")
 		net.WriteUInt(ply1, 32)
 		net.WriteUInt(ply2, 32)
-		net.WriteTable(roles)
+		net.WriteTable(rls)
 		net.WriteUInt(#sceneString, 32)
 		net.WriteData(sceneString, #sceneString)
 		net.Send(ply)

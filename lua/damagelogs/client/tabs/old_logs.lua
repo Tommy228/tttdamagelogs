@@ -410,7 +410,7 @@ net.Receive("DL_SendOldLog", function()
 
 					Damagelog.OldShootTables = data.ShootTable
 
-					Damagelog:SetListViewTable(Damagelog.OldDamagelog, {logs = data.DamageTable, roles = data.Roles}, false, true)
+					Damagelog:SetListViewTable(Damagelog.OldDamagelog, {logs = data.DamageTable, rls = data.Roles}, false, true)
 
 					local _, poxy = Damagelog.Menu:GetPos()
 

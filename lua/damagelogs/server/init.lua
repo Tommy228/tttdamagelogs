@@ -205,7 +205,7 @@ function Damagelog:SendDamagelog(ply, round)
 	end
 
 	local damage_send = {}
-	local roles = self.Roles[round]
+	local rls = self.Roles[round]
 	local current = false
 
 	if round == -1 then
@@ -266,15 +266,15 @@ function Damagelog:SendDamagelog(ply, round)
 			damage_send = self.OldTables[round]
 		end
 
-		self:TransferLogs(damage_send, ply, round, roles, current)
+		self:TransferLogs(damage_send, ply, round, rls, current)
 	end
 end
 
-function Damagelog:TransferLogs(damage_send, ply, round, roles, current)
+function Damagelog:TransferLogs(damage_send, ply, round, rls, current)
 	local count = #damage_send
 
 	net.Start("DL_SendDamagelog")
-	net.WriteTable(roles or {})
+	net.WriteTable(rls or {})
 	net.WriteUInt(count, 32)
 
 	for _, v in ipairs(damage_send) do
@@ -330,6 +330,6 @@ hook.Add("PlayerDeath", "Damagelog_PlayerDeathLastLogs", function(ply)
 
 	ply.DeathDmgLog = {
 		logs = table.Reverse(found_dmg),
-		roles = Damagelog.Roles[#Damagelog.Roles]
+		rls = Damagelog.Roles[#Damagelog.Roles]
 	}
 end)

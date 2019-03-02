@@ -456,13 +456,13 @@ function Damagelog:DrawDamageTab(x, y)
 end
 
 net.Receive("DL_SendDamagelog", function()
-	local roles = net.ReadTable()
+	local rls = net.ReadTable()
 	local count = net.ReadUInt(32)
 
 	local round = {
 		logs = {}
 	}
-	round.roles = roles
+	round.rls = rls
 
 	-- TODO sometimes there are issues
 	for i = 1, count do
@@ -483,13 +483,13 @@ net.Receive("DL_SendDamagelog", function()
 		Damagelog.PlayerSelect:UpdatePlayers()
 	end
 
-	Damagelog.PlayersCombo.Players = roles
+	Damagelog.PlayersCombo.Players = rls
 
 	Damagelog.PlayersCombo:Update()
 
-	Damagelog.CurrentRoles = roles
+	Damagelog.CurrentRoles = rls
 
-	Damagelog:SetRolesListView(Damagelog.Roles, roles)
+	Damagelog:SetRolesListView(Damagelog.Roles, rls)
 
 	Damagelog.Damagelog:Clear()
 
@@ -515,12 +515,12 @@ net.Receive("DL_SendDamageInfos", function()
 		result = net.ReadTable()
 	end
 
-	local roles = {
+	local rls = {
 		[attID] = {nick = att},
 		[victimID] = {nick = victim}
 	}
 
-	Damagelog:SetDamageInfosLV(Damagelog.DamageInfo, roles, att, victim, beg, t, result)
+	Damagelog:SetDamageInfosLV(Damagelog.DamageInfo, rls, att, victim, beg, t, result)
 end)
 
 net.Receive("DL_RefreshDamagelog", function()

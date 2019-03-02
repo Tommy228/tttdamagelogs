@@ -25,9 +25,9 @@ function event:Initialize()
 	end
 end
 
-function event:ToString(v, roles)
+function event:ToString(v, rls)
 	local weapon = Damagelog:GetWeaponName(v[2]) or tostring(v[2])
-	local ply = Damagelog:InfoFromID(roles, v[1])
+	local ply = Damagelog:InfoFromID(rls, v[1])
 
 	return string.format(TTTLogTranslate(GetDMGLogLang, "NadeThrown"), ply.nick, Damagelog:StrRole(ply.role), weapon)
 end
@@ -44,10 +44,10 @@ function event:GetColor(tbl)
 	return Damagelog:GetColor("color_nades")
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
 end

@@ -139,20 +139,20 @@ net.Receive("DL_AskShootLogs", function(_, ply)
 
 	if not ply:CanUseDamagelog() and round == Damagelog:GetSyncEnt():GetPlayedRounds() then return end
 
-	local data, roles
+	local data, rls
 
 	if round == -1 then
 		data = Damagelog.PreviousMap.ShootTable
-		roles = Damagelog.PreviousMap.Roles
+		rls = Damagelog.PreviousMap.Roles
 	else
 		data = Damagelog.ShootTables[round]
-		roles = Damagelog.Roles[round]
+		rls = Damagelog.Roles[round]
 	end
 
-	if not roles or not data then return end
+	if not rls or not data then return end
 
 	net.Start("DL_SendShootLogs")
-	net.WriteTable(roles)
+	net.WriteTable(rls)
 	net.WriteTable(data)
 	net.Send(ply)
 end)

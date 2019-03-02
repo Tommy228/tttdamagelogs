@@ -217,7 +217,7 @@ function Damagelog:StrRole(role)
 		if role == "disconnected" then
 			return TTTLogTranslate(GetDMGLogLang, "disconnected")
 		else
-			return TTTLogTranslate(GetDMGLogLang, GetRoleByIndex(role).name)
+			return TTTLogTranslate(GetDMGLogLang, roles.GetByIndex(role).name)
 		end
 	end
 end

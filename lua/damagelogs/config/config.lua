@@ -62,7 +62,7 @@ REQUIRES ULX ! If you are using ServerGuard, set this to 0 (it will use ServerGu
 Damagelog.ULX_AutoslayMode = 1
 
 -- Force autoslain players to be innocents (ULX only)
--- Do not enable this if another addon interferes with roles (Pointshop roles for example)
+-- Do not enable this if another addon interferes with rls (Pointshop rls for example)
 
 Damagelog.ULX_Autoslay_ForceRole = true
 

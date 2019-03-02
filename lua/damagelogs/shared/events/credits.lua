@@ -33,8 +33,8 @@ function event:Initialize()
 	end
 end
 
-function event:ToString(v, roles)
-	local ply = Damagelog:InfoFromID(roles, v[1])
+function event:ToString(v, rls)
+	local ply = Damagelog:InfoFromID(rls, v[1])
 
 	return string.format(TTTLogTranslate(GetDMGLogLang, "UsedCredits"), ply.nick, Damagelog:StrRole(ply.role), v[2] > 0 and TTTLogTranslate(GetDMGLogLang, "received") or TTTLogTranslate(GetDMGLogLang, "used"), v[2] > 0 and v[2] or - v[2], v[2] > 1 and "s" or "")
 end
@@ -51,10 +51,10 @@ function event:GetColor(tbl)
 	return Damagelog:GetColor("color_credits")
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
 end

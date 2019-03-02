@@ -41,7 +41,7 @@ function event:TTTPlayerRadioCommand(ply, msg_name, msg_target)
 	end
 end
 
-function event:ToString(v, roles)
+function event:ToString(v, rls)
 	-- copied localization from cl_voice.lua
 	local targetply = true
 	local param = v[3]
@@ -70,13 +70,13 @@ function event:ToString(v, roles)
 		targetrole = " [" .. Damagelog:StrRole(v[4]) .. "]"
 	end
 
-	local ply = Damagelog:InfoFromID(roles, v[1])
+	local ply = Damagelog:InfoFromID(rls, v[1])
 
 	return string.format(TTTLogTranslate(GetDMGLogLang, "RadioUsed"), ply.nick, Damagelog:StrRole(ply.role), text, targetrole)
 end
 
-function event:IsAllowed(tbl, roles)
-	--local ply = Damagelog:InfoFromID(roles, tbl[1]) -- not needed!
+function event:IsAllowed(tbl, rls)
+	--local ply = Damagelog:InfoFromID(rls, tbl[1]) -- not needed!
 
 	if tbl[2] ~= "quick_traitor" then
 		return Damagelog.filter_settings["filter_show_radiocommands"]
@@ -93,8 +93,8 @@ function event:Highlight(line, tbl, text)
 	return false
 end
 
-function event:GetColor(tbl, roles)
-	--local ply = Damagelog:InfoFromID(roles, tbl[1]) -- not needed!
+function event:GetColor(tbl, rls)
+	--local ply = Damagelog:InfoFromID(rls, tbl[1]) -- not needed!
 
 	if tbl[2] ~= "quick_traitor" then
 		return Damagelog:GetColor("color_defaultradio")
@@ -103,10 +103,10 @@ function event:GetColor(tbl, roles)
 	end
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 
 	if not tbl[5] then
 		line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})

@@ -21,9 +21,9 @@ function event:TTTFoundDNA(ply, dna_owner, ent)
 	})
 end
 
-function event:ToString(v, roles)
-	local ply = Damagelog:InfoFromID(roles, v[1])
-	local dna_owner = Damagelog:InfoFromID(roles, v[2])
+function event:ToString(v, rls)
+	local ply = Damagelog:InfoFromID(rls, v[1])
+	local dna_owner = Damagelog:InfoFromID(rls, v[2])
 	local ent = Damagelog:GetWeaponName(v[3]) or v[3]
 
 	return string.format(TTTLogTranslate(GetDMGLogLang, "DNAretrieved"), ply.nick, Damagelog:StrRole(ply.role), dna_owner.nick, Damagelog:StrRole(dna_owner.role), ent)
@@ -45,11 +45,11 @@ function event:GetColor(tbl)
 	return Damagelog:GetColor("color_dna")
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
-	local dna_owner = Damagelog:InfoFromID(roles, tbl[2])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
+	local dna_owner = Damagelog:InfoFromID(rls, tbl[2])
 
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)}, {dna_owner.nick, util.SteamIDFrom64(dna_owner.steamid64)})
 end

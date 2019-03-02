@@ -102,8 +102,8 @@ function event:Initialize()
 	end
 end
 
-function event:ToString(v, roles)
-	local ply = Damagelog:InfoFromID(roles, v[2])
+function event:ToString(v, rls)
+	local ply = Damagelog:InfoFromID(rls, v[2])
 	if v[1] == 1 then
 		return string.format(TTTLogTranslate(GetDMGLogLang, "DisguiserAct"), ply.nick, Damagelog:StrRole(ply.role), v[3] and TTTLogTranslate(GetDMGLogLang, "enabled") or TTTLogTranslate(GetDMGLogLang, "disabled"))
 	elseif v[1] == 2 then
@@ -145,10 +145,10 @@ function event:GetColor(tbl)
 	return Damagelog:GetColor("color_misc")
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[2])
+	local ply = Damagelog:InfoFromID(rls, tbl[2])
 
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
 end

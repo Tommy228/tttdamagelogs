@@ -2,7 +2,7 @@ local color_what = Color(255, 0, 0, 100)
 local color_darkblue = Color(25, 25, 220)
 local color_orange = Color(255, 128, 0)
 
-function Damagelog:SetLineMenu(item, infos, tbl, roles, text, old_logs)
+function Damagelog:SetLineMenu(item, infos, tbl, rls, text, old_logs)
 	item.ShowTooLong = function(_, b)
 		item.ShowLong = b
 	end
@@ -76,7 +76,7 @@ function Damagelog:SetLineMenu(item, infos, tbl, roles, text, old_logs)
 				if item.old_logs then
 					local found, result = self:FindFromOldLogs(tbl.time, item.ply1, item.ply2)
 
-					self:SetDamageInfosLV(self.OldDamageInfo, roles, tbl.ply1, tbl.ply2, tbl.time, tbl.time - 10, found and result)
+					self:SetDamageInfosLV(self.OldDamageInfo, rls, tbl.ply1, tbl.ply2, tbl.time, tbl.time - 10, found and result)
 
 					self.DamageInfoForm:Toggle()
 				else
@@ -115,18 +115,18 @@ function Damagelog:SetLineMenu(item, infos, tbl, roles, text, old_logs)
 		menu:Open()
 	end
 
-	infos:RightClick(item, tbl.infos, roles, text)
+	infos:RightClick(item, tbl.infos, rls, text)
 end
 
-function Damagelog:AddLogsLine(listview, tbl, roles, nofilters, old)
+function Damagelog:AddLogsLine(listview, tbl, rls, nofilters, old)
 	if type(tbl) ~= "table" then return end
 
 	local infos = self.events[tbl.id]
 	if not infos then return end
 
-	if not nofilters and not infos:IsAllowed(tbl.infos, roles) then return end
+	if not nofilters and not infos:IsAllowed(tbl.infos, rls) then return end
 
-	local text = infos:ToString(tbl.infos, roles)
+	local text = infos:ToString(tbl.infos, rls)
 	local item = listview:AddLine(util.SimpleTime(tbl.time, "%02i:%02i"), infos.Type, text, "")
 
 	if tbl.infos.icon then
@@ -148,12 +148,12 @@ function Damagelog:AddLogsLine(listview, tbl, roles, nofilters, old)
 			surface.DrawRect(0, 0, w, h)
 		else
 			for _, v in pairs(item.Columns) do
-				v:SetTextColor(infos:GetColor(tbl.infos, roles))
+				v:SetTextColor(infos:GetColor(tbl.infos, rls))
 			end
 		end
 	end
 
-	self:SetLineMenu(item, infos, tbl, roles, text, old)
+	self:SetLineMenu(item, infos, tbl, rls, text, old)
 
 	return true
 end
@@ -165,7 +165,7 @@ function Damagelog:SetListViewTable(listview, tbl, nofilters, old)
 		local added = false
 
 		for _, v in ipairs(tbl.logs) do
-			local line_added = self:AddLogsLine(listview, v, tbl.roles, nofilters, old)
+			local line_added = self:AddLogsLine(listview, v, tbl.rls, nofilters, old)
 
 			if not added and line_added then
 				added = true
@@ -211,7 +211,7 @@ function Damagelog:AddRoleLine(listview, nick, role)
 					if not TTT2 then
 						v:SetTextColor(role_colors[role + 1])
 					else
-						v:SetTextColor(GetRoleByIndex(role).color)
+						v:SetTextColor(roles.GetByIndex(role).color)
 					end
 				end
 			end
@@ -271,7 +271,7 @@ local shoot_colors = {
 	[Color(133, 99, 99)] = true
 }
 
-function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result)
+function Damagelog:SetDamageInfosLV(listview, rls, att, victim, beg, t, result)
 	if not IsValid(self.Menu) then return end
 
 	for k in pairs(shoot_colors) do
@@ -342,12 +342,12 @@ function Damagelog:SetDamageInfosLV(listview, roles, att, victim, beg, t, result
 				local item
 
 				if i[2] == "crowbartir" then -- Currently unused
-					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "CrowbarSwung"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles, i[1]).nick))
+					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "CrowbarSwung"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(rls, i[1]).nick))
 				elseif i[2] == "crowbarpouss" then -- Currently unused
-					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasPushed"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles, i[1]).nick, self:InfoFromID(roles, i[3]).nick))
+					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasPushed"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(rls, i[1]).nick, self:InfoFromID(rls, i[3]).nick))
 				else
 					wep = Damagelog:GetWeaponName(i[2]) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
-					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(roles, i[1]).nick, wep))
+					item = listview:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), string.FormattedTime(v, "%02i:%02i"), self:InfoFromID(rls, i[1]).nick, wep))
 				end
 
 				item.PaintOver = function()

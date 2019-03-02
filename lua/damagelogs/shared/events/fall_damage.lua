@@ -33,12 +33,12 @@ function event:EntityTakeDamage(ent, dmginfo)
 	end
 end
 
-function event:ToString(tbl, roles)
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+function event:ToString(tbl, rls)
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 	local t = string.format(TTTLogTranslate(GetDMGLogLang, "FallDamage"), ply.nick, Damagelog:StrRole(ply.role), tbl[2])
 
 	if tbl[3] then
-		local att = Damagelog:InfoFromID(roles, tbl[4])
+		local att = Damagelog:InfoFromID(rls, tbl[4])
 
 		t = t .. string.format(TTTLogTranslate(GetDMGLogLang, "AfterPush"), att.nick, Damagelog:StrRole(att.role))
 	end
@@ -62,13 +62,13 @@ function event:GetColor(tbl)
 	end
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 
 	if tbl[3] then
-		local att = Damagelog:InfoFromID(roles, tbl[4])
+		local att = Damagelog:InfoFromID(rls, tbl[4])
 
 		line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)}, {att.nick, util.SteamIDFrom64(att.steamid64)})
 	else

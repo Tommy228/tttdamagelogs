@@ -39,8 +39,8 @@ function event:DoPlayerDeath(ply, attacker, dmginfo)
 	end
 end
 
-function event:ToString(v, roles)
-	local info = Damagelog:InfoFromID(roles, v[1])
+function event:ToString(v, rls)
+	local info = Damagelog:InfoFromID(rls, v[1])
 
 	return string.format(TTTLogTranslate(GetDMGLogLang, "SomethingKilled"), info.nick, Damagelog:StrRole(info.role))
 end
@@ -57,10 +57,10 @@ function event:GetColor(tbl)
 	return Damagelog:GetColor("color_suicides")
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local ply = Damagelog:InfoFromID(roles, tbl[1])
+	local ply = Damagelog:InfoFromID(rls, tbl[1])
 
 	line:ShowCopy(true, {ply.nick, util.SteamIDFrom64(ply.steamid64)})
 	line:ShowDeathScene(tbl[1], tbl[1], tbl[2])

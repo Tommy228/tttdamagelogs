@@ -5,7 +5,7 @@ CreateClientConVar("ttt_dmglogs_ds_showothers", "1", FCVAR_ARCHIVE)
 
 local i = 1
 local current_scene
-local roles
+local rls
 local models = {}
 local props = {}
 local last_curtime
@@ -121,7 +121,7 @@ local function CreateShotsPanel()
 
 			for id, tbl in ipairs(moment) do
 				if tbl.shot and (showAll or id == victim or id == attacker) then
-					local nick = Damagelog:InfoFromID(roles, id).nick
+					local nick = Damagelog:InfoFromID(rls, id).nick
 					local wep = Damagelog:GetWeaponName(tbl.wep) or TTTLogTranslate(GetDMGLogLang, "UnknownWeapon")
 					local line = Info:AddLine(string.format(TTTLogTranslate(GetDMGLogLang, "HasShot"), current_second .. "s", nick, wep))
 
@@ -322,7 +322,7 @@ end
 net.Receive("DL_SendDeathScene", function()
 	victim = net.ReadUInt(32)
 	attacker = net.ReadUInt(32)
-	roles = net.ReadTable()
+	rls = net.ReadTable()
 
 	local sceneSize = net.ReadUInt(32)
 	local sceneString = net.ReadData(sceneSize)
@@ -418,7 +418,7 @@ hook.Add("HUDPaint", "Scene_Record", function()
 		surface.SetFont("TabLarge")
 
 		for id, model in pairs(models) do
-			local nick = Damagelog:InfoFromID(roles, id).nick
+			local nick = Damagelog:InfoFromID(rls, id).nick
 
 			if model.corpse then
 				local pos = model.pos:ToScreen()

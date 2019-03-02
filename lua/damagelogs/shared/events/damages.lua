@@ -80,13 +80,13 @@ function event:PlayerTakeRealDamage(ent, dmginfo, original_dmg)
 	end
 end
 
-function event:ToString(tbl, roles)
+function event:ToString(tbl, rls)
 	local weapon = tbl[4]
 	weapon = Damagelog:GetWeaponName(weapon)
 
 	local karma_reduced = tbl[3] < tbl[5]
-	local ent = Damagelog:InfoFromID(roles, tbl[1])
-	local att = Damagelog:InfoFromID(roles, tbl[2])
+	local ent = Damagelog:InfoFromID(rls, tbl[1])
+	local att = Damagelog:InfoFromID(rls, tbl[2])
 	local str = string.format(TTTLogTranslate(GetDMGLogLang, "HasDamaged"), att.nick, Damagelog:StrRole(att.role), ent.nick, Damagelog:StrRole(ent.role), tbl[3])
 
 	if karma_reduced then
@@ -108,9 +108,9 @@ function event:Highlight(line, tbl, text)
 	return false
 end
 
-function event:GetColor(tbl, roles)
-	local ent = Damagelog:InfoFromID(roles, tbl[1])
-	local att = Damagelog:InfoFromID(roles, tbl[2])
+function event:GetColor(tbl, rls)
+	local ent = Damagelog:InfoFromID(rls, tbl[1])
+	local att = Damagelog:InfoFromID(rls, tbl[2])
 
 	if Damagelog:IsTeamkill(player.GetBySteamID64(att.steamid64), player.GetBySteamID64(ent.steamid64)) then
 		return Damagelog:GetColor("color_team_damages")
@@ -119,11 +119,11 @@ function event:GetColor(tbl, roles)
 	end
 end
 
-function event:RightClick(line, tbl, roles, text)
+function event:RightClick(line, tbl, rls, text)
 	line:ShowTooLong(true)
 
-	local attackerInfo = Damagelog:InfoFromID(roles, tbl[1])
-	local victimInfo = Damagelog:InfoFromID(roles, tbl[2])
+	local attackerInfo = Damagelog:InfoFromID(rls, tbl[1])
+	local victimInfo = Damagelog:InfoFromID(rls, tbl[2])
 
 	line:ShowCopy(true, {attackerInfo.nick, util.SteamIDFrom64(attackerInfo.steamid64)}, {victimInfo.nick, util.SteamIDFrom64(victimInfo.steamid64)})
 	line:ShowDamageInfos(tbl[2], tbl[1])
