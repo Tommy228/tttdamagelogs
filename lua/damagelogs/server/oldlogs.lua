@@ -9,10 +9,6 @@ Damagelog.previous_reports = {}
 
 local limit = os.time() - Damagelog.LogDays * 86400 --  24 * 60 * 60
 
-local function GetLogsCount_SQLite()
-	return sql.QueryValue("SELECT COUNT(id) FROM damagelog_oldlogs_v3")
-end
-
 if Damagelog.Use_MySQL then
 	require("mysqloo")
 
@@ -123,7 +119,7 @@ else
 		-- date is the UNIX TIME
 		sql.Query([[
 			CREATE TABLE IF NOT EXISTS damagelog_oldlogs_v3 (
-			id INT UNSIGNED NOT NULL PRIMARY KEY,
+			id INT UNSIGNED NOT NULL PRIMARY KEY AUTOINCREMENT,
 			year INTEGER NOT NULL,
 			month INTEGER NOT NULL,
 			day INTEGER NOT NULL,
@@ -206,8 +202,8 @@ hook.Add("TTTEndRound", "Damagelog_EndRound", function()
 			local query = Damagelog.database:query(insert)
 			query:start()
 		elseif not Damagelog.Use_MySQL then
-			local insert = string.format("INSERT INTO damagelog_oldlogs_v3(`id`, `year`, `month`, `day`, `date`, `round`, `map`, `damagelog`) VALUES(%i, %i, %i, %i, %i, %i, \"%s\", %s);",
-			GetLogsCount_SQLite() + 1, year, month, day, t, Damagelog.CurrentRound, game.GetMap(), sql.SQLStr(logs))
+			local insert = string.format("INSERT INTO damagelog_oldlogs_v3(`year`, `month`, `day`, `date`, `round`, `map`, `damagelog`) VALUES(%i, %i, %i, %i, %i, %i, \"%s\", %s);",
+			year, month, day, t, Damagelog.CurrentRound, game.GetMap(), sql.SQLStr(logs))
 			sql.Query(insert)
 		end
 
