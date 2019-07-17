@@ -509,7 +509,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 		local syncEnt = Damagelog:GetSyncEnt()
 
-		if IsValid(syncEnt)then
+		if IsValid(syncEnt) and not tbl.adminReport then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() + 1)
 		end
 	elseif status == RDM_MANAGER_PROGRESS then
@@ -523,7 +523,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 		local syncEnt = Damagelog:GetSyncEnt()
 
-		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
+		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING and not tbl.adminReport then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
 		end
 	elseif status == RDM_MANAGER_FINISHED then
@@ -531,7 +531,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
 
 		local syncEnt = Damagelog:GetSyncEnt()
 
-		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING then
+		if IsValid(syncEnt) and previousStatus == RDM_MANAGER_WAITING and not tbl.adminReport then
 			syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
 		end
 	end
@@ -664,7 +664,7 @@ net.Receive("DL_GetForgive", function(_, ply)
 
 			local syncEnt = Damagelog:GetSyncEnt()
 
-			if IsValid(syncEnt) then
+			if IsValid(syncEnt) and not tbl.adminReport then
 				syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
 			end
 		end

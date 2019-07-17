@@ -54,13 +54,13 @@ if SERVER then
 
 		if Damagelog.RDM_Manager_Enabled then
 			for _, v in pairs(Damagelog.Reports.Current) do
-				if v.status == RDM_MANAGER_WAITING then
+				if v.status == RDM_MANAGER_WAITING and not v.adminReport then
 					Damagelog.sync_ent:SetPendingReports(Damagelog.sync_ent:GetPendingReports() + 1)
 				end
 			end
 
 			for _, v in pairs(Damagelog.Reports.Previous) do
-				if v.status == RDM_MANAGER_WAITING then
+				if v.status == RDM_MANAGER_WAITING and not v.adminReport then
 					Damagelog.sync_ent:SetPendingReports(Damagelog.sync_ent:GetPendingReports() + 1)
 				end
 			end
