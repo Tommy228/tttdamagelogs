@@ -798,13 +798,12 @@ end)
 
 net.Receive("DL_SendReport", function()
     local report = net.ReadTable()
+    Damagelog.ReportsQueue[#Damagelog.ReportsQueue + 1] = report
 
     if IsValid(ReportFrame) then
         BuildReportFrame(report)
-        Damagelog.ReportsQueue[#Damagelog.ReportsQueue + 1] = report
     else
         local client = LocalPlayer()
-        Damagelog.ReportsQueue[#Damagelog.ReportsQueue + 1] = report
 
         if not client.IsActive or not client:IsActive() then
             BuildReportFrame(report)
