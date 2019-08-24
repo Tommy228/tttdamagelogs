@@ -639,10 +639,7 @@ hook_Add("TTTEndRound", "RDM_Manager", function()
     net.Broadcast()
 end)
 
-net.Receive("DL_SendAnswer", function(_, ply)
-    local previous = net.ReadUInt(1) ~= 1
-    local text = net.ReadString()
-    local index = net.ReadUInt(16)
+function HandleReportedPlayerAnswer(ply, previous, text, index)
     local tbl = previous and Damagelog.Reports.Previous[index] or Damagelog.Reports.Current[index]
 
     if not tbl then
@@ -681,7 +678,17 @@ net.Receive("DL_SendAnswer", function(_, ply)
 
     Damagelog:SendLogToVictim(tbl)
     UpdatePreviousReports()
+end
+
+net.Receive("DL_SendAnswer", function(_, ply)
+    local previous = net.ReadUInt(1) ~= 1
+    local text = net.ReadString()
+    local index = net.ReadUInt(16)
+
+    HandleReportedPlayerAnswer(ply, previous, text, index)
 end)
+
+
 
 net.Receive("DL_GetForgive", function(_, ply)
     local forgive = net.ReadUInt(1) == 1
@@ -756,6 +763,26 @@ net.Receive("DL_GetForgive", function(_, ply)
     Damagelog:SendLogToVictim(tbl)
     UpdatePreviousReports()
     hook_Call("TTTDLog_Decide", nil, ply, IsValid(attacker) and attacker or tbl.attacker, forgive, index)
+
+
+    local discordUpdate = {
+        reportId = index,
+        round = Damagelog.CurrentRound or 0,
+        victim = {
+            nick = tbl.victim_nick,
+            steamID = tbl.victim
+        },
+        attacker = {
+            nick = tbl.attacker_nick,
+            steamID = tbl.attacker
+        },
+        adminsOnline = AreAdminsOnline(),
+        reportMessage = tbl.message,
+        reportForgiven = {
+            forgiven = forgive
+        }
+    }
+    Damagelog:DiscordMessage(discordUpdate)
 end)
 
 net.Receive("DL_Answering", function(_len, ply)

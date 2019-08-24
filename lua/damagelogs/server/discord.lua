@@ -67,6 +67,23 @@ function Damagelog:DiscordMessage(discordUpdate)
         color = 0xffff00
     }
 
+    if discordUpdate.reportForgiven != nil then
+        local rowMessage = ""
+        if discordUpdate.reportForgiven.forgiven then
+            data.color = 0x00ff00
+            rowMessage = "Forgiven" // TODO: Translate
+        else
+            data.color = 0xff0000
+            rowMessage = "Kept" // TODO: Translate
+        end
+
+        local forgivenRow = {
+            name = "Forgiven / Kept?", // TODO: Translate
+            value = rowMessage
+        }
+        table.insert(data.fields, forgivenRow)
+    end
+
     if emitOnlyWhenAdminsOffline == false then
         data.footer = {
             text = TTTLogTranslate(nil, discordUpdate.adminOnline and "webhook_AdminsOnline" or "webhook_NoAdminsOnline")
