@@ -67,6 +67,14 @@ function Damagelog:DiscordMessage(discordUpdate)
         color = 0xffff00
     }
 
+    if discordUpdate.responseMessage != nil then
+        local forgivenRow = {
+            name = TTTLogTranslate(nil, "ReportedPlayerResponse"),
+            value = discordUpdate.responseMessage:gsub("([%*_~<>\\@[])", "\\%1")
+        }
+        table.insert(data.fields, forgivenRow)
+    end
+
     if discordUpdate.reportForgiven != nil then
         local rowMessage = ""
         if discordUpdate.reportForgiven.forgiven then
@@ -82,6 +90,18 @@ function Damagelog:DiscordMessage(discordUpdate)
             value = rowMessage
         }
         table.insert(data.fields, forgivenRow)
+    end
+
+    if discordUpdate.reportHandled != nil then
+        data.color = 0x8888ff
+
+        local rowMessage = "[" .. discordUpdate.reportHandled.admin.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.reportHandled.admin.steamID) .. ")"
+
+        local reportHandlerRow = {
+            name = "Report handled by", // TODO: Translate
+            value = rowMessage
+        }
+        table.insert(data.fields, reportHandlerRow)
     end
 
     if emitOnlyWhenAdminsOffline == false then

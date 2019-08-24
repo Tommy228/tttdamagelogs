@@ -429,7 +429,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
         },
         adminsOnline = adminOnline,
         reportMessage = newReport.message,
-        reportForgiven = nil
+        responseMessage = nil,
+        reportForgiven = nil,
+        reportHandled = nil
     }
     Damagelog:DiscordMessage(discordUpdate)
 
@@ -582,6 +584,34 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
     -- No Bots would use RDM Manager
     Damagelog:SendLogToVictim(tbl)
     UpdatePreviousReports()
+
+    if status == RDM_MANAGER_FINISHED then
+        local discordUpdate = {
+            reportId = index,
+            round = Damagelog.CurrentRound or 0,
+            victim = {
+                nick = tbl.victim_nick,
+                steamID = tbl.victim
+            },
+            attacker = {
+                nick = tbl.attacker_nick,
+                steamID = tbl.attacker
+            },
+            adminsOnline = AreAdminsOnline(),
+            reportMessage = tbl.message,
+            responseMessage = tbl.response,
+            reportForgiven = {
+                forgiven = tbl.canceled
+            },
+            reportHandled = {
+                admin = {
+                    nick = ply:Nick(),
+                    steamID = ply:SteamID()
+                }
+            }
+        }
+        Damagelog:DiscordMessage(discordUpdate)
+    end
 end)
 
 net.Receive("DL_Conclusion", function(_len, ply)
@@ -778,9 +808,11 @@ net.Receive("DL_GetForgive", function(_, ply)
         },
         adminsOnline = AreAdminsOnline(),
         reportMessage = tbl.message,
+        responseMessage = tbl.response,
         reportForgiven = {
             forgiven = forgive
-        }
+        },
+        reportHandled = nil
     }
     Damagelog:DiscordMessage(discordUpdate)
 end)
