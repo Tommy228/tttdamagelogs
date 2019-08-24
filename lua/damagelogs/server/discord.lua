@@ -79,14 +79,14 @@ function Damagelog:DiscordMessage(discordUpdate)
         local rowMessage = ""
         if discordUpdate.reportForgiven.forgiven then
             data.color = 0x00ff00
-            rowMessage = "Forgiven" // TODO: Translate
+            rowMessage = TTTLogTranslate(nil, "webhook_report_forgiven")
         else
             data.color = 0xff0000
-            rowMessage = "Kept" // TODO: Translate
+            rowMessage = TTTLogTranslate(nil, "webhook_report_kept")
         end
 
         local forgivenRow = {
-            name = "Forgiven / Kept?", // TODO: Translate
+            name = TTTLogTranslate(nil, "webhook_report_forgiven_or_kept"),
             value = rowMessage
         }
         table.insert(data.fields, forgivenRow)
@@ -98,7 +98,7 @@ function Damagelog:DiscordMessage(discordUpdate)
         local rowMessage = "[" .. discordUpdate.reportHandled.admin.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.reportHandled.admin.steamID) .. ")"
 
         local reportHandlerRow = {
-            name = "Report handled by", // TODO: Translate
+            name = TTTLogTranslate(nil, "webhook_report_handled_by"),
             value = rowMessage
         }
         table.insert(data.fields, reportHandlerRow)
