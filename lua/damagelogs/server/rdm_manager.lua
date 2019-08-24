@@ -60,6 +60,16 @@ local function UpdatePreviousReports()
     file.Write("damagelog/prevreports.txt", util_TableToJSON(tbl))
 end
 
+local function AreAdminsOnline()
+    for _, v in ipairs(player_GetHumans()) do
+        if v:CanUseRDMManager() then
+            return true
+        end
+    end
+
+    return false
+end
+
 local Player = FindMetaTable("Player")
 
 function Player:RemainingReports()
@@ -317,18 +327,9 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
     end
 
     message = string_gsub(string_gsub(message, "[^%g\128-\191\194-\197\208-\210 ]+", ""), "%s+", " ")
-    local adminOnline = true
+    local adminOnline = AreAdminsOnline()
 
     if not ply:CanUseRDMManager() then
-        adminOnline = false
-
-        for _, v in ipairs(player_GetHumans()) do
-            if v:CanUseRDMManager() then
-                adminOnline = true
-                break
-            end
-        end
-
         if not Damagelog.NoStaffReports then
             if not adminOnline then
                 ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
@@ -414,7 +415,23 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
     Damagelog.getmreports.id[1].victim = ply:SteamID()
     Damagelog.getmreports.id[1].index = index
     Damagelog.Reports.Current[index].index = index
-    Damagelog:DiscordMessage(newReport, adminOnline)
+
+    local discordUpdate = {
+        reportId = index,
+        round = Damagelog.CurrentRound or 0,
+        victim = {
+            nick = newReport.victim_nick,
+            steamID = newReport.victim
+        },
+        attacker = {
+            nick = newReport.attacker_nick,
+            steamID = newReport.attacker
+        },
+        adminsOnline = adminOnline,
+        reportMessage = newReport.message,
+        reportForgiven = nil
+    }
+    Damagelog:DiscordMessage(discordUpdate)
 
     if reportType ~= DAMAGELOG_REPORT_STANDARD then
         Damagelog.Reports.Current[index].status = RDM_MANAGER_PROGRESS

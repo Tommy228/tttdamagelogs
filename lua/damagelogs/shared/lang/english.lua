@@ -391,7 +391,7 @@ DamagelogLang.english = {
     color_team_kills = "Team kills",
     color_drownings = "Drownings",
     -- Discord webhook
-    webhook_AdminsOnline = "There is staff online.",
-    webhook_NoAdminsOnline = "There is no staff online.",
+    webhook_AdminsOnline = "There are staff online.",
+    webhook_NoAdminsOnline = "There are no staff online.",
     webhook_ServerInfo = "Current map: %s, round: %s"
 }
