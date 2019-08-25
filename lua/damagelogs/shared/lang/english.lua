@@ -394,8 +394,9 @@ DamagelogLang.english = {
     webhook_AdminsOnline = "There are staff online.",
     webhook_NoAdminsOnline = "There are no staff online.",
     webhook_ServerInfo = "Current map: %s, round: %s",
-    webhook_report_forgiven_or_kept = "Forgiven / Kept?",
+    webhook_report_forgiven_or_kept = "Forgiven or Kept",
     webhook_report_forgiven = "Foriven",
-    webhook_report_kept = "Keep",
-    webhook_report_handled_by = "Report handled by"
+    webhook_report_kept = "Kept",
+    webhook_report_handled_by = "Report handled by",
+    webhook_header = "Report: ID %s"
 }

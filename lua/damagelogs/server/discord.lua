@@ -46,21 +46,21 @@ function Damagelog:DiscordMessage(discordUpdate)
     end
 
     local data = {
-        title = TTTLogTranslate(nil, "ReportCreated"):format(discordUpdate.reportId),
+        title = TTTLogTranslate(nil, "webhook_header"):format(discordUpdate.reportId),
         description = TTTLogTranslate(nil, "webhook_ServerInfo"):format(game.GetMap(), discordUpdate.round),
         fields = {
             {
-                name = TTTLogTranslate(nil, "Victim"),
+                name = TTTLogTranslate(nil, "Victim") .. ":",
                 value = "[" .. discordUpdate.victim.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.victim.steamID) .. ")",
                 inline = true
             },
             {
-                name = TTTLogTranslate(nil, "ReportedPlayer"),
+                name = TTTLogTranslate(nil, "ReportedPlayer") .. ":",
                 value = "[" .. discordUpdate.attacker.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.attacker.steamID) .. ")",
                 inline = true
             },
             {
-                name = TTTLogTranslate(nil, "VictimsReport"),
+                name = TTTLogTranslate(nil, "VictimsReport") .. ":",
                 value = discordUpdate.reportMessage:gsub("([%*_~<>\\@[])", "\\%1")
             }
         },
@@ -69,7 +69,7 @@ function Damagelog:DiscordMessage(discordUpdate)
 
     if discordUpdate.responseMessage != nil then
         local forgivenRow = {
-            name = TTTLogTranslate(nil, "ReportedPlayerResponse"),
+            name = TTTLogTranslate(nil, "ReportedPlayerResponse") .. ":",
             value = discordUpdate.responseMessage:gsub("([%*_~<>\\@[])", "\\%1")
         }
         table.insert(data.fields, forgivenRow)
@@ -86,19 +86,19 @@ function Damagelog:DiscordMessage(discordUpdate)
         end
 
         local forgivenRow = {
-            name = TTTLogTranslate(nil, "webhook_report_forgiven_or_kept"),
+            name = TTTLogTranslate(nil, "webhook_report_forgiven_or_kept") .. ":",
             value = rowMessage
         }
         table.insert(data.fields, forgivenRow)
     end
 
     if discordUpdate.reportHandled != nil then
-        data.color = 0x8888ff
+        data.color = 0x0394fc
 
         local rowMessage = "[" .. discordUpdate.reportHandled.admin.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.reportHandled.admin.steamID) .. ")"
 
         local reportHandlerRow = {
-            name = TTTLogTranslate(nil, "webhook_report_handled_by"),
+            name = TTTLogTranslate(nil, "webhook_report_handled_by") .. ":",
             value = rowMessage
         }
         table.insert(data.fields, reportHandlerRow)
