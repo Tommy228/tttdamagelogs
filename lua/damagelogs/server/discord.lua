@@ -48,6 +48,7 @@ function Damagelog:DiscordMessage(discordUpdate)
     local data = {
         title = TTTLogTranslate(nil, "webhook_header"):format(discordUpdate.reportId),
         description = TTTLogTranslate(nil, "webhook_ServerInfo"):format(game.GetMap(), discordUpdate.round),
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
         fields = {
             {
                 name = TTTLogTranslate(nil, "Victim") .. ":",
