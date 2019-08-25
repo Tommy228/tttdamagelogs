@@ -393,14 +393,14 @@ DamagelogLang.english = {
     -- Discord webhook
     webhook_AdminsOnline = "There are staff online.",
     webhook_NoAdminsOnline = "There are no staff online.",
-    webhook_ServerInfo = "Current map: %s, round: %s",
+    webhook_ServerInfo = "Current map: %s, Round: %s",
     webhook_report_forgiven_or_kept = "Forgiven or Kept",
     webhook_report_forgiven = "Foriven",
     webhook_report_kept = "Kept",
     webhook_report_finished_by = "Report finished by",
     webhook_report_finished_time_taken = "Time taken",
-    webhook_header_report_submitted = "Report Submitted - ID %s",
-    webhook_header_report_forgiven = "Report Forgiven - ID %s",
-    webhook_header_report_kept = "Report Kept - ID %s",
-    webhook_header_report_finished = "Report Finished - ID %s"
+    webhook_header_report_submitted = "Report Submitted (ID %s)",
+    webhook_header_report_forgiven = "Report Forgiven (ID %s)",
+    webhook_header_report_kept = "Report Kept (ID %s)",
+    webhook_header_report_finished = "Report Finished (ID %s)"
 }
