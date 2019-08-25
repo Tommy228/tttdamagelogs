@@ -398,5 +398,8 @@ DamagelogLang.english = {
     webhook_report_forgiven = "Foriven",
     webhook_report_kept = "Kept",
     webhook_report_handled_by = "Report handled by",
-    webhook_header = "Report: ID %s"
+    webhook_header_report_submitted = "Report Submitted - ID %s",
+    webhook_header_report_forgiven = "Report Forgiven - ID %s",
+    webhook_header_report_kept = "Report Kept - ID %s",
+    webhook_header_report_handled = "Report Handled - ID %s"
 }

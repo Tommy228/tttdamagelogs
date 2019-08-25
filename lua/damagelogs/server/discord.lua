@@ -46,7 +46,7 @@ function Damagelog:DiscordMessage(discordUpdate)
     end
 
     local data = {
-        title = TTTLogTranslate(nil, "webhook_header"):format(discordUpdate.reportId),
+        title = TTTLogTranslate(nil, "webhook_header_report_submitted"):format(discordUpdate.reportId),
         description = TTTLogTranslate(nil, "webhook_ServerInfo"):format(game.GetMap(), discordUpdate.round),
         timestamp = os.date("!%Y-%m-%dT%H:%M:%S.000Z"),
         fields = {
@@ -68,6 +68,7 @@ function Damagelog:DiscordMessage(discordUpdate)
         color = 0xffff00
     }
 
+
     if discordUpdate.responseMessage != nil then
         local forgivenRow = {
             name = TTTLogTranslate(nil, "ReportedPlayerResponse") .. ":",
@@ -76,12 +77,15 @@ function Damagelog:DiscordMessage(discordUpdate)
         table.insert(data.fields, forgivenRow)
     end
 
+
     if discordUpdate.reportForgiven != nil then
         local rowMessage = ""
         if discordUpdate.reportForgiven.forgiven then
+            data.title = TTTLogTranslate(nil, "webhook_header_report_forgiven"):format(discordUpdate.reportId)
             data.color = 0x00ff00
             rowMessage = TTTLogTranslate(nil, "webhook_report_forgiven")
         else
+            data.title = TTTLogTranslate(nil, "webhook_header_report_kept"):format(discordUpdate.reportId)
             data.color = 0xff0000
             rowMessage = TTTLogTranslate(nil, "webhook_report_kept")
         end
@@ -93,7 +97,9 @@ function Damagelog:DiscordMessage(discordUpdate)
         table.insert(data.fields, forgivenRow)
     end
 
+
     if discordUpdate.reportHandled != nil then
+        data.title = TTTLogTranslate(nil, "webhook_header_report_handled"):format(discordUpdate.reportId)
         data.color = 0x0394fc
 
         local rowMessage = "[" .. discordUpdate.reportHandled.admin.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.reportHandled.admin.steamID) .. ")"
@@ -104,6 +110,7 @@ function Damagelog:DiscordMessage(discordUpdate)
         }
         table.insert(data.fields, reportHandlerRow)
     end
+
 
     if emitOnlyWhenAdminsOffline == false then
         data.footer = {
