@@ -105,10 +105,20 @@ function Damagelog:DiscordMessage(discordUpdate)
         local rowMessage = "[" .. discordUpdate.reportHandled.admin.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.reportHandled.admin.steamID) .. ")"
 
         local reportHandlerRow = {
-            name = TTTLogTranslate(nil, "webhook_report_handled_by") .. ":",
-            value = rowMessage
+            name = TTTLogTranslate(nil, "webhook_report_finished_by") .. ":",
+            value = rowMessage,
+            inline = true
         }
         table.insert(data.fields, reportHandlerRow)
+
+        local minutesTaken = math.floor(discordUpdate.reportHandled.secondsTaken / 60)
+        local secondsTaken = discordUpdate.reportHandled.secondsTaken % 60
+        local reportHandlerTimeRow = {
+            name = TTTLogTranslate(nil, "webhook_report_finished_time_taken") .. ":",
+            value = string.format("%02d:%02d minutes", minutesTaken, secondsTaken),
+            inline = true
+        }
+        table.insert(data.fields, reportHandlerTimeRow)
     end
 
 

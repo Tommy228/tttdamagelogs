@@ -599,7 +599,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
             },
             adminOnline = AreAdminsOnline(),
             reportMessage = tbl.message,
-            responseMessage = tbl.response,
+            responseMessage = tbl.response or "Unknown",
             reportForgiven = {
                 forgiven = tbl.canceled
             },
@@ -607,7 +607,8 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
                 admin = {
                     nick = ply:Nick(),
                     steamID = ply:SteamID()
-                }
+                },
+                secondsTaken = os.time() - (tbl.handedOffToAdminsAt or os.time())
             }
         }
         Damagelog:DiscordMessage(discordUpdate)
@@ -752,6 +753,8 @@ net.Receive("DL_GetForgive", function(_, ply)
                 syncEnt:SetPendingReports(syncEnt:GetPendingReports() - 1)
             end
         end
+    else
+        tbl.handedOffToAdminsAt = os.time()
     end
 
     for _, v in ipairs(player_GetHumans()) do
