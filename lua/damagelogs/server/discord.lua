@@ -99,7 +99,7 @@ function Damagelog:DiscordMessage(discordUpdate)
 
 
     if discordUpdate.reportHandled != nil then
-        data.title = TTTLogTranslate(nil, "webhook_header_report_handled"):format(discordUpdate.reportId)
+        data.title = TTTLogTranslate(nil, "webhook_header_report_finished"):format(discordUpdate.reportId)
         data.color = 0x0394fc
 
         local rowMessage = "[" .. discordUpdate.reportHandled.admin.nick:gsub("([%*_~<>\\@%]])", "\\%1") .. "](https://steamcommunity.com/profiles/" .. util.SteamIDTo64(discordUpdate.reportHandled.admin.steamID) .. ")"
