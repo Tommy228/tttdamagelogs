@@ -427,7 +427,7 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
             nick = newReport.attacker_nick,
             steamID = newReport.attacker
         },
-        adminsOnline = adminOnline,
+        adminOnline = adminOnline,
         reportMessage = newReport.message,
         responseMessage = nil,
         reportForgiven = nil,
@@ -597,7 +597,7 @@ net.Receive("DL_UpdateStatus", function(_len, ply)
                 nick = tbl.attacker_nick,
                 steamID = tbl.attacker
             },
-            adminsOnline = AreAdminsOnline(),
+            adminOnline = AreAdminsOnline(),
             reportMessage = tbl.message,
             responseMessage = tbl.response,
             reportForgiven = {
@@ -806,7 +806,7 @@ net.Receive("DL_GetForgive", function(_, ply)
             nick = tbl.attacker_nick,
             steamID = tbl.attacker
         },
-        adminsOnline = AreAdminsOnline(),
+        adminOnline = AreAdminsOnline(),
         reportMessage = tbl.message,
         responseMessage = tbl.response,
         reportForgiven = {
