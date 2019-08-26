@@ -177,6 +177,7 @@ DamagelogLang.english = {
     Armor = "a set of body armor",
     Disguiser = "a disguiser",
     HasBought = "%s [%s] bought %s",
+    HasUsed = "%s [%s] used equipment %s (%s)",
     CrowbarSwung = "%s - %s has swung their crowbar",
     HasShot = "%s - %s has shot with %s",
     HasPushed = "%s - %s has pushed %s with a crowbar",
@@ -369,6 +370,7 @@ DamagelogLang.english = {
     filter_show_radiocommands = "Show standard radio commands",
     filter_show_radiokos = "Show KOS radio commands",
     filter_show_purchases = "Show weapon purchases",
+    filter_show_equipment_usage = "Show equipment usage (if supported)",
     filter_show_c4 = "Show C4",
     filter_show_drownings = "Show drownings",
     -- Colors
