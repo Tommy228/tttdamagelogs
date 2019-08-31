@@ -317,11 +317,7 @@ end
 
 hook_Add("TTTFoundDNA", "Damagelog", OnDNAFound)
 
-net.Receive("DL_ReportPlayer", function(_len, ply)
-    local attacker = net.ReadEntity()
-    local message = net.ReadString()
-    local reportType = net.ReadUInt(3)
-
+function HandlePlayerReport(ply, attacker, message, reportType)
     if not ply:CanUseRDMManager() then
         reportType = DAMAGELOG_REPORT_STANDARD
     end
@@ -330,18 +326,14 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
     local adminOnline = AreAdminsOnline()
 
     if not ply:CanUseRDMManager() then
-        if not Damagelog.NoStaffReports then
-            if not adminOnline then
-                ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
-
-                return
-            end
+        if not Damagelog.NoStaffReports and not adminOnline then
+            ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NoAdmins"), 4, "buttons/weapon_cant_buy.wav")
+            return
         end
 
         if not ply.CanReport then
             if not Damagelog.MoreReportsPerRound then
                 ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "NeedToPlay"), 4, "buttons/weapon_cant_buy.wav")
-
                 return
             end
         else
@@ -350,27 +342,21 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
                 if remaining_reports <= 0 then
                     ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "OnlyReportTwice"), 4, "buttons/weapon_cant_buy.wav")
-
                     return
                 end
             end
         end
 
-        if not Damagelog.MoreReportsPerRound then
-            if ply:RemainingReports() <= 0 then
-                return
-            end
+        if not Damagelog.MoreReportsPerRound and ply:RemainingReports() <= 0 then
+            return
         end
 
-        if not Damagelog.ReportsBeforePlaying then
-            if not ply.CanReport then
-                return
-            end
+        if not Damagelog.ReportsBeforePlaying and not ply.CanReport then
+            return
         end
 
         if not attacker:GetNWBool("PlayedSRound", true) then
             ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "ReportSpectator"), 5, "buttons/weapon_cant_buy.wav")
-
             return
         end
     end
@@ -381,13 +367,11 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
 
     if not IsValid(attacker) then
         ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "InvalidAttacker"), 5, "buttons/weapon_cant_buy.wav")
-
         return
     end
 
     if table_HasValue(ply.Reported, attacker) then
         ply:Damagelog_Notify(DAMAGELOG_NOTIFY_ALERT, TTTLogTranslate(ply.DMGLogLang, "AlreadyReported"), 5, "buttons/weapon_cant_buy.wav")
-
         return
     end
 
@@ -516,7 +500,16 @@ net.Receive("DL_ReportPlayer", function(_len, ply)
     end
 
     UpdatePreviousReports()
+end
+net.Receive("DL_ReportPlayer", function(len, ply)
+    local attacker = net.ReadEntity()
+    local message = net.ReadString()
+    local reportType = net.ReadUInt(3)
+    HandlePlayerReport(ply, attacker, message, reportType)
 end)
+
+
+
 
 net.Receive("DL_UpdateStatus", function(_len, ply)
     local previous = net.ReadUInt(1) == 1
