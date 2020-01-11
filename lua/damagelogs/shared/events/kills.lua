@@ -72,7 +72,7 @@ function event:GetColor(tbl, roles)
     local ent = Damagelog:InfoFromID(roles, tbl[1])
     local att = Damagelog:InfoFromID(roles, tbl[2])
 
-    if Damagelog:IsTeamkill(player.GetBySteamID64(att.steamid64), player.GetBySteamID64(ent.steamid64)) then
+    if Damagelog:IsTeamkill(att.role, ent.role) then
         return Damagelog:GetColor("color_team_kills")
     else
         return Damagelog:GetColor("color_kills")

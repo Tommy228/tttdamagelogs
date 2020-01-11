@@ -76,7 +76,18 @@ function Damagelog:InfoFromID(tbl, id)
     }
 end
 
-function Damagelog:IsTeamkill(attacker, victim)
+function Damagelog:IsTeamkill(role1, role2)
+	if role1 == role2 then 
+		return true
+	elseif role1 == ROLE_DETECTIVE and role2 == ROLE_INNOCENT then 
+		return true
+	elseif role1 == ROLE_INNOCENT and role2 == ROLE_DETECTIVE then 
+		return true
+	end
+	return false
+end
+
+--[[function Damagelog:IsTeamkill(attacker, victim)
     if not IsValid(attacker) or not IsValid(victim) then
         return false
     end
@@ -106,7 +117,7 @@ function Damagelog:IsTeamkill(attacker, victim)
     end
 
     return false
-end
+end]]
 
 local function includeEventFile(f)
     f = "damagelogs/shared/events/" .. f
