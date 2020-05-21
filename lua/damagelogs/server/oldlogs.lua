@@ -279,7 +279,6 @@ net.Receive("DL_AskOldLog", function(_, ply)
 
             query.onSuccess = function(self)
                 local data = self:getData()
-                net.Start("DL_SendOldLog")
 
                 if data[1] and data[1]["UNCOMPRESS(damagelog)"] then
                     local compressed = util.Compress(data[1]["UNCOMPRESS(damagelog)"])
@@ -287,14 +286,11 @@ net.Receive("DL_AskOldLog", function(_, ply)
                 else
                     SendLogs(ply, nil, true)
                 end
-
-                net.Send(ply)
             end
 
             query:start()
         elseif not Damagelog.Use_MySQL then
             local query = sql.QueryValue("SELECT damagelog FROM damagelog_oldlogs_v3 WHERE date = " .. _time)
-            net.Start("DL_SendOldLog")
 
             if query then
                 SendLogs(ply, util.Compress(query), false)
