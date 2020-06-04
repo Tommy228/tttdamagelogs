@@ -21,5 +21,5 @@ function TTTLogTranslate(GetDMGLogLang, phrase, nomissing)
         f = Damagelog.ForcedLanguage
     end
 
-    return DamagelogLang[f][phrase] or LANG.TryTranslation(phrase) or not nomissing and "Missing: " .. tostring(phrase)
+    return DamagelogLang[f][phrase] or DamagelogLang["english"][phrase] or LANG.TryTranslation(phrase) or not nomissing and "Missing: " .. tostring(phrase)
 end
